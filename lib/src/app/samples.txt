@@ -1,0 +1,6 @@
+PurchaseOrder
+ReturnOrder / CreditNote
+StockAdjustment / InventoryMovement
+User / Employee
+PaymentTransaction / Receipt separation
+SupplierInvoice or GoodsReceipt

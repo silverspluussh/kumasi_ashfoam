@@ -1,0 +1,47 @@
+name: ashfoam_sadiq
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  drift: ^2.20.0        # Core drift logic
+  sqlite3_flutter_libs: ^0.5.0 # Bundles sqlite3.dll for Windows
+  path_provider: ^2.1.0 # To find the Documents folder on Windows
+  path: ^1.9.0
+  dio: ^5.9.2           # HTTP client replacement for http
+  forui: ^0.20.4        # UI components
+  printing: ^5.14.3     # Print documents
+  syncfusion_flutter_core: ^33.1.47 # Syncfusion core dependency
+  syncfusion_flutter_charts: ^33.1.47 # Charts
+  syncfusion_flutter_datagrid: ^33.1.47 # Data grid / table
+  syncfusion_flutter_xlsio: ^33.1.47 # Excel generation
+  syncfusion_flutter_datagrid_export: ^33.1.47 # Export DataGrid to Excel/PDF
+  pdf: ^3.12.0          # PDF generation
+  get_it: ^8.1.0        # Service locator
+  flutter_riverpod: ^2.4.0 # State management
+  flutter_slidable: ^3.1.0 # Swipe actions
+  another_flushbar: ^1.0.0 # Notifications
+  badges: ^3.0.2        # Badge counts
+  connectivity_plus: ^4.0.0 # Online/offline detection
+  flutter_secure_storage: ^9.2.2 # Local settings
+  toastification: ^3.0.3
+  awesome_extensions: ^2.1.0
+  intl: ^0.20.2
+  uuid: ^4.5.3
+
+dev_dependencies:
+  drift_dev: ^2.20.0
+  build_runner: ^2.4.0
+  riverpod_generator:
+  custom_lint: 
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+
+
+flutter:
+  uses-material-design: true
