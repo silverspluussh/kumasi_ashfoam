@@ -3,6 +3,36 @@ import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
 /// Extension methods to add toMap() to Drift-generated classes
 /// This allows Drift objects to be serialized to maps for API requests
 
+extension InventoryItemToMap on InventoryItem {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'sku': sku,
+      'category': category,
+      'category_id': categoryId,
+      'sub_category': subCategory,
+      'size': size,
+      'thickness': thickness,
+      'material': material,
+      'density': density,
+      'brand': brand,
+      'brand_id': brandId,
+      'supplier': supplier,
+      'supplier_id': supplierId,
+      'retail_price': retailPrice,
+      'discount_price': discountPrice,
+      'discount_percentage': discountPercentage,
+      'quantity': quantity,
+      'unit': unit,
+      'branch_id': branchId,
+      'is_available': isAvailable,
+      'created_at': createdAt?.toIso8601String(),
+      'updated_at': updatedAt?.toIso8601String(),
+    };
+  }
+}
+
 extension SaleOrderToMap on SaleOrder {
   Map<String, dynamic> toMap() {
     return {

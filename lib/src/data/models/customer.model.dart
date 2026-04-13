@@ -1,24 +1,24 @@
 class CustomerModel {
   final int id;
   final String name;
-  final String email;
-  final String phone;
-  final String segment;
-  final int ordersCount;
-  final double lifetimeValue;
-  final DateTime lastOrderDate;
-  final String status;
+  final String? email;
+  final String? phone;
+  final String? segment;
+  final int? ordersCount;
+  final double? lifetimeValue;
+  final DateTime? lastOrderDate;
+  final String? status;
 
   const CustomerModel({
     required this.id,
     required this.name,
-    required this.email,
-    required this.phone,
-    required this.segment,
-    required this.ordersCount,
-    required this.lifetimeValue,
-    required this.lastOrderDate,
-    required this.status,
+    this.email,
+    this.phone,
+    this.segment,
+    this.ordersCount,
+    this.lifetimeValue,
+    this.lastOrderDate,
+    this.status,
   });
 
   CustomerModel copyWith({
@@ -54,7 +54,7 @@ class CustomerModel {
       'segment': segment,
       'orders_count': ordersCount,
       'lifetime_value': lifetimeValue,
-      'last_order_date': lastOrderDate.toIso8601String(),
+      'last_order_date': lastOrderDate?.toIso8601String(),
       'status': status,
     };
   }
@@ -63,13 +63,15 @@ class CustomerModel {
     return CustomerModel(
       id: map['id'] as int,
       name: map['name'] as String,
-      email: map['email'] as String,
-      phone: map['phone'] as String,
-      segment: map['segment'] as String,
-      ordersCount: (map['orders_count'] as num).toInt(),
-      lifetimeValue: (map['lifetime_value'] as num).toDouble(),
-      lastOrderDate: DateTime.parse(map['last_order_date'] as String),
-      status: map['status'] as String,
+      email: map['email'] as String?,
+      phone: map['phone'] as String?,
+      segment: map['segment'] as String?,
+      ordersCount: (map['orders_count'] as num?)?.toInt(),
+      lifetimeValue: (map['lifetime_value'] as num?)?.toDouble(),
+      lastOrderDate: map['last_order_date'] != null
+          ? DateTime.parse(map['last_order_date'] as String)
+          : null,
+      status: map['status'] as String?,
     );
   }
 }

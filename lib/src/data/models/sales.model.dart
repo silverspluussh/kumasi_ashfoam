@@ -46,7 +46,6 @@ class SaleOrderModel {
     String? branchId,
     String? branchName,
     String? createdBy,
-    List<SaleOrderItem>? items,
     double? totalAmount,
     double? discountAmount,
     double? taxAmount,

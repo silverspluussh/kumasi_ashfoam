@@ -1,3 +1,7 @@
+import 'package:ashfoam_sadiq/src/features/inventory/inventory_page.dart';
+import 'package:ashfoam_sadiq/src/features/pos/pos_page.dart';
+import 'package:ashfoam_sadiq/src/features/sales/sale_orders_page.dart';
+import 'package:ashfoam_sadiq/src/features/summary/summary_page.dart';
 import 'package:ashfoam_sadiq/src/utils/date_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart';
@@ -10,206 +14,210 @@ class StarterApp extends StatefulWidget {
 }
 
 ValueNotifier<bool> isExpanded = ValueNotifier(true);
+ValueNotifier<int> selectedIndex = ValueNotifier(0);
 
 class _StarterAppState extends State<StarterApp> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
+      scaffoldStyle: FScaffoldStyleDelta.delta(
+        backgroundColor: Colors.grey.shade50,
+      ),
       sidebar: ValueListenableBuilder(
         valueListenable: isExpanded,
         builder: (context, value, child) {
           return Container(
-            constraints: BoxConstraints(maxWidth: isExpanded.value ? 200 : 80),
+            constraints: BoxConstraints(maxWidth: isExpanded.value ? 230 : 80),
             child: FSidebar(
-              style: .delta(
-                headerPadding: .value(.fromLTRB(0, 16, 0, 0)),
+              style: FSidebarStyleDelta.delta(
+                headerPadding: EdgeInsetsGeometryDelta.value(
+                  EdgeInsetsGeometry.fromLTRB(0, 16, 0, 0),
+                ),
                 decoration: DecorationDelta.boxDelta(
                   color: Colors.amber.withValues(alpha: .01),
                 ),
               ),
 
               header: FHeader(
-                title: isExpanded.value
-                    ? Text("ASHFOAM")
-                    : SizedBox.shrink(),
+                title: isExpanded.value ? Text("ASHFOAM") : SizedBox.shrink(),
               ),
               children: [
                 FSidebarGroup(
-
                   children: [
                     _sidebarItem(
                       icon: FIcons.house,
                       label: "Summary",
                       action: () {
-                        // Handle navigation to Home
+                        selectedIndex.value = 0;
                       },
                     ),
 
                     _sidebarItem(
                       icon: FIcons.shoppingCart,
                       label: "Point of Sale",
-                      action: () {},
-                    ),
-                    if(isExpanded.value)
-                 _sidebarItem(
-                      icon: FIcons.list,
-                      label: "Sale Orders",
-                      chren: [
-                        FSidebarItem(
-                          icon: Icon(FIcons.list),
-                          label:isExpanded.value? Text("POS Sales"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                        ),
-                        FSidebarItem(
-                          icon: Icon(FIcons.fileCheck),
-                          label:isExpanded.value? Text("Invoices"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                        ),
-                      ],
                       action: () {
-                        // Handle navigation to Home
+                        selectedIndex.value = 1;
                       },
                     ),
-                    if(isExpanded.value ==false)
-                    ...[
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: FSidebarItem(
+                    if (isExpanded.value)
+                      _sidebarItem(
+                        icon: FIcons.list,
+                        label: "Sale Orders",
+                        chren: [
+                          FSidebarItem(
                             icon: Icon(FIcons.list),
-                            label:isExpanded.value? Text("POS Sales"):null,
+                            label: isExpanded.value ? Text("POS Sales") : null,
                             onPress: () {
+                              selectedIndex.value = 2;
                               // Handle navigation to Home
                             },
-                        )),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: FSidebarItem(
+                          ),
+                          FSidebarItem(
                             icon: Icon(FIcons.fileCheck),
-                            label:isExpanded.value? Text("Invoices"):null,
+                            label: isExpanded.value ? Text("Invoices") : null,
                             onPress: () {
+                              selectedIndex.value = 3;
                               // Handle navigation to Home
                             },
-                        )),
+                          ),
+                        ],
+                        action: () {
+                          // Handle navigation to Home
+                        },
+                      ),
+                    if (isExpanded.value == false) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: Icon(FIcons.list),
+                          label: isExpanded.value ? Text("POS Sales") : null,
+                          onPress: () {
+                            selectedIndex.value = 2;
+                            // Handle navigation to Home
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: Icon(FIcons.fileCheck),
+                          label: isExpanded.value ? Text("Invoices") : null,
+                          onPress: () {
+                            // Handle navigation to Home
+                            selectedIndex.value = 3;
+                          },
+                        ),
+                      ),
                     ],
 
-
-if(isExpanded.value)
-                    _sidebarItem(
-                      icon: FIcons.boxes,
-                      label: "Inventory",
-                      action: () {
-                        // Handle navigation to Home
-                      },
-                      chren: [
-                        FSidebarItem(
-                          icon: Icon(FIcons.boxes),
-                          label:isExpanded.value? Text("Products"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                                                ),
-                        FSidebarItem(
-                          icon: Icon(FIcons.warehouse),
-                          label: isExpanded.value?Text("Low Stock"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                                                ),
-                        FSidebarItem(
-                          icon: Icon(Icons.report),
-                          label: isExpanded.value?Text("Report"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                                                ),
-                      ],
-                    ),
-                    if(isExpanded.value ==false)
-                    ...[
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: FSidebarItem(
+                    if (isExpanded.value)
+                      _sidebarItem(
+                        icon: FIcons.boxes,
+                        label: "Inventory",
+                        action: () {
+                          // Handle navigation to Home
+                        },
+                        chren: [
+                          FSidebarItem(
                             icon: Icon(FIcons.boxes),
-                            label:isExpanded.value? Text("Products"):null,
+                            label: isExpanded.value ? Text("Products") : null,
                             onPress: () {
+                              selectedIndex.value = 4;
                               // Handle navigation to Home
                             },
-                        ),),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: FSidebarItem(
+                          ),
+                          FSidebarItem(
                             icon: Icon(FIcons.warehouse),
-                            label: isExpanded.value?Text("Low Stock"):null,
+                            label: isExpanded.value ? Text("Low Stock") : null,
                             onPress: () {
                               // Handle navigation to Home
+                              selectedIndex.value = 5;
                             },
                           ),
+                        ],
+                      ),
+                    if (isExpanded.value == false) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: Icon(FIcons.boxes),
+                          label: isExpanded.value ? Text("Products") : null,
+                          onPress: () {
+                            // Handle navigation to Home
+                            selectedIndex.value = 4;
+                          },
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: FSidebarItem(
-                            icon: Icon(Icons.report),
-                            label: isExpanded.value?Text("Report"):null,
-                            onPress: () {
-                              // Handle navigation to Home
-                            },
-                          ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: Icon(FIcons.warehouse),
+                          label: isExpanded.value ? Text("Low Stock") : null,
+                          onPress: () {
+                            // Handle navigation to Home
+                            selectedIndex.value = 5;
+                          },
                         ),
+                      ),
                     ],
 
-                    if(isExpanded.value)
-                    _sidebarItem(
-                      icon: FIcons.currency,
-                      label: "Payments",
+                    if (isExpanded.value)
+                      _sidebarItem(
+                        icon: FIcons.currency,
+                        label: "Payments",
 
-                      chren: [
-                        FSidebarItem(
-                          icon: Icon(FIcons.currency),
-                          label:isExpanded.value? Text("All Payments"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                        ),
-                        FSidebarItem(
-                          icon: Icon(FIcons.chartBar),
-                          label: isExpanded.value? Text("Reports"):null,
-                          onPress: () {
-                            // Handle navigation to Home
-                          },
-                        ),
-                      ],
-                    ),
-                    if(isExpanded.value == false)
-                    ...[ Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: FSidebarItem(
+                        chren: [
+                          FSidebarItem(
                             icon: Icon(FIcons.currency),
-                            label:isExpanded.value? Text("All Payments"):null,
+                            label: isExpanded.value
+                                ? Text("All Payments")
+                                : null,
                             onPress: () {
                               // Handle navigation to Home
+                              selectedIndex.value = 7;
                             },
                           ),
-                    ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: FSidebarItem(
+                          FSidebarItem(
                             icon: Icon(FIcons.chartBar),
-                            label: isExpanded.value? Text("Reports"):null,
+                            label: isExpanded.value ? Text("Reports") : null,
                             onPress: () {
                               // Handle navigation to Home
+                              selectedIndex.value = 8;
                             },
                           ),
-                        ),],
+                        ],
+                      ),
+                    if (isExpanded.value == false) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: Icon(FIcons.currency),
+                          label: isExpanded.value ? Text("All Payments") : null,
+                          onPress: () {
+                            // Handle navigation to Home
+                            selectedIndex.value = 7;
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: Icon(FIcons.chartBar),
+                          label: isExpanded.value ? Text("Reports") : null,
+                          onPress: () {
+                            selectedIndex.value = 8;
+                            // Handle navigation to Home
+                          },
+                        ),
+                      ),
+                    ],
 
                     _sidebarItem(
                       icon: FIcons.receipt,
                       label: "Proformas",
                       action: () {
                         // Handle navigation to Home
+                        selectedIndex.value = 9;
                       },
                     ),
 
@@ -217,6 +225,7 @@ if(isExpanded.value)
                       icon: FIcons.settings,
                       label: "Settings",
                       action: () {
+                        selectedIndex.value = 10;
                         // Handle navigation to Settings
                       },
                     ),
@@ -229,12 +238,25 @@ if(isExpanded.value)
       ),
       childPad: false,
       header: FHeader(
-
         title: Text('Dashboard', textAlign: TextAlign.center),
 
         suffixes: [Text(DateTime.now().fullDate)],
       ),
-      child: SizedBox(),
+      child: ValueListenableBuilder(
+        valueListenable: selectedIndex,
+        builder: (context, value, child) {
+          if (value == 0) {
+            return const SummaryPage();
+          } else if (value == 1) {
+            return PosView();
+          } else if (value == 2) {
+            return const SaleOrdersPage();
+          } else if (value == 4) {
+            return const InventoryView();
+          }
+          return const SummaryPage();
+        },
+      ),
     );
   }
 
@@ -247,7 +269,7 @@ if(isExpanded.value)
     padding: const EdgeInsets.all(10.0),
     child: FSidebarItem(
       icon: Icon(icon),
-      label:isExpanded.value? Text(label):null,
+      label: isExpanded.value ? Text(label) : null,
       onPress: action,
       children: chren,
     ),
