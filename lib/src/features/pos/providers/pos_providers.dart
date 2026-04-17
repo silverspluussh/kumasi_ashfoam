@@ -1,21 +1,30 @@
+import 'package:ashfoam_sadiq/src/data/local/app_database.dart'
+    hide SaleOrderItem;
+import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart';
+import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
+import 'package:ashfoam_sadiq/src/data/providers/sync_providers.dart'; // Correct import for databaseServiceProvider
+import 'package:drift/drift.dart' hide Column;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
-import 'package:ashfoam_sadiq/src/data/providers.dart';
-import 'package:ashfoam_sadiq/src/features/pos/models/pos_state.dart';
 import 'package:uuid/uuid.dart';
+import 'package:ashfoam_sadiq/src/features/pos/models/pos_state.dart';
 
 /// Provider for inventory products (fetched once)
-final inventoryProductsProvider = FutureProvider<List<InventoryModel>>((ref) async {
-  final repository = ref.watch(productsRepositoryProvider);
-  final items = await repository.getInventoryItems(limit: 1000); // Fetch all
-  return items.map((m) => InventoryModel.fromMap(m)).toList();
+final inventoryProductsProvider = Provider<AsyncValue<List<InventoryModel>>>((
+  ref,
+) {
+  return ref.watch(inventoryListProvider);
 });
 
 /// Provider for the current product selection in POS
-final currentSaleItemProvider = NotifierProvider<CurrentSaleItemNotifier, CurrentSaleItem>(() {
-  return CurrentSaleItemNotifier();
-});
+final currentSaleItemProvider =
+    NotifierProvider<CurrentSaleItemNotifier, CurrentSaleItem>(() {
+      return CurrentSaleItemNotifier();
+    });
+
+/// Provider for the invoice checker state
+final posInvoiceRequestedProvider = StateProvider<bool>((ref) => false);
 
 class CurrentSaleItemNotifier extends Notifier<CurrentSaleItem> {
   @override
@@ -43,7 +52,8 @@ class CurrentSaleItemNotifier extends Notifier<CurrentSaleItem> {
   }
 
   void _calculateSubtotal() {
-    final subtotal = (state.rate * state.quantity) * (1 - state.discountPercentage / 100);
+    final subtotal =
+        (state.rate * state.quantity) * (1 - state.discountPercentage / 100);
     state = state.copyWith(subtotal: subtotal);
   }
 
@@ -74,11 +84,16 @@ class CartNotifier extends Notifier<List<SaleOrderItem>> {
       quantity: currentItem.quantity,
       unitPrice: currentItem.rate,
       totalPrice: currentItem.subtotal,
-      discountAmount: (currentItem.rate * currentItem.quantity) * (currentItem.discountPercentage / 100),
+      discountAmount:
+          (currentItem.rate * currentItem.quantity) *
+          (currentItem.discountPercentage / 100),
+      taxAmount: currentItem.subtotal * 0.15, // Simple VAT calculation for item
     );
 
     // Check if item already exists in cart, then update or add
-    final existingIndex = state.indexWhere((item) => item.productId == newItem.productId);
+    final existingIndex = state.indexWhere(
+      (item) => item.productId == newItem.productId,
+    );
     if (existingIndex != -1) {
       final existingItem = state[existingIndex];
       state = [
@@ -103,21 +118,25 @@ class CartNotifier extends Notifier<List<SaleOrderItem>> {
     state = [];
   }
 
-  double get subtotal => state.fold(0, (sum, item) => sum + item.totalPrice);
-  double get totalDiscount => state.fold(0, (sum, item) => sum + item.discountAmount);
+  double get subtotal => state.fold(0.0, (sum, item) => sum + item.totalPrice);
+  double get totalDiscount =>
+      state.fold(0.0, (sum, item) => sum + item.discountAmount);
   int get totalQuantity => state.fold(0, (sum, item) => sum + item.quantity);
 }
 
 /// Provider for cart summary totals
 final cartSummaryProvider = Provider((ref) {
   final items = ref.watch(cartProvider);
-  final subtotal = items.fold(0.0, (sum, item) => sum + item.totalPrice);
-  final totalDiscount = items.fold(0.0, (sum, item) => sum + item.discountAmount);
+  final subtotal = items.fold(0.0, (sum, item) => sum + (item.totalPrice));
+  final totalDiscount = items.fold(
+    0.0,
+    (sum, item) => sum + (item.discountAmount),
+  );
   final totalQuantity = items.fold(0, (sum, item) => sum + item.quantity);
-  
+
   final vatAmount = subtotal * 0.15;
   final grandTotal = subtotal + vatAmount;
-  
+
   return {
     'subtotal': subtotal,
     'totalDiscount': totalDiscount,
@@ -126,3 +145,138 @@ final cartSummaryProvider = Provider((ref) {
     'grandTotal': grandTotal,
   };
 });
+
+/// Provider for creating a sale order
+final createPOSOrderProvider =
+    NotifierProvider<CreatePOSOrderNotifier, AsyncValue<void>>(() {
+      return CreatePOSOrderNotifier();
+    });
+
+class CreatePOSOrderNotifier extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() {
+    return const AsyncValue.data(null);
+  }
+
+  Future<(SaleOrderModel, List<SaleOrderItem>)?> createOrder({
+    required String customerName,
+    required String customerPhone,
+    required String paymentMethod,
+    required String channel,
+    bool createInvoice = false,
+  }) async {
+    state = const AsyncValue.loading();
+
+    try {
+      final dbService = ref.read(databaseServiceProvider);
+      final cartItems = ref.read(cartProvider);
+      final summary = ref.read(cartSummaryProvider);
+
+      if (cartItems.isEmpty) {
+        state = const AsyncValue.data(null);
+        return null;
+      }
+
+      final orderId = const Uuid().v4();
+      final orderNumber =
+          'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
+      final now = DateTime.now();
+
+      // 1. Create Sale Order Companion
+      final orderCompanion = SaleOrdersCompanion(
+        id: Value(orderId),
+        orderNumber: Value(orderNumber),
+        customerName: Value(customerName),
+        channel: Value(channel),
+        totalAmount: Value(summary['grandTotal'] as double),
+        discountAmount: Value(summary['totalDiscount'] as double),
+        totalQuantity: Value(summary['totalQuantity'] as int),
+        taxAmount: Value(summary['vatAmount'] as double),
+        status: const Value('Paid'),
+        createdBy: const Value('User'),
+        lastSyncedAt: Value(now),
+        createdAt: Value(now),
+      );
+
+      // 2. Create Customer Companion
+      final customerCompanion = CustomersCompanion(
+        id: Value(DateTime.now().millisecondsSinceEpoch),
+        name: Value(customerName),
+        phone: Value(customerPhone),
+        email: const Value(''),
+        segment: const Value('Retail'),
+        ordersCount: const Value(1),
+        lifetimeValue: Value(summary['grandTotal'] as double),
+        lastOrderDate: Value(now),
+        status: const Value('Active'),
+      );
+
+      // 3. Create Sale Order Items Companions
+      final itemCompanions = cartItems.map((item) {
+        return SaleOrderItemsCompanion(
+          id: Value(const Uuid().v4()),
+          productId: Value(item.productId),
+          saleOrderId: Value(orderId),
+          productName: Value(item.productName),
+          quantity: Value(item.quantity),
+          unitPrice: Value(item.unitPrice),
+          totalPrice: Value(item.totalPrice),
+          discountAmount: Value(item.discountAmount),
+          taxAmount: Value(item.taxAmount),
+          isSynced: const Value(0),
+        );
+      }).toList();
+
+      // 4. Persist to Database within critical section
+      await dbService.db.transaction(() async {
+        await dbService.createPOSOrder(orderCompanion, itemCompanions);
+        await dbService.addCustomer(customerCompanion);
+
+        if (createInvoice) {
+          final invoiceCompanion = InvoicesCompanion(
+            id: Value(const Uuid().v4()),
+            saleOrderId: Value(orderId),
+            customerName: Value(customerName),
+            totalAmount: Value(summary['grandTotal'] as double),
+            paidAmount: Value(summary['grandTotal'] as double),
+            status: const Value('paid'),
+            dueDate: Value(now),
+            branchId: const Value('Main'), // Default branch
+            branchName: const Value('Kumasi Ashfoam'),
+          );
+          await dbService.addInvoice(invoiceCompanion);
+        }
+      });
+
+      // Prepare return data before cleanup
+      final createdOrder = SaleOrderModel(
+        id: orderId,
+        orderNumber: orderNumber,
+        totalQuantity: summary['totalQuantity'] as int,
+        customerName: customerName,
+        channel: channel,
+        totalAmount: summary['grandTotal'] as double,
+        discountAmount: summary['totalDiscount'] as double,
+        taxAmount: summary['vatAmount'] as double,
+        status: 'Paid',
+        createdBy: 'User',
+        lastSyncedAt: now,
+        createdAt: now,
+      );
+
+      final createdItems = cartItems;
+
+      // 5. Cleanup and Invalidate
+      ref.invalidate(saleOrdersProvider);
+      ref.invalidate(inventoryListProvider);
+      ref.read(cartProvider.notifier).clear();
+      ref.read(currentSaleItemProvider.notifier).reset();
+
+      state = const AsyncValue.data(null);
+      return (createdOrder, createdItems);
+    } catch (e, st) {
+      state = AsyncValue.error(e, st);
+      return null;
+    }
+  }
+}

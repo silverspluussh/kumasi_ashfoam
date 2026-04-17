@@ -29,3 +29,10 @@ final filteredSaleOrdersProvider = Provider<AsyncValue<List<SaleOrderModel>>>((r
     }).toList();
   });
 });
+
+/// Provider to fetch items for a specific sale order
+final saleOrderItemsProvider = FutureProvider.family<List<SaleOrderItem>, String>((ref, orderId) async {
+  final dbService = ref.watch(databaseServiceProvider);
+  final localItems = await dbService.getSaleOrderItems(orderId);
+  return localItems.map((m) => SaleOrderItem.fromMap(m.toMap())).toList();
+});

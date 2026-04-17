@@ -3,6 +3,7 @@ import 'package:ashfoam_sadiq/src/services/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
+import 'package:toastification/toastification.dart';
 
 void main() {
   // Initialize all services
@@ -24,17 +25,21 @@ class MainApp extends StatelessWidget {
       ),
     );
 
-    return MaterialApp(
-      supportedLocales: FLocalizations.supportedLocales,
-      localizationsDelegates: const [...FLocalizations.localizationsDelegates],
-      builder: (_, child) => FTheme(
-        data: theme,
+    return ToastificationWrapper(
+      child: MaterialApp(
+        supportedLocales: FLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          ...FLocalizations.localizationsDelegates,
+        ],
+        builder: (_, child) => FTheme(
+          data: theme,
 
-        child: FToaster(child: FTooltipGroup(child: child!)),
+          child: FToaster(child: FTooltipGroup(child: child!)),
+        ),
+        theme: theme.toApproximateMaterialTheme(),
+        debugShowCheckedModeBanner: false,
+        home: StarterApp(),
       ),
-      theme: theme.toApproximateMaterialTheme(),
-      debugShowCheckedModeBanner: false,
-      home: StarterApp(),
     );
   }
 }

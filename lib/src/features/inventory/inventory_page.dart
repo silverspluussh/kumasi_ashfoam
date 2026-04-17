@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/widgets/add_product_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -38,7 +39,9 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Exported to ${directory.path}/InventoryReport.xlsx')),
+        SnackBar(
+          content: Text('Exported to ${directory.path}/InventoryReport.xlsx'),
+        ),
       );
     }
   }
@@ -82,7 +85,8 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                       ),
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
                 ),
               ),
@@ -103,15 +107,15 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
             Text(
               "Local Inventory",
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             Text(
               "Live stock levels across all categories",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -127,10 +131,20 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                 ),
                 control: FTextFieldControl.managed(
                   onChange: (v) {
-                    ref.read(inventorySearchQueryProvider.notifier).state = v.text;
+                    ref.read(inventorySearchQueryProvider.notifier).state =
+                        v.text;
                   },
                 ),
               ),
+            ),
+            const SizedBox(width: 15),
+            FButton(
+              onPress: () => showDialog(
+                context: context,
+                builder: (context) => const AddProductDialog(),
+              ),
+              prefix: const Icon(Icons.add),
+              child: const Text("Add Product"),
             ),
             const SizedBox(width: 15),
             FButton(
@@ -184,11 +198,19 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
         ),
       ),
       GridColumn(
-        columnName: 'subCategory',
+        columnName: 'sku',
         label: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
-          child: Text('Sub Category', style: headerStyle),
+          child: Text('SKU', style: headerStyle),
+        ),
+      ),
+      GridColumn(
+        columnName: 'status',
+        label: Container(
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.center,
+          child: Text('Status', style: headerStyle),
         ),
       ),
     ];
@@ -214,13 +236,31 @@ class InventoryDataGridSource extends DataGridSource {
     final curFormat = NumberFormat.currency(symbol: 'GH¢ ');
 
     _dataGridRows = _items.map<DataGridRow>((item) {
-      return DataGridRow(cells: [
-        DataGridCell<String>(columnName: 'name', value: item.name),
-        DataGridCell<int>(columnName: 'stock', value: item.quantity),
-        DataGridCell<String>(columnName: 'price', value: curFormat.format(item.retailPrice)),
-        DataGridCell<String>(columnName: 'category', value: item.category ?? 'Uncategorized'),
-        DataGridCell<String>(columnName: 'subCategory', value: item.subCategory ?? 'NA'),
-      ]);
+      String statusText;
+      if (item.quantity == 0) {
+        statusText = 'Out of Stock';
+      } else if (item.quantity < 10) {
+        statusText = 'Low';
+      } else {
+        statusText = 'High';
+      }
+
+      return DataGridRow(
+        cells: [
+          DataGridCell<String>(columnName: 'name', value: item.name),
+          DataGridCell<int>(columnName: 'stock', value: item.quantity),
+          DataGridCell<String>(
+            columnName: 'price',
+            value: curFormat.format(item.retailPrice ?? 0.0),
+          ),
+          DataGridCell<String>(
+            columnName: 'category',
+            value: item.category ?? 'Uncategorized',
+          ),
+          DataGridCell<String>(columnName: 'sku', value: item.sku),
+          DataGridCell<String>(columnName: 'status', value: statusText),
+        ],
+      );
     }).toList();
   }
 
@@ -231,7 +271,42 @@ class InventoryDataGridSource extends DataGridSource {
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>((dataGridCell) {
-        final bool isNumeric = dataGridCell.columnName == 'stock' || dataGridCell.columnName == 'price';
+        if (dataGridCell.columnName == 'status') {
+          final status = dataGridCell.value.toString();
+          Color color;
+          if (status == 'High') {
+            color = Colors.green;
+          } else if (status == 'Low') {
+            color = Colors.orange;
+          } else {
+            color = Colors.red;
+          }
+
+          return Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+                border: Border.all(color: color),
+              ),
+              child: Text(
+                status,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          );
+        }
+
+        final bool isNumeric =
+            dataGridCell.columnName == 'stock' ||
+            dataGridCell.columnName == 'price';
 
         return Container(
           alignment: isNumeric ? Alignment.centerRight : Alignment.centerLeft,

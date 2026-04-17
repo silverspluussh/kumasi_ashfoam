@@ -455,6 +455,35 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        beforeOpen: (details) async {
+          await customStatement('PRAGMA foreign_keys = ON');
+
+          // Trigger for Sale Orders
+          await customStatement('''
+            CREATE TRIGGER IF NOT EXISTS update_stock_after_sale
+            AFTER INSERT ON sale_order_items
+            BEGIN
+              UPDATE inventory_items
+              SET quantity = quantity - NEW.quantity
+              WHERE id = NEW.product_id;
+            END;
+          ''');
+
+          // Trigger for Return Orders (Reverse the subtraction)
+          await customStatement('''
+            CREATE TRIGGER IF NOT EXISTS update_stock_after_return
+            AFTER INSERT ON return_order_items
+            BEGIN
+              UPDATE inventory_items
+              SET quantity = quantity + NEW.quantity
+              WHERE id = NEW.product_id;
+            END;
+          ''');
+        },
+      );
 }
 
 LazyDatabase _openConnection() {

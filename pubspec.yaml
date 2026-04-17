@@ -27,7 +27,7 @@ dependencies:
   badges: ^3.0.2        # Badge counts
   connectivity_plus: ^4.0.0 # Online/offline detection
   flutter_secure_storage: ^9.2.2 # Local settings
-  toastification: ^3.0.3
+  toastification: ^3.1.0
   awesome_extensions: ^2.1.0
   intl: ^0.20.2
   uuid: ^4.5.3

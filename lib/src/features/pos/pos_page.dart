@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:ashfoam_sadiq/src/features/pos/providers/pos_providers.dart';
 import 'package:ashfoam_sadiq/src/utils/date_extensions.dart';
+import 'package:awesome_extensions/awesome_extensions.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:forui/forui.dart';
+import 'package:ashfoam_sadiq/src/features/pos/widgets/order_success_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:toastification/toastification.dart';
 
 class PosView extends ConsumerStatefulWidget {
   const PosView({super.key});
@@ -11,43 +16,6 @@ class PosView extends ConsumerStatefulWidget {
   @override
   ConsumerState<PosView> createState() => _PosViewState();
 }
-
-final mockProducts = [
-  InventoryModel(
-    id: '4389ddu',
-    name: '11"HD2 L/S Cov',
-    sku: "32HD3.32",
-    category: "Mattress",
-    retailPrice: 1200,
-    quantity: 100,
-    isAvailable: 1,
-    catergoryId: "123",
-    isDeleted: 0,
-  ),
-
-  InventoryModel(
-    id: '4v89ddu',
-    name: '11"HD3 L/S Cov',
-    sku: "32wD3.32",
-    category: "Mattress",
-    retailPrice: 1400,
-    quantity: 100,
-    isAvailable: 1,
-    catergoryId: "123",
-    isDeleted: 0,
-  ),
-  InventoryModel(
-    id: '4e89ddu',
-    name: '11"HD1 L/S Cov',
-    sku: "3ghHD3.32",
-    category: "Mattress",
-    retailPrice: 1500,
-    quantity: 100,
-    isAvailable: 1,
-    catergoryId: "123",
-    isDeleted: 0,
-  ),
-];
 
 class _PosViewState extends ConsumerState<PosView> {
   final _orderDateController = TextEditingController(
@@ -161,7 +129,6 @@ class _PosViewState extends ConsumerState<PosView> {
                               data: (products) =>
                                   FSelect<InventoryModel>.searchBuilder(
                                     hint: 'Select a product',
-
                                     style: FSelectStyleDelta.delta(
                                       contentStyle: FSelectContentStyleDelta.delta(
                                         padding:
@@ -184,20 +151,25 @@ class _PosViewState extends ConsumerState<PosView> {
                                     ),
                                     format: (s) => s.name,
                                     filter: (query) => query.isEmpty
-                                        ? mockProducts
-                                        : products.where(
-                                            (f) =>
-                                                f.name.toLowerCase().startsWith(
-                                                  query.toLowerCase(),
-                                                ),
-                                          ),
-                                    contentBuilder: (context, _, products) => [
-                                      for (final product in products)
-                                        FSelectItem.item(
-                                          title: Text(product.name),
-                                          value: product,
-                                        ),
-                                    ],
+                                        ? products
+                                        : products
+                                              .where(
+                                                (f) => f.name
+                                                    .toLowerCase()
+                                                    .contains(
+                                                      query.toLowerCase(),
+                                                    ),
+                                              )
+                                              .toList(),
+                                    contentBuilder:
+                                        (context, _, filteredProducts) => [
+                                          for (final product
+                                              in filteredProducts)
+                                            FSelectItem.item(
+                                              title: Text(product.name),
+                                              value: product,
+                                            ),
+                                        ],
                                     control: FSelectControl.lifted(
                                       value: currentSelection.product,
                                       onChange: (value) {
@@ -213,60 +185,8 @@ class _PosViewState extends ConsumerState<PosView> {
                                     ),
                                   ),
                               error: (e, s) =>
-                                  FSelect<InventoryModel>.searchBuilder(
-                                    hint: 'Select a product',
-
-                                    style: FSelectStyleDelta.delta(
-                                      contentStyle: FSelectContentStyleDelta.delta(
-                                        padding:
-                                            const EdgeInsetsGeometryDelta.value(
-                                              EdgeInsets.all(10),
-                                            ),
-                                        decoration: DecorationDelta.boxDelta(
-                                          border: Border.all(
-                                            width: 1,
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    label: Text(
-                                      "Product*",
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.labelMedium,
-                                    ),
-                                    format: (s) => s.name,
-                                    filter: (query) => query.isEmpty
-                                        ? mockProducts
-                                        : mockProducts.where(
-                                            (f) =>
-                                                f.name.toLowerCase().startsWith(
-                                                  query.toLowerCase(),
-                                                ),
-                                          ),
-                                    contentBuilder: (context, _, products) => [
-                                      for (final product in products)
-                                        FSelectItem.item(
-                                          title: Text(product.name),
-                                          value: product,
-                                        ),
-                                    ],
-                                    control: FSelectControl.lifted(
-                                      value: currentSelection.product,
-                                      onChange: (value) {
-                                        if (value != null) {
-                                          ref
-                                              .read(
-                                                currentSaleItemProvider
-                                                    .notifier,
-                                              )
-                                              .selectProduct(value);
-                                        }
-                                      },
-                                    ),
-                                  ),
-                              loading: () => const CircularProgressIndicator(),
+                                  Text("Error loading products: $e"),
+                              loading: () => const LinearProgressIndicator(),
                             ),
                           ),
                           Expanded(
@@ -306,7 +226,6 @@ class _PosViewState extends ConsumerState<PosView> {
                                     .read(currentSaleItemProvider.notifier)
                                     .updateDiscount(disc);
                               },
-                              leading: Text("GHS"),
                             ),
                           ),
                           Expanded(
@@ -430,6 +349,19 @@ class _PosViewState extends ConsumerState<PosView> {
                               ),
                             ],
                           ),
+
+                          FCheckbox(
+                            label: const Text("Create Invoice"),
+                            value: ref.watch(posInvoiceRequestedProvider),
+                            onChange: (v) =>
+                                ref
+                                        .read(
+                                          posInvoiceRequestedProvider.notifier,
+                                        )
+                                        .state =
+                                    v,
+                          ),
+
                           Divider(height: 5, color: Colors.grey),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -440,8 +372,74 @@ class _PosViewState extends ConsumerState<PosView> {
                                 variant: FButtonVariant.primary,
                                 onPress: cartItems.isEmpty
                                     ? null
-                                    : () {
-                                        // Order creation logic
+                                    : () async {
+                                        if (_customerNameController
+                                            .text
+                                            .isEmpty) {
+                                          Toastification().show(
+                                            context: context,
+                                            title: const Text(
+                                              'Please enter customer name',
+                                            ),
+                                            type: ToastificationType.error,
+                                            autoCloseDuration: 2.seconds,
+                                          );
+                                          return;
+                                        }
+
+                                        final result = await ref
+                                            .read(
+                                              createPOSOrderProvider.notifier,
+                                            )
+                                            .createOrder(
+                                              customerName:
+                                                  _customerNameController.text,
+                                              customerPhone:
+                                                  _customerPhoneController.text,
+                                              paymentMethod:
+                                                  _paymentMethodController.text,
+                                              channel:
+                                                  'Retail', // Default channel
+                                              createInvoice: ref.read(
+                                                posInvoiceRequestedProvider,
+                                              ),
+                                            );
+
+                                        if (result != null && context.mounted) {
+                                          final (order, items) = result;
+
+                                          showDialog(
+                                            context: context,
+                                            barrierDismissible: false,
+                                            builder: (context) =>
+                                                OrderSuccessDialog(
+                                                  order: order,
+                                                  items: items,
+                                                ),
+                                          );
+
+                                          Toastification().show(
+                                            context: context,
+                                            title: const Text(
+                                              'Order created successfully',
+                                            ),
+                                            type: ToastificationType.success,
+                                            autoCloseDuration: 2.seconds,
+                                          );
+                                          // Clear UI controllers if not already handled by reset
+                                          _customerNameController.clear();
+                                          _customerPhoneController.clear();
+                                          _paymentMethodController.clear();
+                                          _amountReceivedController.text = '0';
+                                          _changeController.text = '0.00';
+                                          ref
+                                                  .read(
+                                                    posInvoiceRequestedProvider
+                                                        .notifier,
+                                                  )
+                                                  .state =
+                                              false;
+                                        }
                                       },
                                 child: Text("Create Order"),
                               ),

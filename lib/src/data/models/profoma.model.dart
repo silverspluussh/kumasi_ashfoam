@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:ashfoam_sadiq/src/data/models/tax.model.dart';
 
 class Profoma {
@@ -29,7 +31,6 @@ class Profoma {
     String? id,
     String? partyName,
     String? partyAddress,
-    List<ProductDetails>? productDetails,
     List<TaxComponent>? tax,
     int? totalQuantity,
     String? declaration,
@@ -46,7 +47,7 @@ class Profoma {
       totalQuantity: totalQuantity ?? this.totalQuantity,
       declaration: declaration ?? this.declaration,
       totalAmount: totalAmount ?? this.totalAmount,
-      isDeleted:  isDeleted ?? this.isDeleted,
+      isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -57,7 +58,7 @@ class Profoma {
       'id': id,
       'party_name': partyName,
       'party_address': partyAddress,
-     
+
       'tax': tax.map((component) => component.toMap()).toList(),
       'total_quantity': totalQuantity,
       'is_deleted': 0,
@@ -68,20 +69,34 @@ class Profoma {
     };
   }
 
+  String toJson() => json.encode(toMap());
+
+  factory Profoma.fromJson(String source) =>
+      Profoma.fromMap(json.decode(source));
+
   factory Profoma.fromMap(Map<String, dynamic> map) {
     return Profoma(
-      id: map['id'] as String,
-      partyName: map['party_name'] as String?,
-      partyAddress: map['party_address'] as String?,
-      tax: (map['tax'] as List<dynamic>)
-          .map((item) => TaxComponent.fromMap(item as Map<String, dynamic>))
-          .toList(),
-      totalQuantity: (map['total_quantity'] as num).toInt(),
-      declaration: map['declaration'] as String?,
-      isDeleted: map['is_deleted'] as int,
-      totalAmount: (map['total_amount'] as num).toDouble(),
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
+      id: (map['id'] ?? map['id'] ?? '') as String,
+      partyName: (map['partyName'] ?? map['party_name']) as String?,
+      partyAddress: (map['partyAddress'] ?? map['party_address']) as String?,
+      tax: (map['tax'] as List<dynamic>?)
+              ?.map((item) => TaxComponent.fromMap(item as Map<String, dynamic>))
+              .toList() ??
+          [],
+      totalQuantity: (map['totalQuantity'] ?? map['total_quantity'] as num?)?.toInt() ?? 0,
+      declaration: (map['declaration'] ?? map['declaration']) as String?,
+      isDeleted: (map['isDeleted'] ?? map['is_deleted'] as int?) ?? 0,
+      totalAmount: (map['totalAmount'] ?? map['total_amount'] as num?)?.toDouble() ?? 0.0,
+      createdAt: (map['createdAt'] ?? map['created_at']) != null
+          ? ((map['createdAt'] ?? map['created_at']) is int 
+              ? DateTime.fromMillisecondsSinceEpoch((map['createdAt'] ?? map['created_at']) as int)
+              : DateTime.parse((map['createdAt'] ?? map['created_at']) as String))
+          : DateTime.now(),
+      updatedAt: (map['updatedAt'] ?? map['updated_at']) != null
+          ? ((map['updatedAt'] ?? map['updated_at']) is int 
+              ? DateTime.fromMillisecondsSinceEpoch((map['updatedAt'] ?? map['updated_at']) as int)
+              : DateTime.parse((map['updatedAt'] ?? map['updated_at']) as String))
+          : DateTime.now(),
     );
   }
 }
@@ -98,7 +113,7 @@ class ProductDetails {
 
   ProductDetails({
     required this.productId,
-     this.proformaId,
+    this.proformaId,
     this.waybillId,
     required this.productName,
     required this.quantity,
@@ -119,7 +134,7 @@ class ProductDetails {
   }) {
     return ProductDetails(
       productId: productId ?? this.productId,
-      proformaId: proformaId ?? this.proformaId,  
+      proformaId: proformaId ?? this.proformaId,
       waybillId: waybillId ?? this.waybillId,
       productName: productName ?? this.productName,
       quantity: quantity ?? this.quantity,
@@ -144,14 +159,15 @@ class ProductDetails {
 
   factory ProductDetails.fromMap(Map<String, dynamic> map) {
     return ProductDetails(
-      productId: map['product_id'] as String,
-      proformaId: map['proforma_id'] as String?,
-      waybillId: map['waybill_id'] as String?,
-      productName: map['product_name'] as String,
-      quantity: (map['quantity'] as num).toInt(),
-      unitprice: (map['unit_price'] as num).toDouble(),
-      discountPercentage: (map['discount_percentage'] as num).toDouble(),
-      totalAmount: (map['total_amount'] as num).toDouble(),
+      productId: map['productId'] as String? ?? 'N/A',
+      proformaId: map['proformaId'] as String?,
+      waybillId: map['waybillId'] as String?,
+      productName: map['productName'] as String? ?? 'Unknown Product',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      unitprice: (map['unitPrice'] as num?)?.toDouble() ?? 0.0,
+      discountPercentage:
+          (map['discountPercentage'] as num?)?.toDouble() ?? 0.0,
+      totalAmount: (map['totalAmount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }

@@ -78,7 +78,6 @@ class WayBill {
       'party_name': partyName,
       'is_deleted': isDeleted,
 
-
       'created_by': createdBy,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt.toIso8601String(),
@@ -87,19 +86,42 @@ class WayBill {
 
   factory WayBill.fromMap(Map<String, dynamic> map) {
     return WayBill(
-      id: map['id'] as String,
-      mainContent: Profoma.fromMap(map['main_content'] as Map<String, dynamic>),
-      orderNumber: map['order_number'] as String,
-      dispatchDocNumber: map['dispatch_doc_number'] as String,
-      deliveryNote: map['delivery_note'] as String,
-      senderName: map['sender_name'] as String,
-      destination: map['destination'] as String,
-      dispatchDate: DateTime.parse(map['dispatch_date'] as String),
-      isDeleted: map['is_deleted'] as int? ?? 0,
-      partyName: map['party_name'] as String,
-      createdBy: map['created_by'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
+      id: map['id'] as String? ?? '',
+      mainContent: map['mainContent'] == null
+          ? Profoma(
+              id: '',
+              tax: [],
+              totalQuantity: 0,
+              isDeleted: 0,
+              totalAmount: 0.0,
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now())
+          : (map['mainContent'] is String
+              ? Profoma.fromJson(map['mainContent'] as String)
+              : Profoma.fromMap(map['mainContent'] as Map<String, dynamic>)),
+      orderNumber: map['orderNumber'] as String? ?? '',
+      dispatchDocNumber: map['dispatchDocNumber'] as String? ?? '',
+      deliveryNote: map['deliveryNote'] as String? ?? '',
+      senderName: map['senderName'] as String? ?? '',
+      destination: map['destination'] as String? ?? '',
+      dispatchDate: map['dispatchDate'] != null
+          ? (map['dispatchDate'] is int 
+              ? DateTime.fromMillisecondsSinceEpoch(map['dispatchDate'] as int)
+              : DateTime.parse(map['dispatchDate'] as String))
+          : DateTime.now(),
+      isDeleted: map['isDeleted'] as int? ?? 0,
+      partyName: map['partyName'] as String? ?? '',
+      createdBy: map['createdBy'] as String? ?? '',
+      createdAt: map['createdAt'] != null
+          ? (map['createdAt'] is int 
+              ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+              : DateTime.parse(map['createdAt'] as String))
+          : DateTime.now(),
+      updatedAt: map['updatedAt'] != null
+          ? (map['updatedAt'] is int 
+              ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+              : DateTime.parse(map['updatedAt'] as String))
+          : DateTime.now(),
     );
   }
 

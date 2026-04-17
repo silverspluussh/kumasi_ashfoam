@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
-import 'package:drift/drift.dart' show Value;
+
+import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
+import 'package:drift/drift.dart' show Value, Variable;
+import 'package:uuid/uuid.dart';
 
 class DatabaseService {
   DatabaseService._internal();
@@ -33,6 +37,13 @@ class DatabaseService {
 
   Future<int> addInvoice(InvoicesCompanion invoice) =>
       _database.into(_database.invoices).insert(invoice);
+
+  Future<bool> updateInvoiceStatus(String id, String status) async {
+    return await (_database.update(_database.invoices)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(InvoicesCompanion(status: Value(status))) >
+        0;
+  }
 
   Future<List<Invoice>> getInvoices() =>
       _database.select(_database.invoices).get();
@@ -166,6 +177,19 @@ class DatabaseService {
   Future<int> addStockReport(StockReportsCompanion report) =>
       _database.into(_database.stockReports).insert(report);
 
+  Future<int> deleteStockReport(String id) async {
+    return (_database.delete(
+      _database.stockReports,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  Future<bool> updateBranch(String id, BranchesCompanion companion) async {
+    return await (_database.update(_database.branches)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(companion) >
+        0;
+  }
+
   Future<List<Employee>> getEmployees() =>
       _database.select(_database.employees).get();
 
@@ -208,17 +232,17 @@ class DatabaseService {
   Future<List<ProductDetailsListData>> getProformaDetails(
     String proformaId,
   ) async {
-    return (_database.select(_database.productDetailsList)
-          ..where((tbl) => tbl.proformaId.equals(proformaId)))
-        .get();
+    return (_database.select(
+      _database.productDetailsList,
+    )..where((tbl) => tbl.proformaId.equals(proformaId))).get();
   }
 
   Future<List<ProductDetailsListData>> getWayBillDetails(
     String wayBillId,
   ) async {
-    return (_database.select(_database.productDetailsList)
-          ..where((tbl) => tbl.waybillId.equals(wayBillId)))
-        .get();
+    return (_database.select(
+      _database.productDetailsList,
+    )..where((tbl) => tbl.waybillId.equals(wayBillId))).get();
   }
 
   Future<int> addProductDetails(ProductDetailsListCompanion details) =>
@@ -235,9 +259,7 @@ class DatabaseService {
     return totalCount;
   }
 
-  Future<bool> updateProductDetails(
-    ProductDetailsListData details,
-  ) =>
+  Future<bool> updateProductDetails(ProductDetailsListData details) =>
       _database.update(_database.productDetailsList).replace(details);
 
   Future<int> deleteProductDetails(String detailsId) => (_database.delete(
@@ -273,81 +295,89 @@ class DatabaseService {
   Future<int> addSubCategory(ProductSubCategoriesCompanion subCategory) =>
       _database.into(_database.productSubCategories).insert(subCategory);
 
- 
   Future<List<SaleOrder>> getUnsyncedSaleOrders() async {
-    return (_database.select(_database.saleOrders)
-          ..where((tbl) => tbl.isSynced.equals(0)))
-        .get();
+    return (_database.select(
+      _database.saleOrders,
+    )..where((tbl) => tbl.isSynced.equals(0))).get();
   }
 
   /// Get all unsynced sale order items (isSynced = 0)
   Future<List<SaleOrderItem>> getUnsyncedSaleOrderItems() async {
-    return (_database.select(_database.saleOrderItems)
-          ..where((tbl) => tbl.isSynced.equals(0)))
-        .get();
+    return (_database.select(
+      _database.saleOrderItems,
+    )..where((tbl) => tbl.isSynced.equals(0))).get();
   }
 
   Future<List<ReturnOrder>> getUnsyncedReturnOrders() async {
-    return (_database.select(_database.returnOrders)
-          ..where((tbl) => tbl.isSynced.equals(0)))
-        .get();
+    return (_database.select(
+      _database.returnOrders,
+    )..where((tbl) => tbl.isSynced.equals(0))).get();
   }
 
   Future<List<ReturnOrderItem>> getUnsyncedReturnOrderItems() async {
-    return (_database.select(_database.returnOrderItems)
-          ..where((tbl) => tbl.isSynced.equals(0)))
-        .get();
+    return (_database.select(
+      _database.returnOrderItems,
+    )..where((tbl) => tbl.isSynced.equals(0))).get();
   }
 
-  
   Future<void> markSaleOrderAsSynced(String orderId) async {
-    final rows = await (_database.select(_database.saleOrders)
-      ..where((tbl) => tbl.id.equals(orderId))).get();
-    
+    final rows = await (_database.select(
+      _database.saleOrders,
+    )..where((tbl) => tbl.id.equals(orderId))).get();
+
     if (rows.isNotEmpty) {
       final order = rows.first;
-      await _database.update(_database.saleOrders).replace(
-        order.copyWith(isSynced: 1,lastSyncedAt: Value(DateTime.now())),
-      );
+      await _database
+          .update(_database.saleOrders)
+          .replace(
+            order.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
+          );
     }
   }
 
   /// Mark a sale order item as synced
   Future<void> markSaleOrderItemAsSynced(String itemId) async {
-    final rows = await (_database.select(_database.saleOrderItems)
-      ..where((tbl) => tbl.id.equals(itemId))).get();
-    
+    final rows = await (_database.select(
+      _database.saleOrderItems,
+    )..where((tbl) => tbl.id.equals(itemId))).get();
+
     if (rows.isNotEmpty) {
       final item = rows.first;
-      await _database.update(_database.saleOrderItems).replace(
-        item.copyWith(isSynced: 1,lastSyncedAt: Value(DateTime.now()) ),
-      );
+      await _database
+          .update(_database.saleOrderItems)
+          .replace(
+            item.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
+          );
     }
   }
 
   /// Mark a return order as synced
   Future<void> markReturnOrderAsSynced(String orderId) async {
-    final rows = await (_database.select(_database.returnOrders)
-      ..where((tbl) => tbl.id.equals(orderId))).get();
-    
+    final rows = await (_database.select(
+      _database.returnOrders,
+    )..where((tbl) => tbl.id.equals(orderId))).get();
+
     if (rows.isNotEmpty) {
       final order = rows.first;
-      await _database.update(_database.returnOrders).replace(
-        order.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
-      );
+      await _database
+          .update(_database.returnOrders)
+          .replace(
+            order.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
+          );
     }
   }
 
   /// Mark a return order item as synced
   Future<void> markReturnOrderItemAsSynced(String itemId) async {
-    final rows = await (_database.select(_database.returnOrderItems)
-      ..where((tbl) => tbl.id.equals(itemId))).get();
-    
+    final rows = await (_database.select(
+      _database.returnOrderItems,
+    )..where((tbl) => tbl.id.equals(itemId))).get();
+
     if (rows.isNotEmpty) {
       final item = rows.first;
-      await _database.update(_database.returnOrderItems).replace(
-        item.copyWith(isSynced: 1),
-      );
+      await _database
+          .update(_database.returnOrderItems)
+          .replace(item.copyWith(isSynced: 1));
     }
   }
 
@@ -377,5 +407,143 @@ class DatabaseService {
     for (final id in itemIds) {
       await markReturnOrderItemAsSynced(id);
     }
+  }
+
+  Future<List<Branche>> getBranches() async =>
+      _database.select(_database.branches).get();
+
+  Future<List<Taxe>> getTaxes() async =>
+      _database.select(_database.taxes).get();
+
+  Future<int> addTax(TaxesCompanion tax) =>
+      _database.into(_database.taxes).insert(tax);
+
+  Future<bool> updateTax(String id, TaxesCompanion tax) =>
+      (_database.update(_database.taxes)..where((t) => t.id.equals(id)))
+          .write(tax)
+          .then((v) => v > 0);
+
+  Future<int> deleteTax(String id) =>
+      (_database.delete(_database.taxes)..where((t) => t.id.equals(id))).go();
+
+  /// Create a POS order with its items in a transaction
+  Future<void> createPOSOrder(
+    SaleOrdersCompanion order,
+    List<SaleOrderItemsCompanion> items,
+  ) async {
+    await _database.transaction(() async {
+      await _database.into(_database.saleOrders).insert(order);
+      for (final item in items) {
+        await _database.into(_database.saleOrderItems).insert(item);
+      }
+    });
+  }
+
+  /// Create a Waybill with its items in a transaction
+  Future<void> createWaybill(
+    WayBillsCompanion waybill,
+    List<ProductDetailsListCompanion> items,
+  ) async {
+    await _database.transaction(() async {
+      await _database.into(_database.wayBills).insert(waybill);
+      for (final item in items) {
+        await _database.into(_database.productDetailsList).insert(item);
+      }
+    });
+  }
+
+  /// Generate a monthly stock report for the local database
+  Future<StockReportSummary> generateMonthlyStockReport({
+    required int month,
+    required int year,
+    required String createdBy,
+  }) async {
+    // 1. Get the first branch's info for metadata
+    final branchRow = await _database.select(_database.branches).getSingleOrNull();
+    final branchId = branchRow?.id ?? 'main-branch';
+    final branchName = branchRow?.branchName ?? 'Main Branch';
+
+    // 2. Fetch Product Stock details
+    // SQLite stores DateTime as unix timestamps by default in Drift.
+    // We use datetime(col, 'unixepoch') to format them for strftime.
+    final productStocks = await _database.customSelect(
+      '''
+      SELECT 
+        i.id, i.name, i.sku, i.quantity, i.retail_price,
+        COALESCE(sales.qty_sold, 0) as quantity_sold,
+        COALESCE(sales.total_amt, 0.0) as total_sales
+      FROM inventory_items i
+      LEFT JOIN (
+        SELECT 
+          soi.product_id, 
+          SUM(soi.quantity) as qty_sold, 
+          SUM(soi.total_price) as total_amt
+        FROM sale_order_items soi
+        JOIN sale_orders so ON soi.sale_order_id = so.id
+        WHERE strftime('%m', datetime(so.created_at, 'unixepoch')) = ? 
+          AND strftime('%Y', datetime(so.created_at, 'unixepoch')) = ?
+        GROUP BY soi.product_id
+      ) sales ON i.id = sales.product_id
+      ''',
+      variables: [
+        Variable<String>(month.toString().padLeft(2, '0')),
+        Variable<String>(year.toString()),
+      ],
+    ).get().then((rows) => rows.map((row) => ProductStock(
+          id: row.read<String>('id'),
+          name: row.read<String>('name'),
+          sku: row.read<String>('sku'),
+          quantity: row.read<int>('quantity'),
+          retailPrice: row.read<double>('retail_price'),
+          quantitySold: row.read<int>('quantity_sold'),
+          totalSales: row.read<double>('total_sales'),
+        )).toList());
+
+    // 3. Fetch Category Stock summaries
+    final categoryStocks = await _database.customSelect(
+      '''
+      SELECT 
+        c.id as category_id,
+        c.name as category_name,
+        SUM(i.quantity) as total_quantity,
+        SUM(i.quantity * i.retail_price) as total_value
+      FROM inventory_items i
+      JOIN product_categories c ON i.category_id = c.id
+      GROUP BY c.id, c.name
+      ''',
+      variables: [],
+    ).get().then((rows) => rows.map((row) => CategoryStock(
+          categoryId: row.read<String>('category_id'),
+          categoryName: row.read<String>('category_name'),
+          totalQuantity: row.read<int>('total_quantity'),
+          totalValue: row.read<double>('total_value'),
+        )).toList());
+
+    // 4. Create the report entry
+    final reportId = const Uuid().v4();
+    final now = DateTime.now();
+
+    final companion = StockReportsCompanion(
+      id: Value(reportId),
+      branchId: Value(branchId),
+      branchName: Value(branchName),
+      currentStock: Value(jsonEncode(productStocks.map((x) => x.toMap()).toList())),
+      categoryStock: Value(jsonEncode(categoryStocks.map((x) => x.toMap()).toList())),
+      createdAt: Value(now),
+      createdBy: Value(createdBy),
+      updatedAt: Value(now),
+    );
+
+    await _database.into(_database.stockReports).insert(companion);
+
+    return StockReportSummary(
+      id: reportId,
+      branchId: branchId,
+      branchName: branchName,
+      createdAt: now,
+      createdBy: createdBy,
+      currentStock: productStocks,
+      categoryStock: categoryStocks,
+    );
   }
 }

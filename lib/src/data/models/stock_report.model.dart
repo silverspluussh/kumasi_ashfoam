@@ -1,44 +1,37 @@
+import 'dart:convert';
 
-class StockReport {
+class StockReportSummary {
   final String id;
   final String branchId;
   final String branchName;
-  final List<ProductStock> currentStock;
-  final List<CategoryStock> categoryStock;
   final DateTime createdAt;
   final String createdBy;
-  final DateTime updatedAt;
+  final List<ProductStock> currentStock;
+  final List<CategoryStock> categoryStock;
 
-  StockReport({
+  StockReportSummary({
     required this.id,
     required this.branchId,
     required this.branchName,
-    required this.currentStock,
-    required this.categoryStock,
     required this.createdAt,
     required this.createdBy,
-    required this.updatedAt,
+    required this.currentStock,
+    required this.categoryStock,
   });
 
-  StockReport copyWith({
-    String? id,
-    String? branchId,
-    String? branchName,
-    List<ProductStock>? currentStock,
-    List<CategoryStock>? categoryStock,
-    DateTime? createdAt,
-    String? createdBy,
-    DateTime? updatedAt,
-  }) {
-    return StockReport(
-      id: id ?? this.id,
-      branchId: branchId ?? this.branchId,
-      branchName: branchName ?? this.branchName,
-      currentStock: currentStock ?? this.currentStock,
-      categoryStock: categoryStock ?? this.categoryStock,
-      createdAt: createdAt ?? this.createdAt,
-      createdBy: createdBy ?? this.createdBy,
-      updatedAt: updatedAt ?? this.updatedAt,
+  factory StockReportSummary.fromMap(Map<String, dynamic> map) {
+    return StockReportSummary(
+      id: map['id'] as String,
+      branchId: map['branch_id'] as String,
+      branchName: map['branch_name'] as String,
+      createdAt: DateTime.parse(map['created_at'] as String),
+      createdBy: map['created_by'] as String,
+      currentStock: (jsonDecode(map['current_stock'] as String) as List)
+          .map((x) => ProductStock.fromMap(x as Map<String, dynamic>))
+          .toList(),
+      categoryStock: (jsonDecode(map['category_stock'] as String) as List)
+          .map((x) => CategoryStock.fromMap(x as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -47,110 +40,77 @@ class StockReport {
       'id': id,
       'branch_id': branchId,
       'branch_name': branchName,
-      'current_stock': currentStock.map((stock) => stock.toMap()).toList(),
-      'category_stock': categoryStock.map((stock) => stock.toMap()).toList(),
       'created_at': createdAt.toIso8601String(),
       'created_by': createdBy,
-      'updated_at': updatedAt.toIso8601String(),
+      'current_stock': jsonEncode(currentStock.map((x) => x.toMap()).toList()),
+      'category_stock': jsonEncode(categoryStock.map((x) => x.toMap()).toList()),
     };
-  }
-
-  factory StockReport.fromMap(Map<String, dynamic> map) {
-    return StockReport(
-      id: map['id'] as String,
-      branchId: map['branch_id'] as String,
-      branchName: map['branch_name'] as String,
-      currentStock: (map['current_stock'] as List<dynamic>)
-          .map((item) => ProductStock.fromMap(item as Map<String, dynamic>))
-          .toList(),
-      categoryStock: (map['category_stock'] as List<dynamic>)
-          .map((item) => CategoryStock.fromMap(item as Map<String, dynamic>))
-          .toList(),
-      createdAt: DateTime.parse(map['created_at'] as String),
-      createdBy: map['created_by'] as String,
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
   }
 }
 
 class ProductStock {
-  final String productId;
-  final String productName;
-  final int openingStock;
-  final int closingStock;
+  final String id;
+  final String name;
+  final String sku;
+  final int quantity;
+  final double retailPrice;
   final int quantitySold;
-  final int quantityReturned;
+  final double totalSales;
 
   ProductStock({
-    required this.productId,
-    required this.productName,
-    required this.openingStock,
-    required this.closingStock,
+    required this.id,
+    required this.name,
+    required this.sku,
+    required this.quantity,
+    required this.retailPrice,
     required this.quantitySold,
-    required this.quantityReturned,
+    required this.totalSales,
   });
 
-  ProductStock copyWith({
-    String? productId,
-    String? productName,
-    int? openingStock,
-    int? closingStock,
-    int? quantitySold,
-    int? quantityReturned,
-  }) {
+  factory ProductStock.fromMap(Map<String, dynamic> map) {
     return ProductStock(
-      productId: productId ?? this.productId,
-      productName: productName ?? this.productName,
-      openingStock: openingStock ?? this.openingStock,
-      closingStock: closingStock ?? this.closingStock,
-      quantitySold: quantitySold ?? this.quantitySold,
-      quantityReturned: quantityReturned ?? this.quantityReturned,
+      id: map['id'] as String,
+      name: map['name'] as String,
+      sku: map['sku'] as String,
+      quantity: (map['quantity'] as num).toInt(),
+      retailPrice: (map['retail_price'] as num).toDouble(),
+      quantitySold: (map['quantity_sold'] as num).toInt(),
+      totalSales: (map['total_sales'] as num).toDouble(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'product_id': productId,
-      'product_name': productName,
-      'opening_stock': openingStock,
-      'closing_stock': closingStock,
+      'id': id,
+      'name': name,
+      'sku': sku,
+      'quantity': quantity,
+      'retail_price': retailPrice,
       'quantity_sold': quantitySold,
-      'quantity_returned': quantityReturned,
+      'total_sales': totalSales,
     };
-  }
-
-  factory ProductStock.fromMap(Map<String, dynamic> map) {
-    return ProductStock(
-      productId: map['product_id'] as String,
-      productName: map['product_name'] as String,
-      openingStock: (map['opening_stock'] as num).toInt(),
-      closingStock: (map['closing_stock'] as num).toInt(),
-      quantitySold: (map['quantity_sold'] as num).toInt(),
-      quantityReturned: (map['quantity_returned'] as num).toInt(),
-    );
   }
 }
 
 class CategoryStock {
   final String categoryId;
   final String categoryName;
-  final int quantity;
+  final int totalQuantity;
+  final double totalValue;
 
   CategoryStock({
     required this.categoryId,
     required this.categoryName,
-    required this.quantity,
+    required this.totalQuantity,
+    required this.totalValue,
   });
 
-  CategoryStock copyWith({
-    String? categoryId,
-    String? categoryName,
-    int? quantity,
-  }) {
+  factory CategoryStock.fromMap(Map<String, dynamic> map) {
     return CategoryStock(
-      categoryId: categoryId ?? this.categoryId,
-      categoryName: categoryName ?? this.categoryName,
-      quantity: quantity ?? this.quantity,
+      categoryId: map['category_id'] as String,
+      categoryName: map['category_name'] as String,
+      totalQuantity: (map['total_quantity'] as num).toInt(),
+      totalValue: (map['total_value'] as num).toDouble(),
     );
   }
 
@@ -158,15 +118,8 @@ class CategoryStock {
     return {
       'category_id': categoryId,
       'category_name': categoryName,
-      'quantity': quantity,
+      'total_quantity': totalQuantity,
+      'total_value': totalValue,
     };
-  }
-
-  factory CategoryStock.fromMap(Map<String, dynamic> map) {
-    return CategoryStock(
-      categoryId: map['category_id'] as String,
-      categoryName: map['category_name'] as String,
-      quantity: (map['quantity'] as num).toInt(),
-    );
   }
 }

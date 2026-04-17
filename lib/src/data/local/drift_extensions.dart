@@ -132,3 +132,71 @@ extension ProformaToMap on Proforma {
     };
   }
 }
+
+extension StockReportToMap on StockReport {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'branch_id': branchId,
+      'branch_name': branchName,
+      'current_stock': currentStock,
+      'category_stock': categoryStock,
+      'created_at': createdAt.toIso8601String(),
+      'created_by': createdBy,
+      'updated_at': updatedAt.toIso8601String(),
+    };
+  }
+}
+
+extension BranchPaymentToMap on BranchPayment {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'branch_id': branchId,
+      'branch_name': branchName,
+      'amount': amount,
+      'note': note,
+      'title': title,
+      'created_at': createdAt.toIso8601String(),
+      'created_by': createdBy,
+    };
+  }
+}
+
+extension TaxeToMap on Taxe {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'value_percentage': valuePercentage,
+    };
+  }
+}
+
+extension BrancheToMap on Branche {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'branchName': branchName,
+      'location': branchAddress,
+      'phone': contact,
+      'isActive': isActive,
+    };
+  }
+}
+
+extension ProductDetailsListDataToMap on ProductDetailsListData {
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'product_id': productId,
+      'product_name': productName,
+      'proforma_id': proformaId,
+      'waybill_id': waybillId,
+      'unit_price': unitPrice,
+      'quantity': quantity,
+      'discount_percentage': discountPercentage,
+      'total_amount': totalAmount,
+    };
+  }
+}

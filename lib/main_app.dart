@@ -1,6 +1,12 @@
 import 'package:ashfoam_sadiq/src/features/inventory/inventory_page.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/proforma_page.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/waybill_page.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/stockreports.dart';
+import 'package:ashfoam_sadiq/src/features/payments/payments_page.dart';
+import 'package:ashfoam_sadiq/src/features/invoices/invoices_page.dart';
 import 'package:ashfoam_sadiq/src/features/pos/pos_page.dart';
 import 'package:ashfoam_sadiq/src/features/sales/sale_orders_page.dart';
+import 'package:ashfoam_sadiq/src/features/settings/settings_page.dart';
 import 'package:ashfoam_sadiq/src/features/summary/summary_page.dart';
 import 'package:ashfoam_sadiq/src/utils/date_extensions.dart';
 import 'package:flutter/material.dart';
@@ -128,7 +134,9 @@ class _StarterAppState extends State<StarterApp> {
                           ),
                           FSidebarItem(
                             icon: Icon(FIcons.warehouse),
-                            label: isExpanded.value ? Text("Low Stock") : null,
+                            label: isExpanded.value
+                                ? Text("Stock Reports")
+                                : null,
                             onPress: () {
                               // Handle navigation to Home
                               selectedIndex.value = 5;
@@ -152,7 +160,9 @@ class _StarterAppState extends State<StarterApp> {
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
                           icon: Icon(FIcons.warehouse),
-                          label: isExpanded.value ? Text("Low Stock") : null,
+                          label: isExpanded.value
+                              ? Text("Stock Reports")
+                              : null,
                           onPress: () {
                             // Handle navigation to Home
                             selectedIndex.value = 5;
@@ -177,14 +187,6 @@ class _StarterAppState extends State<StarterApp> {
                               selectedIndex.value = 7;
                             },
                           ),
-                          FSidebarItem(
-                            icon: Icon(FIcons.chartBar),
-                            label: isExpanded.value ? Text("Reports") : null,
-                            onPress: () {
-                              // Handle navigation to Home
-                              selectedIndex.value = 8;
-                            },
-                          ),
                         ],
                       ),
                     if (isExpanded.value == false) ...[
@@ -199,25 +201,21 @@ class _StarterAppState extends State<StarterApp> {
                           },
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: FSidebarItem(
-                          icon: Icon(FIcons.chartBar),
-                          label: isExpanded.value ? Text("Reports") : null,
-                          onPress: () {
-                            selectedIndex.value = 8;
-                            // Handle navigation to Home
-                          },
-                        ),
-                      ),
                     ],
 
                     _sidebarItem(
                       icon: FIcons.receipt,
-                      label: "Proformas",
+                      label: "Profomas",
                       action: () {
-                        // Handle navigation to Home
                         selectedIndex.value = 9;
+                      },
+                    ),
+                    _sidebarItem(
+                      icon: FIcons
+                          .truck, // Assuming truck icon exists in the FIcons set
+                      label: "Waybills",
+                      action: () {
+                        selectedIndex.value = 11;
                       },
                     ),
 
@@ -237,11 +235,7 @@ class _StarterAppState extends State<StarterApp> {
         },
       ),
       childPad: false,
-      header: FHeader(
-        title: Text('Dashboard', textAlign: TextAlign.center),
 
-        suffixes: [Text(DateTime.now().fullDate)],
-      ),
       child: ValueListenableBuilder(
         valueListenable: selectedIndex,
         builder: (context, value, child) {
@@ -251,8 +245,22 @@ class _StarterAppState extends State<StarterApp> {
             return PosView();
           } else if (value == 2) {
             return const SaleOrdersPage();
+          } else if (value == 3) {
+            return const InvoicesView();
           } else if (value == 4) {
             return const InventoryView();
+          } else if (value == 5) {
+            return const StockReportsView();
+          } else if (value == 6) {
+            return const ProformaPage();
+          } else if (value == 7) {
+            return const PaymentsPage();
+          } else if (value == 9) {
+            return const ProformaPage();
+          } else if (value == 10) {
+            return const SettingsPage();
+          } else if (value == 11) {
+            return const WaybillPage();
           }
           return const SummaryPage();
         },

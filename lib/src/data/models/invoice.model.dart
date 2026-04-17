@@ -112,4 +112,5 @@ enum InvoiceStatus {
   partial,
   paid,
   overdue,
+  cancelled,
 }

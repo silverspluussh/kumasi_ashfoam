@@ -1,3 +1,4 @@
+import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
 import 'package:ashfoam_sadiq/src/data/local/drift_extensions.dart';
 import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/data/providers/sync_providers.dart';
@@ -27,4 +28,17 @@ final filteredInventoryProvider = Provider<AsyncValue<List<InventoryModel>>>((re
       return name.contains(query) || sku.contains(query) || category.contains(query);
     }).toList();
   });
+});
+
+final addInventoryItemProvider = Provider((ref) {
+  final dbService = ref.watch(databaseServiceProvider);
+  return (InventoryItemsCompanion item) async {
+    await dbService.addInventoryItem(item);
+    ref.invalidate(inventoryListProvider);
+  };
+});
+
+final allTaxesProvider = FutureProvider<List<Taxe>>((ref) async {
+  final dbService = ref.watch(databaseServiceProvider);
+  return dbService.getTaxes();
 });
