@@ -11,7 +11,6 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-/macos/
 
 # IntelliJ related
 *.iml
@@ -32,6 +31,10 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/macos/
+/macos
+
+
 /coverage/
 
 # Symbolication related
