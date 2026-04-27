@@ -4,7 +4,7 @@ import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/tax.model.dart';
 
-class Receipt {
+class ReceiptModel {
   final String id;
   final DateTime createdAt;
   final String createdBy;
@@ -18,7 +18,7 @@ class Receipt {
   final double totalAmount;
   final List<TaxComponent> tax;
 
-  Receipt({
+  ReceiptModel({
     required this.id,
     required this.createdAt,
     required this.createdBy,
@@ -30,12 +30,10 @@ class Receipt {
     required this.tax,
     this.customerName,
     this.customerAddress,
-   required  this.billNumber,
-
-
+    required this.billNumber,
   });
 
-  Receipt copyWith({
+  ReceiptModel copyWith({
     String? id,
     DateTime? createdAt,
     String? createdBy,
@@ -46,7 +44,7 @@ class Receipt {
     double? totalAmount,
     List<TaxComponent>? tax,
   }) {
-    return Receipt(
+    return ReceiptModel(
       id: id ?? this.id,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
@@ -58,7 +56,7 @@ class Receipt {
       tax: tax ?? this.tax,
       customerAddress: customerAddress,
       customerName: customerName,
-      billNumber: billNumber
+      billNumber: billNumber,
     );
   }
 
@@ -86,37 +84,51 @@ class Receipt {
     };
   }
 
-  factory Receipt.fromMap(Map<String, dynamic> map) {
-    final itemsData = map['items'];
-    final taxData = map['tax'];
+  factory ReceiptModel.fromMap(Map<String, dynamic> map) {
+    List<dynamic> itemsList = [];
+    try {
+      final itemsData = map['items'];
+      if (itemsData != null) {
+        itemsList = itemsData is String
+            ? json.decode(itemsData) as List<dynamic>
+            : (itemsData as List<dynamic>);
+      }
+    } catch (_) {}
 
-    final itemsList = itemsData is String
-        ? json.decode(itemsData) as List<dynamic>
-        : (itemsData as List<dynamic>);
+    List<dynamic> taxList = [];
+    try {
+      final taxData = map['tax'];
+      if (taxData != null) {
+        taxList = taxData is String
+            ? json.decode(taxData) as List<dynamic>
+            : (taxData as List<dynamic>);
+      }
+    } catch (_) {}
 
-    final taxList = taxData is String
-        ? json.decode(taxData) as List<dynamic>
-        : (taxData as List<dynamic>);
-
-    return Receipt(
-      id: map['id'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      createdBy: map['created_by'] as String,
-      createdByName: map['created_by_name'] as String,
-      branchId: map['branch_id'] as String,
-      branchName: map['branch_name'] as String,
+    return ReceiptModel(
+      id: map['id']?.toString() ?? '',
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      createdBy: map['created_by']?.toString() ?? '',
+      createdByName: map['created_by_name']?.toString() ?? '',
+      branchId: map['branch_id']?.toString() ?? '',
+      branchName: map['branch_name']?.toString() ?? '',
       items: itemsList
-          .map((item) => SaleOrderItem.fromMap(item as Map<String, dynamic>))
+          .whereType<Map<String, dynamic>>()
+          .map((item) => SaleOrderItem.fromMap(item))
           .toList(),
-      totalAmount: (map['total_amount'] as num).toDouble(),
-      customerName: map['customer_name'] != null ? map['customer_name'] as String : null,
-      customerAddress: map['customer_address'] != null ? map['customer_address'] as String : null,
-      billNumber: map['bill_number'] as String,
-      tax: taxList.map((entry) {
-        final taxMap = entry['tax'] as Map<String, dynamic>;
+      totalAmount: (map['total_amount'] as num?)?.toDouble() ?? 0.0,
+      customerName: map['customer_name']?.toString(),
+      customerAddress: map['customer_address']?.toString(),
+      billNumber: map['bill_number']?.toString() ?? '',
+      tax: taxList.whereType<Map<String, dynamic>>().map((entryMap) {
+        final taxMap = entryMap['tax'];
         return TaxComponent(
-          tax: Tax.fromMap(taxMap),
-          taxAmount: (entry['tax_amount'] as num).toDouble(),
+          tax: taxMap is Map<String, dynamic>
+              ? TaxModel.fromMap(taxMap)
+              : TaxModel(id: '', name: '', valuePercentage: 0),
+          taxAmount: (entryMap['tax_amount'] as num?)?.toDouble() ?? 0.0,
         );
       }).toList(),
     );
@@ -124,6 +136,6 @@ class Receipt {
 
   String toJson() => json.encode(toMap());
 
-  factory Receipt.fromJson(String source) =>
-      Receipt.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ReceiptModel.fromJson(String source) =>
+      ReceiptModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

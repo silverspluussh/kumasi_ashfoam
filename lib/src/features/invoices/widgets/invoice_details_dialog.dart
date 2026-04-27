@@ -1,13 +1,14 @@
 import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart';
-import 'package:ashfoam_sadiq/src/data/providers/sync_providers.dart';
 import 'package:ashfoam_sadiq/src/features/invoices/providers/invoice_providers.dart';
+import 'package:ashfoam_sadiq/src/features/invoices/services/invoice_print_service.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
 
 class InvoiceDetailsDialog extends ConsumerWidget {
-  final Invoice invoice;
+  final InvoiceModel invoice;
 
   const InvoiceDetailsDialog({super.key, required this.invoice});
 
@@ -29,6 +30,22 @@ class InvoiceDetailsDialog extends ConsumerWidget {
       ),
       actions: [
         FButton(
+          onPress: () async {
+            final items = await ref.read(invoiceItemsProvider(invoice.saleOrderId).future);
+            final company = await ref.read(companySettingsProvider.future);
+            if (context.mounted) {
+              await InvoicePrintService.showPreview(
+                context: context,
+                invoice: invoice,
+                items: items,
+                company: company,
+              );
+            }
+          },
+          prefix: const Icon(Icons.print),
+          child: const Text("Print Invoice"),
+        ),
+        FButton(
           variant: FButtonVariant.outline,
           onPress: () => Navigator.pop(context),
           child: const Text("Close"),
@@ -46,12 +63,10 @@ class InvoiceDetailsDialog extends ConsumerWidget {
           const SizedBox(height: 12),
           Expanded(
             child: itemsAsync.when(
-                  data: (items) => _buildItemsList(items, currencyFormat),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, s) =>
-                      Center(child: Text("Error loading items: $e")),
-                ),
+              data: (items) => _buildItemsList(items, currencyFormat),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, s) => Center(child: Text("Error loading items: $e")),
+            ),
           ),
           const Divider(height: 32),
           _buildSummarySection(currencyFormat),

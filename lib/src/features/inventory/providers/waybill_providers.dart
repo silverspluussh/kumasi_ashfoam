@@ -1,48 +1,24 @@
 import 'dart:convert';
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart'
     as db
-    hide WayBill;
+    hide WayBillModel;
 import 'package:ashfoam_sadiq/src/data/models/waybill.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart' as model;
 import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
-final waybillListProvider = FutureProvider<List<WayBill>>((ref) async {
+final waybillListProvider = FutureProvider<List<WayBillModel>>((ref) async {
   final dbService = ref.watch(databaseServiceProvider);
-  final items = await dbService.getWayBills();
-  return items.map((i) {
-    return WayBill(
-      id: i.id,
-      mainContent: i.mainContent != null 
-          ? model.Profoma.fromJson(i.mainContent) 
-          : model.Profoma(
-              id: '', 
-              tax: [], 
-              totalQuantity: 0, 
-              totalAmount: 0.0, 
-              isDeleted: 0, 
-              createdAt: DateTime.now(), 
-              updatedAt: DateTime.now(),
-            ),
-      orderNumber: i.orderNumber,
-      dispatchDocNumber: i.dispatchDocNumber,
-      deliveryNote: i.deliveryNote,
-      senderName: i.senderName,
-      destination: i.destination,
-      dispatchDate: i.dispatchDate,
-      isDeleted: i.isDeleted,
-      partyName: i.partyName,
-      createdBy: i.createdBy,
-      createdAt: i.createdAt,
-      updatedAt: i.updatedAt,
-    );
-  }).toList();
+  return dbService.getWayBills();
 });
 
 final waybillSearchQueryProvider = StateProvider<String>((ref) => '');
 
-final filteredWaybillsProvider = Provider<AsyncValue<List<WayBill>>>((ref) {
+final filteredWaybillsProvider = Provider<AsyncValue<List<WayBillModel>>>((
+  ref,
+) {
   final query = ref.watch(waybillSearchQueryProvider).toLowerCase();
   final waybillsAsync = ref.watch(waybillListProvider);
 
@@ -59,7 +35,7 @@ final filteredWaybillsProvider = Provider<AsyncValue<List<WayBill>>>((ref) {
 final addWaybillProvider = Provider((ref) {
   final dbService = ref.read(databaseServiceProvider);
 
-  return (WayBill waybill, List<model.ProductDetails> items) async {
+  return (WayBillModel waybill, List<model.ProductDetails> items) async {
     // 1. Save Waybill
     final waybillCompanion = db.WayBillsCompanion(
       id: Value(waybill.id),
@@ -103,17 +79,5 @@ final waybillItemsProvider =
       waybillId,
     ) async {
       final dbService = ref.watch(databaseServiceProvider);
-      final items = await dbService.getWayBillDetails(waybillId);
-      return items
-          .map((m) => model.ProductDetails(
-                productId: m.productId,
-                productName: m.productName,
-                quantity: m.quantity,
-                unitprice: m.unitPrice,
-                discountPercentage: m.discountPercentage,
-                totalAmount: m.totalAmount,
-                proformaId: m.proformaId,
-                waybillId: m.waybillId,
-              ))
-          .toList();
+      return dbService.getWayBillDetails(waybillId);
     });

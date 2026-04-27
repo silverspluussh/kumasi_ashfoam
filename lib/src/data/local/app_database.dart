@@ -8,26 +8,6 @@ import 'package:uuid/uuid.dart';
 
 part 'app_database.g.dart';
 
-// Core/Admin Tables
-class Branches extends Table {
-  TextColumn get id => text().clientDefault(() => const Uuid().v4())();
-  TextColumn get storeId => text()();
-  TextColumn get storeName => text()();
-  TextColumn get branchName => text()();
-  TextColumn get branchAddress => text().nullable()();
-  TextColumn get contact => text().nullable()();
-  IntColumn get isActive => integer().withDefault(const Constant(1))();
-  IntColumn get isDeleted => integer().withDefault(const Constant(0))();
-  TextColumn get companyDetails => text()();
-  TextColumn get branchManagerName => text().nullable()();
-  TextColumn get branchManagerId => text().nullable()();
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
-
-  @override
-  Set<Column> get primaryKey => {id};
-}
-
 class Stores extends Table {
   TextColumn get id => text().clientDefault(() => const Uuid().v4())();
   TextColumn get name => text()();
@@ -162,6 +142,8 @@ class InventoryItems extends Table {
   IntColumn get isAvailable => integer().withDefault(const Constant(1))();
   DateTimeColumn get createdAt => dateTime().nullable()();
   DateTimeColumn get updatedAt => dateTime().nullable()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -216,6 +198,8 @@ class Receipts extends Table {
   TextColumn get branchId => text()();
   TextColumn get branchName => text()();
   RealColumn get totalAmount => real()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -233,6 +217,8 @@ class Proformas extends Table {
   IntColumn get isDeleted => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -253,6 +239,8 @@ class WayBills extends Table {
   DateTimeColumn get dispatchDate => dateTime()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -269,6 +257,8 @@ class ProductDetailsList extends Table {
   RealColumn get unitPrice => real()();
   RealColumn get discountPercentage => real()();
   RealColumn get totalAmount => real()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -286,6 +276,8 @@ class Invoices extends Table {
   TextColumn get saleOrderId => text()();
   TextColumn get branchName => text().nullable()();
   TextColumn get branchId => text().nullable()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -387,6 +379,8 @@ class StockReports extends Table {
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get createdBy => text()();
   DateTimeColumn get updatedAt => dateTime()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -403,6 +397,8 @@ class Expenses extends Table {
   TextColumn get branchId => text()();
   TextColumn get branchName => text()();
   DateTimeColumn get expenseDate => dateTime()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -417,6 +413,40 @@ class BranchPayments extends Table {
   TextColumn get title => text()();
   DateTimeColumn get createdAt => dateTime()();
   TextColumn get createdBy => text()();
+  IntColumn get isSynced => integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastSyncedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class CompanySettings extends Table {
+  TextColumn get id => text().clientDefault(() => const Uuid().v4())();
+  TextColumn get name => text()();
+  TextColumn get postalAddress => text().nullable()();
+  TextColumn get commercialAddress => text().nullable()();
+  TextColumn get phonePrimary => text().nullable()();
+  TextColumn get phoneSecondary => text().nullable()();
+  TextColumn get faxId => text().nullable()();
+  TextColumn get email => text().nullable()();
+  TextColumn get website => text().nullable()();
+  TextColumn get logoPath => text().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+class StockAdjustments extends Table {
+  TextColumn get id => text().clientDefault(() => const Uuid().v4())();
+  TextColumn get productId => text()();
+  TextColumn get productName => text()();
+  IntColumn get quantityChange => integer()();
+  TextColumn get type => text()(); // 'Manual', 'Waybill'
+  TextColumn get reason => text().nullable()();
+  TextColumn get referenceId => text().nullable()(); // Waybill ID if applicable
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  TextColumn get createdBy => text()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -424,7 +454,6 @@ class BranchPayments extends Table {
 
 @DriftDatabase(
   tables: [
-    Branches,
     Stores,
     Employees,
     Customers,
@@ -448,21 +477,31 @@ class BranchPayments extends Table {
     StockReports,
     Expenses,
     BranchPayments,
+    CompanySettings,
+    StockAdjustments,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        beforeOpen: (details) async {
-          await customStatement('PRAGMA foreign_keys = ON');
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(companySettings);
+      }
+      if (from < 4) {
+        await m.createTable(stockAdjustments);
+      }
+    },
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
 
-          // Trigger for Sale Orders
-          await customStatement('''
+      // Trigger for Sale Orders
+      await customStatement('''
             CREATE TRIGGER IF NOT EXISTS update_stock_after_sale
             AFTER INSERT ON sale_order_items
             BEGIN
@@ -472,8 +511,8 @@ class AppDatabase extends _$AppDatabase {
             END;
           ''');
 
-          // Trigger for Return Orders (Reverse the subtraction)
-          await customStatement('''
+      // Trigger for Return Orders (Reverse the subtraction)
+      await customStatement('''
             CREATE TRIGGER IF NOT EXISTS update_stock_after_return
             AFTER INSERT ON return_order_items
             BEGIN
@@ -482,8 +521,8 @@ class AppDatabase extends _$AppDatabase {
               WHERE id = NEW.product_id;
             END;
           ''');
-        },
-      );
+    },
+  );
 }
 
 LazyDatabase _openConnection() {

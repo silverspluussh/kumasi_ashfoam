@@ -1,90 +1,63 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReceiptsRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  ReceiptsRepository({required this.apiClient});
+  ReceiptsRepository({required this.supabase});
 
-  /// Fetch all receipts
-  Future<List<Map<String, dynamic>>> getReceipts({
-    int? page,
-    int? limit,
+  /// Fetch all receipts from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? status,
     String? branchId,
   }) async {
-    final response = await apiClient.get(
-      '/receipts',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (status != null) 'status': status,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_receipts').select();
+
+    if (status != null) {
+      query = query.eq('status', status);
+    }
+    if (branchId != null) {
+      query = query.eq('branch_id', branchId);
+    }
+
+    final response = await query;
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single receipt
-  Future<Map<String, dynamic>> getReceipt(String receiptId) async {
-    final response = await apiClient.get('/receipts/$receiptId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new receipt
-  Future<Map<String, dynamic>> createReceipt(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert receipts to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> receipts,
   ) async {
-    final response = await apiClient.post(
-      '/receipts',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (receipts.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_receipts')
+        .upsert(receipts)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update receipt
-  Future<Map<String, dynamic>> updateReceipt(
-    String receiptId,
-    Map<String, dynamic> data,
+  /// Fetch receipt items (if applicable) from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String receiptId) async {
+    final response = await supabase
+        .from('ashfoam_receipt_items')
+        .select()
+        .eq('receipt_id', receiptId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert receipt items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/receipts/$receiptId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Mark receipt as verified
-  Future<void> verifyReceipt(String receiptId) async {
-    await apiClient.post(
-      '/receipts/$receiptId/verify',
-      data: {},
-    );
-  }
-
-  /// Generate receipt PDF
-  Future<String> generateReceiptPDF(String receiptId) async {
-    final response = await apiClient.get('/receipts/$receiptId/pdf');
-    return response.data['data']['pdfUrl'] ?? '';
-  }
-
-  /// Get receipt summary
-  Future<Map<String, dynamic>> getReceiptSummary({
-    String? period,
-    String? branchId,
-  }) async {
-    final response = await apiClient.get(
-      '/receipts/summary',
-      queryParameters: {
-        if (period != null) 'period': period,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Sync receipts
-  Future<List<Map<String, dynamic>>> syncReceipts() async {
-    final response = await apiClient.get('/receipts/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_receipt_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

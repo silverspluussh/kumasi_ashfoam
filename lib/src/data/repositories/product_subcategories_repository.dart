@@ -1,78 +1,39 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductSubCategoriesRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  ProductSubCategoriesRepository({required this.apiClient});
+  ProductSubCategoriesRepository({required this.supabase});
 
-  /// Fetch all product sub-categories
-  Future<List<Map<String, dynamic>>> getSubCategories({
-    int? page,
-    int? limit,
+  /// Fetch all product sub-categories from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? categoryId,
     String? search,
   }) async {
-    final response = await apiClient.get(
-      '/products/subcategories',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (categoryId != null) 'categoryId': categoryId,
-        if (search != null) 'search': search,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_product_subcategories').select();
+
+    if (categoryId != null) {
+      query = query.eq('category_id', categoryId);
+    }
+    if (search != null && search.isNotEmpty) {
+      query = query.ilike('name', '%$search%');
+    }
+
+    final response = await query.order('name', ascending: true);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single sub-category
-  Future<Map<String, dynamic>> getSubCategory(String subCategoryId) async {
-    final response = await apiClient.get(
-      '/products/subcategories/$subCategoryId',
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new sub-category
-  Future<Map<String, dynamic>> createSubCategory(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert product sub-categories to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> subcategories,
   ) async {
-    final response = await apiClient.post(
-      '/products/subcategories',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Update sub-category
-  Future<Map<String, dynamic>> updateSubCategory(
-    String subCategoryId,
-    Map<String, dynamic> data,
-  ) async {
-    final response = await apiClient.put(
-      '/products/subcategories/$subCategoryId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Delete sub-category
-  Future<void> deleteSubCategory(String subCategoryId) async {
-    await apiClient.delete('/products/subcategories/$subCategoryId');
-  }
-
-  /// Get sub-category products
-  Future<List<Map<String, dynamic>>> getSubCategoryProducts(
-    String subCategoryId,
-  ) async {
-    final response = await apiClient.get(
-      '/products/subcategories/$subCategoryId/products',
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Sync sub-categories
-  Future<List<Map<String, dynamic>>> syncSubCategories() async {
-    final response = await apiClient.get('/products/subcategories/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (subcategories.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_product_subcategories')
+        .upsert(subcategories)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

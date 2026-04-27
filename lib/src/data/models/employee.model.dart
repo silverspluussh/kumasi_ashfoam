@@ -2,7 +2,7 @@ import 'dart:convert';
 
 enum EmploymentStatus { active, inactive, suspended, terminated, probation }
 
-class Employee {
+class EmployeeModel {
   final String id;
   final String firstName;
   final String lastName;
@@ -25,7 +25,7 @@ class Employee {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Employee({
+  EmployeeModel({
     required this.id,
     required this.firstName,
     required this.lastName,
@@ -55,7 +55,7 @@ class Employee {
     lastName,
   ].where((part) => part != null && part.isNotEmpty).join(' ');
 
-  Employee copyWith({
+  EmployeeModel copyWith({
     String? id,
     String? firstName,
     String? lastName,
@@ -78,7 +78,7 @@ class Employee {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return Employee(
+    return EmployeeModel(
       id: id ?? this.id,
       firstName: firstName ?? this.firstName,
       lastName: lastName ?? this.lastName,
@@ -129,41 +129,47 @@ class Employee {
     };
   }
 
-  factory Employee.fromMap(Map<String, dynamic> map) {
-    return Employee(
-      id: map['id'] as String,
-      firstName: map['first_name'] as String,
-      lastName: map['last_name'] as String,
-      middleName: map['middle_name'] as String?,
-      email: map['email'] as String,
-      phone: map['phone'] as String,
-      role: map['role'] as String,
-      department: map['department'] as String,
-      branchId: map['branch_id'] as String?,
-      branchName: map['branch_name'] as String?,
-      managerId: map['manager_id'] as String?,
-      managerName: map['manager_name'] as String?,
-      designation: map['designation'] as String?,
+  factory EmployeeModel.fromMap(Map<String, dynamic> map) {
+    return EmployeeModel(
+      id: map['id']?.toString() ?? '',
+      firstName: map['first_name']?.toString() ?? '',
+      lastName: map['last_name']?.toString() ?? '',
+      middleName: map['middle_name']?.toString(),
+      email: map['email']?.toString() ?? '',
+      phone: map['phone']?.toString() ?? '',
+      role: map['role']?.toString() ?? '',
+      department: map['department']?.toString() ?? '',
+      branchId: map['branch_id']?.toString(),
+      branchName: map['branch_name']?.toString(),
+      managerId: map['manager_id']?.toString(),
+      managerName: map['manager_name']?.toString(),
+      designation: map['designation']?.toString(),
       status: map['status'] != null
           ? EmploymentStatus.values.firstWhere(
-              (element) => element.name == map['status'] as String,
+              (element) => element.name == map['status']?.toString(),
               orElse: () => EmploymentStatus.active,
             )
           : EmploymentStatus.active,
-      isActive: map['is_active'] as bool? ?? true,
-      hireDate: DateTime.parse(map['hire_date'] as String),
+      isActive: map['is_active'] == true || map['is_active'] == 1,
+      hireDate: map['hire_date'] != null
+          ? DateTime.tryParse(map['hire_date'].toString()) ?? DateTime.now()
+          : DateTime.now(),
       endDate: map['end_date'] != null
-          ? DateTime.parse(map['end_date'] as String)
+          ? DateTime.tryParse(map['end_date'].toString())
           : null,
-      address: map['address'] as String?,
-      notes: map['notes'] as String?,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
+      address: map['address']?.toString(),
+      notes: map['notes']?.toString(),
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: map['updated_at'] != null
+          ? DateTime.tryParse(map['updated_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Employee.fromJson(String source) =>
-      Employee.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory EmployeeModel.fromJson(String source) =>
+      EmployeeModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

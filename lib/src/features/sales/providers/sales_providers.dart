@@ -1,7 +1,8 @@
 import 'package:ashfoam_sadiq/src/data/local/drift_extensions.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
-import 'package:ashfoam_sadiq/src/data/providers/sync_providers.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 /// Provider to fetch all sale orders from local database
 final saleOrdersProvider = FutureProvider<List<SaleOrderModel>>((ref) async {
@@ -15,7 +16,9 @@ final saleOrdersProvider = FutureProvider<List<SaleOrderModel>>((ref) async {
 final salesSearchQueryProvider = StateProvider<String>((ref) => '');
 
 /// Computed provider for filtered sale orders
-final filteredSaleOrdersProvider = Provider<AsyncValue<List<SaleOrderModel>>>((ref) {
+final filteredSaleOrdersProvider = Provider<AsyncValue<List<SaleOrderModel>>>((
+  ref,
+) {
   final ordersAsync = ref.watch(saleOrdersProvider);
   final query = ref.watch(salesSearchQueryProvider).toLowerCase();
 
@@ -25,14 +28,17 @@ final filteredSaleOrdersProvider = Provider<AsyncValue<List<SaleOrderModel>>>((r
       final orderNo = order.orderNumber.toLowerCase();
       final customer = (order.customerName ?? '').toLowerCase();
       final branch = (order.branchName ?? '').toLowerCase();
-      return orderNo.contains(query) || customer.contains(query) || branch.contains(query);
+      return orderNo.contains(query) ||
+          customer.contains(query) ||
+          branch.contains(query);
     }).toList();
   });
 });
 
 /// Provider to fetch items for a specific sale order
-final saleOrderItemsProvider = FutureProvider.family<List<SaleOrderItem>, String>((ref, orderId) async {
-  final dbService = ref.watch(databaseServiceProvider);
-  final localItems = await dbService.getSaleOrderItems(orderId);
-  return localItems.map((m) => SaleOrderItem.fromMap(m.toMap())).toList();
-});
+final saleOrderItemsProvider =
+    FutureProvider.family<List<SaleOrderItem>, String>((ref, orderId) async {
+      final dbService = ref.watch(databaseServiceProvider);
+      final localItems = await dbService.getSaleOrderItems(orderId);
+      return localItems.map((m) => SaleOrderItem.fromMap(m.toMap())).toList();
+    });

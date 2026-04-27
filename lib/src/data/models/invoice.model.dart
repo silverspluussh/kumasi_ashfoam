@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class Invoice {
+class InvoiceModel {
   final String id;
   final DateTime dueDate;
   final String? customerName;
@@ -12,7 +12,7 @@ class Invoice {
   final String? branchName;
   final String? branchId;
 
-  Invoice({
+  InvoiceModel({
     required this.id,
     required this.dueDate,
     this.customerName,
@@ -25,7 +25,7 @@ class Invoice {
     this.branchId,
   });
 
-  Invoice copyWith({
+  InvoiceModel copyWith({
     String? id,
     DateTime? dueDate,
     String? customerName,
@@ -37,7 +37,7 @@ class Invoice {
     String? branchName,
     String? branchId,
   }) {
-    return Invoice(
+    return InvoiceModel(
       id: id ?? this.id,
       dueDate: dueDate ?? this.dueDate,
       customerName: customerName ?? this.customerName,
@@ -66,13 +66,15 @@ class Invoice {
     };
   }
 
-  factory Invoice.fromMap(Map<String, dynamic> map) {
-    final dueDateValue = map['due_date'];
+  factory InvoiceModel.fromMap(Map<String, dynamic> map) {
+    final dueDateValue = map['due_date'] ?? map['dueDate'];
     final parsedDueDate = dueDateValue is DateTime
         ? dueDateValue
         : dueDateValue is int
             ? DateTime.fromMillisecondsSinceEpoch(dueDateValue)
-            : DateTime.parse(dueDateValue as String);
+            : (dueDateValue != null
+                ? (DateTime.tryParse(dueDateValue.toString()) ?? DateTime.now())
+                : DateTime.now());
 
     final statusValue = map['status'];
     final parsedStatus = statusValue is InvoiceStatus
@@ -84,25 +86,24 @@ class Invoice {
               )
             : InvoiceStatus.pending;
 
-    return Invoice(
-      id: map['id'] as String,
+    return InvoiceModel(
+      id: map['id'] as String? ?? '',
       dueDate: parsedDueDate,
-      customerName:
-          map['customer_name'] != null ? map['customer_name'] as String : null,
-      totalAmount: (map['total_amount'] as num).toDouble(),
-      paidAmount: (map['paid_amount'] as num).toDouble(),
+      customerName: map['customer_name'] as String? ?? map['customerName'] as String?,
+      totalAmount: (map['total_amount'] as num? ?? map['totalAmount'] as num? ?? 0).toDouble(),
+      paidAmount: (map['paid_amount'] as num? ?? map['paidAmount'] as num? ?? 0).toDouble(),
       status: parsedStatus,
-      note: map['note'] != null ? map['note'] as String : null,
-      saleOrderId: map['sale_order_id'] as String,
-      branchName: map['branch_name'] != null ? map['branch_name'] as String : null,
-      branchId: map['branch_id'] != null ? map['branch_id'] as String : null,
+      note: map['note'] as String?,
+      saleOrderId: map['sale_order_id'] as String? ?? map['saleOrderId'] as String? ?? '',
+      branchName: map['branch_name'] as String? ?? map['branchName'] as String?,
+      branchId: map['branch_id'] as String? ?? map['branchId'] as String?,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Invoice.fromJson(String source) =>
-      Invoice.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory InvoiceModel.fromJson(String source) =>
+      InvoiceModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   double get balanceDue => totalAmount - paidAmount;
 }

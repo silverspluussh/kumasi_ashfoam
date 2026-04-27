@@ -1,92 +1,65 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class BranchPaymentsRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  BranchPaymentsRepository({required this.apiClient});
+  BranchPaymentsRepository({required this.supabase});
 
-  /// Fetch all branch payments
-  Future<List<Map<String, dynamic>>> getBranchPayments({
-    int? page,
-    int? limit,
+  /// Fetch all branch payments from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? branchId,
     String? status,
   }) async {
-    final response = await apiClient.get(
-      '/branch-payments',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (branchId != null) 'branchId': branchId,
-        if (status != null) 'status': status,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_branch_payments').select();
+
+    if (branchId != null) {
+      query = query.eq('branch_id', branchId);
+    }
+    if (status != null) {
+      query = query.eq('status', status);
+    }
+
+    final response = await query.order('date', ascending: false);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single branch payment
-  Future<Map<String, dynamic>> getBranchPayment(String paymentId) async {
-    final response = await apiClient.get('/branch-payments/$paymentId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new branch payment
-  Future<Map<String, dynamic>> createBranchPayment(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert branch payments to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> payments,
   ) async {
-    final response = await apiClient.post(
-      '/branch-payments',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (payments.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_branch_payments')
+        .upsert(payments)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update branch payment
-  Future<Map<String, dynamic>> updateBranchPayment(
-    String paymentId,
-    Map<String, dynamic> data,
+  /// Note: Added fetchItems and bulkUploadItems for pattern consistency.
+
+  /// Fetch branch payment items (if applicable) from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String paymentId) async {
+    final response = await supabase
+        .from('ashfoam_branch_payment_items')
+        .select()
+        .eq('payment_id', paymentId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert branch payment items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/branch-payments/$paymentId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Approve branch payment
-  Future<void> approveBranchPayment(String paymentId) async {
-    await apiClient.post(
-      '/branch-payments/$paymentId/approve',
-      data: {},
-    );
-  }
-
-  /// Reject branch payment
-  Future<void> rejectBranchPayment(String paymentId, String reason) async {
-    await apiClient.post(
-      '/branch-payments/$paymentId/reject',
-      data: {'reason': reason},
-    );
-  }
-
-  /// Get branch payment summary
-  Future<Map<String, dynamic>> getBranchPaymentSummary({
-    String? branchId,
-    String? period,
-  }) async {
-    final response = await apiClient.get(
-      '/branch-payments/summary',
-      queryParameters: {
-        if (branchId != null) 'branchId': branchId,
-        if (period != null) 'period': period,
-      },
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Sync branch payments
-  Future<List<Map<String, dynamic>>> syncBranchPayments() async {
-    final response = await apiClient.get('/branch-payments/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_branch_payment_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

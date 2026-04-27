@@ -2,38 +2,23 @@ import 'package:ashfoam_sadiq/src/data/local/app_database.dart' as db;
 import 'package:ashfoam_sadiq/src/data/local/drift_extensions.dart' as ext;
 import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/tax.model.dart' as model;
-import 'package:ashfoam_sadiq/src/data/providers/sync_providers.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 
+import 'package:flutter_riverpod/legacy.dart';
+
 /// Provider to fetch all proformas from local database
 final proformaListProvider = FutureProvider<List<Profoma>>((ref) async {
   final dbService = ref.watch(databaseServiceProvider);
-  final items = await dbService.getProformas();
-  return items.map((p) {
-    return Profoma(
-      id: p.id,
-      partyName: p.partyName,
-      partyAddress: p.partyAddress,
-      tax: (jsonDecode(p.tax) as List)
-          .map((t) => TaxComponent.fromMap(t as Map<String, dynamic>))
-          .toList(),
-      totalQuantity: p.totalQuantity,
-      declaration: p.declaration,
-      totalAmount: p.totalAmount,
-      isDeleted: p.isDeleted,
-      createdAt: p.createdAt,
-      updatedAt: p.updatedAt,
-    );
-  }).toList();
+  return await dbService.getProformas();
 });
 
 /// Provider to fetch all taxes for the dropdown
-final allTaxesProvider = FutureProvider<List<model.Tax>>((ref) async {
+final allTaxesProvider = FutureProvider<List<model.TaxModel>>((ref) async {
   final dbService = ref.watch(databaseServiceProvider);
-  final taxes = await dbService.getTaxes();
-  return taxes.map((t) => model.Tax.fromMap(ext.TaxeToMap(t).toMap())).toList();
+  return await dbService.getTaxes();
 });
 
 /// Provider for searching proformas
@@ -74,15 +59,19 @@ final addProformaProvider = Provider((ref) {
     await dbService.addProforma(proformaCompanion);
 
     // 2. Save Proforma Items
-    final itemCompanions = items.map((item) => db.ProductDetailsListCompanion(
-      productId: Value(item.productId),
-      productName: Value(item.productName),
-      proformaId: Value(proforma.id), // Link to proforma
-      quantity: Value(item.quantity),
-      unitPrice: Value(item.unitprice),
-      discountPercentage: Value(item.discountPercentage),
-      totalAmount: Value(item.totalAmount),
-    )).toList();
+    final itemCompanions = items
+        .map(
+          (item) => db.ProductDetailsListCompanion(
+            productId: Value(item.productId),
+            productName: Value(item.productName),
+            proformaId: Value(proforma.id), // Link to proforma
+            quantity: Value(item.quantity),
+            unitPrice: Value(item.unitprice),
+            discountPercentage: Value(item.discountPercentage),
+            totalAmount: Value(item.totalAmount),
+          ),
+        )
+        .toList();
 
     await dbService.addProductDetailsList(itemCompanions);
 
@@ -91,17 +80,25 @@ final addProformaProvider = Provider((ref) {
 });
 
 /// Provider to fetch items for a specific proforma
-final proformaItemsProvider = FutureProvider.family<List<ProductDetails>, String>((ref, proformaId) async {
-  final dbService = ref.watch(databaseServiceProvider);
-  final items = await dbService.getProformaDetails(proformaId);
-  return items.map((m) => ProductDetails(
-    productId: m.productId,
-    productName: m.productName,
-    quantity: m.quantity,
-    unitprice: m.unitPrice,
-    discountPercentage: m.discountPercentage,
-    totalAmount: m.totalAmount,
-    proformaId: m.proformaId,
-    waybillId: m.waybillId,
-  )).toList();
-});
+final proformaItemsProvider =
+    FutureProvider.family<List<ProductDetails>, String>((
+      ref,
+      proformaId,
+    ) async {
+      final dbService = ref.watch(databaseServiceProvider);
+      final items = await dbService.getProformaDetails(proformaId);
+      return items
+          .map(
+            (m) => ProductDetails(
+              productId: m.productId,
+              productName: m.productName,
+              quantity: m.quantity,
+              unitprice: m.unitprice,
+              discountPercentage: m.discountPercentage,
+              totalAmount: m.totalAmount,
+              proformaId: m.proformaId,
+              waybillId: m.waybillId,
+            ),
+          )
+          .toList();
+    });

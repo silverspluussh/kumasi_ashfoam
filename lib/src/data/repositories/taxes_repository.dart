@@ -1,68 +1,40 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TaxesRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  TaxesRepository({required this.apiClient});
+  TaxesRepository({required this.supabase});
 
-  /// Fetch all taxes
-  Future<List<Map<String, dynamic>>> getTaxes({
-    int? page,
-    int? limit,
-  }) async {
-    final response = await apiClient.get(
-      '/taxes',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+  /// Fetch all taxes from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch() async {
+    final response = await supabase
+        .from('ashfoam_taxes')
+        .select()
+        .order('name', ascending: true);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single tax
-  Future<Map<String, dynamic>> getTax(String taxId) async {
-    final response = await apiClient.get('/taxes/$taxId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new tax
-  Future<Map<String, dynamic>> createTax(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert taxes to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> taxes,
   ) async {
-    final response = await apiClient.post(
-      '/taxes',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (taxes.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_taxes')
+        .upsert(taxes)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update tax
-  Future<Map<String, dynamic>> updateTax(
-    String taxId,
-    Map<String, dynamic> data,
-  ) async {
-    final response = await apiClient.put(
-      '/taxes/$taxId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Delete tax
-  Future<void> deleteTax(String taxId) async {
-    await apiClient.delete('/taxes/$taxId');
-  }
-
-  /// Get active taxes
+  /// Get active taxes (standardized naming for specific use cases)
   Future<List<Map<String, dynamic>>> getActiveTaxes() async {
-    final response = await apiClient.get('/taxes/active');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    return fetch();
   }
 
-  /// Sync taxes
+  /// Sync taxes (Legacy method kept for sync providers compatibility)
   Future<List<Map<String, dynamic>>> syncTaxes() async {
-    final response = await apiClient.get('/taxes/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    return fetch();
   }
 }

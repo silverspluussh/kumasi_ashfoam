@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 class StockReportSummary {
   final String id;
@@ -21,29 +22,51 @@ class StockReportSummary {
 
   factory StockReportSummary.fromMap(Map<String, dynamic> map) {
     return StockReportSummary(
-      id: map['id'] as String,
-      branchId: map['branch_id'] as String,
-      branchName: map['branch_name'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      createdBy: map['created_by'] as String,
-      currentStock: (jsonDecode(map['current_stock'] as String) as List)
-          .map((x) => ProductStock.fromMap(x as Map<String, dynamic>))
-          .toList(),
-      categoryStock: (jsonDecode(map['category_stock'] as String) as List)
-          .map((x) => CategoryStock.fromMap(x as Map<String, dynamic>))
-          .toList(),
+      id: map['id']?.toString() ?? '',
+      branchId:
+          map['branchId']?.toString() ?? map['branch_id']?.toString() ?? '',
+      branchName:
+          map['branchName']?.toString() ?? map['branch_name']?.toString() ?? '',
+      createdAt: map['createdAt'] != null
+          ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
+          : (map['created_at'] != null
+                ? DateTime.tryParse(map['created_at'].toString()) ??
+                      DateTime.now()
+                : DateTime.now()),
+      createdBy:
+          map['createdBy']?.toString() ?? map['created_by']?.toString() ?? '',
+      currentStock: () {
+        final data = map['currentStock'] ?? map['current_stock'];
+        if (data == null) return <ProductStock>[];
+        final List list = data is String
+            ? jsonDecode(data) as List
+            : data as List;
+        return list
+            .map((x) => ProductStock.fromMap(x as Map<String, dynamic>))
+            .toList();
+      }(),
+      categoryStock: () {
+        final data = map['categoryStock'] ?? map['category_stock'];
+        if (data == null) return <CategoryStock>[];
+        final List list = data is String
+            ? jsonDecode(data) as List
+            : data as List;
+        return list
+            .map((x) => CategoryStock.fromMap(x as Map<String, dynamic>))
+            .toList();
+      }(),
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'branch_id': branchId,
-      'branch_name': branchName,
-      'created_at': createdAt.toIso8601String(),
-      'created_by': createdBy,
-      'current_stock': jsonEncode(currentStock.map((x) => x.toMap()).toList()),
-      'category_stock': jsonEncode(categoryStock.map((x) => x.toMap()).toList()),
+      'branchId': branchId,
+      'branchName': branchName,
+      'createdAt': createdAt.toIso8601String(),
+      'createdBy': createdBy,
+      'currentStock': jsonEncode(currentStock.map((x) => x.toMap()).toList()),
+      'categoryStock': jsonEncode(categoryStock.map((x) => x.toMap()).toList()),
     };
   }
 }
@@ -69,13 +92,18 @@ class ProductStock {
 
   factory ProductStock.fromMap(Map<String, dynamic> map) {
     return ProductStock(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      sku: map['sku'] as String,
-      quantity: (map['quantity'] as num).toInt(),
-      retailPrice: (map['retail_price'] as num).toDouble(),
-      quantitySold: (map['quantity_sold'] as num).toInt(),
-      totalSales: (map['total_sales'] as num).toDouble(),
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      sku: map['sku']?.toString() ?? '',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      retailPrice:
+          ((map['retailPrice'] ?? map['retail_price']) as num?)?.toDouble() ??
+          0.0,
+      quantitySold:
+          ((map['quantitySold'] ?? map['quantity_sold']) as num?)?.toInt() ?? 0,
+      totalSales:
+          ((map['totalSales'] ?? map['total_sales']) as num?)?.toDouble() ??
+          0.0,
     );
   }
 
@@ -107,10 +135,18 @@ class CategoryStock {
 
   factory CategoryStock.fromMap(Map<String, dynamic> map) {
     return CategoryStock(
-      categoryId: map['category_id'] as String,
-      categoryName: map['category_name'] as String,
-      totalQuantity: (map['total_quantity'] as num).toInt(),
-      totalValue: (map['total_value'] as num).toDouble(),
+      categoryId:
+          map['categoryId']?.toString() ?? map['category_id']?.toString() ?? '',
+      categoryName:
+          map['categoryName']?.toString() ??
+          map['category_name']?.toString() ??
+          '',
+      totalQuantity:
+          ((map['totalQuantity'] ?? map['total_quantity']) as num?)?.toInt() ??
+          0,
+      totalValue:
+          ((map['totalValue'] ?? map['total_value']) as num?)?.toDouble() ??
+          0.0,
     );
   }
 

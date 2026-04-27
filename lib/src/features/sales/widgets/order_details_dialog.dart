@@ -1,4 +1,6 @@
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart'
+    hide saleOrderItemsProvider;
 import 'package:ashfoam_sadiq/src/features/pos/providers/receipt_service.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
 import 'package:flutter/material.dart';
@@ -161,7 +163,31 @@ class OrderDetailsDialog extends ConsumerWidget {
           ],
         ),
       ),
-      actions: [],
+      actions: [
+        FButton(
+          onPress: () async {
+            final items = await ref.read(
+              saleOrderItemsProvider(order.id).future,
+            );
+            final company = await ref.read(companySettingsProvider.future);
+            if (context.mounted) {
+              ReceiptService.showPreview(
+                context,
+                order,
+                items,
+                company: company,
+              );
+            }
+          },
+          prefix: const Icon(Icons.print),
+          child: const Text("Print Receipt"),
+        ),
+        FButton(
+          variant: FButtonVariant.outline,
+          onPress: () => Navigator.pop(context),
+          child: const Text("Close"),
+        ),
+      ],
     );
   }
 

@@ -10,6 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid_export/export.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/providers/excel_providers.dart';
+import 'package:file_picker/file_picker.dart';
 
 class InventoryView extends ConsumerStatefulWidget {
   const InventoryView({super.key});
@@ -29,20 +31,159 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
   }
 
   Future<void> _exportToExcel() async {
-    final workbook = _key.currentState!.exportToExcelWorkbook();
-    final List<int> bytes = workbook.saveAsStream();
-    workbook.dispose();
+    try {
+      final items = ref.read(inventoryListProvider).value ?? [];
+      final excelService = ref.read(excelServiceProvider);
+      final bytes = await excelService.generateInventoryExport(items);
 
-    final directory = await getApplicationDocumentsDirectory();
-    final file = File('${directory.path}/InventoryReport.xlsx');
-    await file.writeAsBytes(bytes, flush: true);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Exported to ${directory.path}/InventoryReport.xlsx'),
-        ),
+      final String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Inventory Report',
+        fileName: 'InventoryReport.xlsx',
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
       );
+
+      if (outputFile != null) {
+        final file = File(outputFile);
+        await file.writeAsBytes(bytes, flush: true);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Report exported successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting inventory: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _downloadTemplate() async {
+    try {
+      final excelService = ref.read(excelServiceProvider);
+      final bytes = await excelService.generateTemplate();
+
+      final String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Product Template',
+        fileName: 'ProductTemplate.xlsx',
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
+      );
+
+      if (outputFile == null) {
+        // User cancelled the picker
+        return;
+      }
+
+      final file = File(outputFile);
+      await file.writeAsBytes(bytes, flush: true);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Template saved successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error downloading template: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _importExcel() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
+        withData: true,
+      );
+
+      if (result == null || result.files.isEmpty) {
+        // User cancelled the picker
+        return;
+      }
+
+      final fileData = result.files.single;
+      List<int>? bytes = fileData.bytes;
+
+      if (bytes == null && fileData.path != null) {
+        final file = File(fileData.path!);
+        bytes = await file.readAsBytes();
+      }
+
+      if (bytes == null) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not read file data'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      final excelService = ref.read(excelServiceProvider);
+      final companions = await excelService.parseProducts(bytes);
+
+      if (companions.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No valid products found in Excel'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+        return;
+      }
+
+      final addItem = ref.read(addInventoryItemProvider);
+      int successCount = 0;
+      for (final companion in companions) {
+        try {
+          await addItem(companion);
+          successCount++;
+        } catch (e) {
+          debugPrint('Error adding item: $e');
+        }
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Successfully imported $successCount products'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error importing Excel: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -141,16 +282,32 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
             FButton(
               onPress: () => showDialog(
                 context: context,
+                barrierDismissible: false,
                 builder: (context) => const AddProductDialog(),
               ),
               prefix: const Icon(Icons.add),
               child: const Text("Add Product"),
             ),
-            const SizedBox(width: 15),
+            const SizedBox(width: 10),
+
             FButton(
               onPress: _exportToExcel,
               prefix: const Icon(Icons.file_download),
-              child: const Text("Export Excel"),
+              child: const Text("Export"),
+            ),
+            const SizedBox(width: 10),
+            FButton(
+              onPress: _downloadTemplate,
+              variant: FButtonVariant.outline,
+              prefix: const Icon(Icons.description),
+              child: const Text("Get Sample"),
+            ),
+            const SizedBox(width: 10),
+            FButton(
+              onPress: _importExcel,
+              variant: FButtonVariant.outline,
+              prefix: const Icon(Icons.upload_file),
+              child: const Text("Import"),
             ),
           ],
         ),

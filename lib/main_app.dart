@@ -2,27 +2,30 @@ import 'package:ashfoam_sadiq/src/features/inventory/inventory_page.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/proforma_page.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/waybill_page.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/stockreports.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/stock_adjustment_page.dart';
 import 'package:ashfoam_sadiq/src/features/payments/payments_page.dart';
 import 'package:ashfoam_sadiq/src/features/invoices/invoices_page.dart';
+import 'package:ashfoam_sadiq/src/features/management/brand_category_page.dart';
 import 'package:ashfoam_sadiq/src/features/pos/pos_page.dart';
 import 'package:ashfoam_sadiq/src/features/sales/sale_orders_page.dart';
 import 'package:ashfoam_sadiq/src/features/settings/settings_page.dart';
 import 'package:ashfoam_sadiq/src/features/summary/summary_page.dart';
-import 'package:ashfoam_sadiq/src/utils/date_extensions.dart';
+import 'package:ashfoam_sadiq/src/features/auth/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 
-class StarterApp extends StatefulWidget {
+class StarterApp extends ConsumerStatefulWidget {
   const StarterApp({super.key});
 
   @override
-  State<StarterApp> createState() => _StarterAppState();
+  ConsumerState<StarterApp> createState() => _StarterAppState();
 }
 
 ValueNotifier<bool> isExpanded = ValueNotifier(true);
 ValueNotifier<int> selectedIndex = ValueNotifier(0);
 
-class _StarterAppState extends State<StarterApp> {
+class _StarterAppState extends ConsumerState<StarterApp> {
   @override
   Widget build(BuildContext context) {
     return FScaffold(
@@ -40,7 +43,7 @@ class _StarterAppState extends State<StarterApp> {
                   EdgeInsetsGeometry.fromLTRB(0, 16, 0, 0),
                 ),
                 decoration: DecorationDelta.boxDelta(
-                  color: Colors.amber.withValues(alpha: .01),
+                  color: Colors.amber.withValues(alpha: 0.01),
                 ),
               ),
 
@@ -142,6 +145,15 @@ class _StarterAppState extends State<StarterApp> {
                               selectedIndex.value = 5;
                             },
                           ),
+                          FSidebarItem(
+                            icon: const Icon(Icons.tune),
+                            label: isExpanded.value
+                                ? const Text("Stock Adjustment")
+                                : null,
+                            onPress: () {
+                              selectedIndex.value = 13;
+                            },
+                          ),
                         ],
                       ),
                     if (isExpanded.value == false) ...[
@@ -169,25 +181,28 @@ class _StarterAppState extends State<StarterApp> {
                           },
                         ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          icon: const Icon(Icons.tune),
+                          label: isExpanded.value
+                              ? const Text("Stock Adjustment")
+                              : null,
+                          onPress: () {
+                            selectedIndex.value = 13;
+                          },
+                        ),
+                      ),
                     ],
 
                     if (isExpanded.value)
                       _sidebarItem(
                         icon: FIcons.currency,
                         label: "Payments",
-
-                        chren: [
-                          FSidebarItem(
-                            icon: Icon(FIcons.currency),
-                            label: isExpanded.value
-                                ? Text("All Payments")
-                                : null,
-                            onPress: () {
-                              // Handle navigation to Home
-                              selectedIndex.value = 7;
-                            },
-                          ),
-                        ],
+                        action: () {
+                          // Handle navigation to Home
+                          selectedIndex.value = 7;
+                        },
                       ),
                     if (isExpanded.value == false) ...[
                       Padding(
@@ -226,10 +241,28 @@ class _StarterAppState extends State<StarterApp> {
                         selectedIndex.value = 10;
                         // Handle navigation to Settings
                       },
+                      chren: isExpanded.value
+                          ? [
+                              FSidebarItem(
+                                icon: Icon(FIcons.list),
+                                label: const Text("Brands & Categories"),
+                                onPress: () {
+                                  selectedIndex.value = 12;
+                                },
+                              ),
+                            ]
+                          : [],
                     ),
                   ],
                 ),
               ],
+              footer: FSidebarItem(
+                icon: const Icon(Icons.logout, color: Colors.red),
+                label: isExpanded.value ? const Text("Logout", style: TextStyle(color: Colors.red)) : null,
+                onPress: () {
+                  ref.read(authNotifierProvider.notifier).signOut();
+                },
+              ),
             ),
           );
         },
@@ -261,6 +294,10 @@ class _StarterAppState extends State<StarterApp> {
             return const SettingsPage();
           } else if (value == 11) {
             return const WaybillPage();
+          } else if (value == 12) {
+            return const BrandCategoryManagementPage();
+          } else if (value == 13) {
+            return const StockAdjustmentPage();
           }
           return const SummaryPage();
         },

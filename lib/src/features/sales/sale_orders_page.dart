@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart' hide saleOrderItemsProvider;
 import 'package:ashfoam_sadiq/src/features/pos/providers/receipt_service.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
 import 'package:ashfoam_sadiq/src/features/sales/widgets/order_details_dialog.dart';
@@ -162,8 +163,9 @@ class _SaleOrdersPageState extends ConsumerState<SaleOrdersPage> {
                         height: 60,
                         child: SfDataPager(
                           delegate: _dataGridSource,
-                          pageCount: (orders.length / rowsPerPage)
-                              .ceilToDouble(),
+                          pageCount: orders.isEmpty 
+                              ? 1 
+                              : (orders.length / rowsPerPage).ceilToDouble(),
                           direction: Axis.horizontal,
                         ),
                       ),
@@ -347,7 +349,10 @@ class SaleOrderDataGridSource extends DataGridSource {
                   final items = await container.read(
                     saleOrderItemsProvider(order.id).future,
                   );
-                  ReceiptService.showPreview(context, order, items);
+                  final company = await container.read(companySettingsProvider.future);
+                  if (context.mounted) {
+                    ReceiptService.showPreview(context, order, items, company: company);
+                  }
                 },
               ),
             ],

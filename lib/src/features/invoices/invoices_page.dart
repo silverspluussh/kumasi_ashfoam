@@ -1,4 +1,4 @@
-import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart' show Invoice, InvoiceStatus;
+import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart' show InvoiceModel, InvoiceStatus;
 import 'package:ashfoam_sadiq/src/features/invoices/providers/invoice_providers.dart';
 import 'package:ashfoam_sadiq/src/features/invoices/widgets/invoice_details_dialog.dart';
 import 'package:flutter/material.dart';
@@ -172,15 +172,15 @@ class _InvoicesViewState extends ConsumerState<InvoicesView> {
 
 class InvoiceDataGridSource extends DataGridSource {
   final WidgetRef ref;
-  InvoiceDataGridSource({required List<Invoice> invoices, required this.ref}) {
+  InvoiceDataGridSource({required List<InvoiceModel> invoices, required this.ref}) {
     _invoices = invoices;
     _buildDataGridRows();
   }
 
-  List<Invoice> _invoices = [];
+  List<InvoiceModel> _invoices = [];
   List<DataGridRow> _dataGridRows = [];
 
-  void updateInvoices(List<Invoice> invoices) {
+  void updateInvoices(List<InvoiceModel> invoices) {
     _invoices = invoices;
     _buildDataGridRows();
     notifyListeners();
@@ -195,7 +195,7 @@ class InvoiceDataGridSource extends DataGridSource {
           DataGridCell<double>(columnName: 'balance', value: i.balanceDue),
           DataGridCell<DateTime>(columnName: 'dueDate', value: i.dueDate),
           DataGridCell<InvoiceStatus>(columnName: 'status', value: i.status),
-          DataGridCell<Invoice>(columnName: 'actions', value: i),
+          DataGridCell<InvoiceModel>(columnName: 'actions', value: i),
         ],
       );
     }).toList();
@@ -221,9 +221,9 @@ class InvoiceDataGridSource extends DataGridSource {
           final status = dataGridCell.value as InvoiceStatus;
           alignment = Alignment.center;
           customWidget = _buildStatusBadge(status);
-        } else if (dataGridCell.value is Invoice) {
+        } else if (dataGridCell.value is InvoiceModel) {
           alignment = Alignment.center;
-          customWidget = _buildActions(dataGridCell.value as Invoice);
+          customWidget = _buildActions(dataGridCell.value as InvoiceModel);
         } else {
           value = dataGridCell.value.toString();
         }
@@ -289,7 +289,7 @@ class InvoiceDataGridSource extends DataGridSource {
     );
   }
 
-  Widget _buildActions(Invoice invoice) {
+  Widget _buildActions(InvoiceModel invoice) {
     final context = ref.context;
 
     return Row(

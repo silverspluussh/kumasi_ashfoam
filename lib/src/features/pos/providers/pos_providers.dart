@@ -1,12 +1,14 @@
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart'
     hide SaleOrderItem;
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart'
+    hide saleOrdersProvider;
 import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
-import 'package:ashfoam_sadiq/src/data/providers/sync_providers.dart'; // Correct import for databaseServiceProvider
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:uuid/uuid.dart';
 import 'package:ashfoam_sadiq/src/features/pos/models/pos_state.dart';
 
@@ -228,7 +230,7 @@ class CreatePOSOrderNotifier extends Notifier<AsyncValue<void>> {
       }).toList();
 
       // 4. Persist to Database within critical section
-      await dbService.db.transaction(() async {
+      await dbService.database.transaction(() async {
         await dbService.createPOSOrder(orderCompanion, itemCompanions);
         await dbService.addCustomer(customerCompanion);
 

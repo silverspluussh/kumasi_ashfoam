@@ -1,9 +1,10 @@
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
 import 'package:ashfoam_sadiq/src/data/local/database_service.dart';
+import 'package:ashfoam_sadiq/src/data/models/tax.model.dart';
 import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final taxesListProvider = FutureProvider<List<Taxe>>((ref) async {
+final taxesListProvider = FutureProvider<List<TaxModel>>((ref) async {
   final dbService = ref.read(databaseServiceProvider);
   return await dbService.getTaxes();
 });

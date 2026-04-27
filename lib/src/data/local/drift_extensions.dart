@@ -165,23 +165,7 @@ extension BranchPaymentToMap on BranchPayment {
 
 extension TaxeToMap on Taxe {
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'value_percentage': valuePercentage,
-    };
-  }
-}
-
-extension BrancheToMap on Branche {
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'branchName': branchName,
-      'location': branchAddress,
-      'phone': contact,
-      'isActive': isActive,
-    };
+    return {'id': id, 'name': name, 'value_percentage': valuePercentage};
   }
 }
 

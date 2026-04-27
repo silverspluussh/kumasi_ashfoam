@@ -76,55 +76,58 @@ class SaleOrderModel {
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'order_number': orderNumber,
-      'customer_name': customerName,
+      'orderNumber': orderNumber,
+      'customerName': customerName,
       'channel': channel,
-      'branch_id': branchId,
-      'branch_name': branchName,
-      'total_quantity': totalQuantity,
-      'total_amount': totalAmount,
-      'discount_amount': discountAmount,
-      'tax_amount': taxAmount,
+      'branchId': branchId,
+      'branchName': branchName,
+      'totalQuantity': totalQuantity,
+      'totalAmount': totalAmount,
+      'discountAmount': discountAmount,
+      'taxAmount': taxAmount,
       'status': status,
-      'is_synced': isSynced,
-      'created_at': createdAt?.toIso8601String(),
-      'last_synced_at': lastSyncedAt.toIso8601String(),
-      'created_by': createdBy,
+      'isSynced': isSynced,
+      'createdAt': createdAt?.toIso8601String(),
+      'lastSyncedAt': lastSyncedAt.toIso8601String(),
+      'createdBy': createdBy,
     };
   }
 
   factory SaleOrderModel.fromMap(Map<String, dynamic> map) {
     return SaleOrderModel(
-      id: map['id'] as String,
-      orderNumber: map['order_number'] as String,
-     totalQuantity: map['total_quantity'] as int,
-
-      customerName: map['customer_name'] != null
-          ? map['customer_name'] as String
+      id: map['id'] as String? ?? '',
+      orderNumber: map['orderNumber'] as String? ?? 'N/A',
+      totalQuantity: (map['totalQuantity'] as num?)?.toInt() ?? 0,
+      customerName: map['customerName'] as String?,
+      channel: map['channel'] as String?,
+      branchName: map['branchName'] as String?,
+      branchId: map['branchId'] as String?,
+      totalAmount: (map['totalAmount'] as num?)?.toDouble() ?? 0.0,
+      discountAmount: (map['discountAmount'] as num?)?.toDouble() ?? 0.0,
+      taxAmount: (map['taxAmount'] as num?)?.toDouble() ?? 0.0,
+      status: map['status'] as String? ?? 'pending',
+      isSynced: map['isSynced'] as int? ?? 0,
+      createdAt: (map['createdAt'] ?? map['created_at']) != null
+          ? ((map['createdAt'] ?? map['created_at']) is int
+                ? DateTime.fromMillisecondsSinceEpoch(
+                    (map['createdAt'] ?? map['created_at']) as int,
+                  )
+                : DateTime.tryParse(
+                    (map['createdAt'] ?? map['created_at']).toString(),
+                  ))
           : null,
-      channel: map['channel'] != null ? map['channel'] as String : null,
-      branchName: map['branch_name'] != null
-          ? map['branch_name'] as String
-          : null,
-      branchId: map['branch_id'] != null ? map['branch_id'] as String : null,
-      totalAmount: (map['total_amount'] as num).toDouble(),
-      discountAmount: map['discount_amount'] != null
-          ? (map['discount_amount'] as num).toDouble()
-          : 0.0,
-      taxAmount: map['tax_amount'] != null
-          ? (map['tax_amount'] as num).toDouble()
-          : 0.0,
-      status: map['status'] as String,
-      isSynced: map['is_synced'] as int? ?? 0,
-
-      createdAt: map['created_at'] != null
-          ? DateTime.parse(map['created_at'] as String)
-          : null,
-
-      lastSyncedAt:  map['last_synced_at'] != null
-          ? DateTime.parse(map['last_synced_at'] as String)
+      lastSyncedAt: (map['lastSyncedAt'] ?? map['last_synced_at']) != null
+          ? ((map['lastSyncedAt'] ?? map['last_synced_at']) is int
+                ? DateTime.fromMillisecondsSinceEpoch(
+                    (map['lastSyncedAt'] ?? map['last_synced_at']) as int,
+                  )
+                : (DateTime.tryParse(
+                        (map['lastSyncedAt'] ?? map['last_synced_at'])
+                            .toString(),
+                      ) ??
+                      DateTime.now()))
           : DateTime.now(),
-      createdBy: map['created_by'] as String,
+      createdBy: map['createdBy'] as String? ?? 'system',
     );
   }
 
@@ -191,22 +194,18 @@ class SaleOrderItem {
 
   factory SaleOrderItem.fromMap(Map<String, dynamic> map) {
     return SaleOrderItem(
-      id: map['id'] as String,
-      productId: map['product_id'] != null ? map['product_id'] as String : null,
-      saleOrderId: map['sale_order_id'] as String,
-      productName: map['product_name'] as String,
-      quantity: map['quantity'] as int,
-      unitPrice: (map['unit_price'] as num).toDouble(),
-      totalPrice: (map['total_price'] as num).toDouble(),
-      discountAmount: map['discount_amount'] != null
-          ? (map['discount_amount'] as num).toDouble()
-          : 0.0,
-      taxAmount: map['tax_amount'] != null
-          ? (map['tax_amount'] as num).toDouble()
-          : 0.0,
-      isSynced: map['is_synced'] as int? ?? 0,
-      lastSyncedAt: map['last_synced_at'] != null
-          ? DateTime.parse(map['last_synced_at'] as String)
+      id: map['id'] as String? ?? '',
+      productId: map['productId'] as String?,
+      saleOrderId: map['saleOrderId'] as String? ?? '',
+      productName: map['productName'] as String? ?? 'Unknown Product',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      unitPrice: (map['unitPrice'] as num?)?.toDouble() ?? 0.0,
+      totalPrice: (map['totalPrice'] as num?)?.toDouble() ?? 0.0,
+      discountAmount: (map['discountAmount'] as num?)?.toDouble() ?? 0.0,
+      taxAmount: (map['taxAmount'] as num?)?.toDouble() ?? 0.0,
+      isSynced: map['isSynced'] as int? ?? 0,
+      lastSyncedAt: map['lastSyncedAt'] != null
+          ? DateTime.tryParse(map['lastSyncedAt'].toString())
           : null,
     );
   }
@@ -214,16 +213,16 @@ class SaleOrderItem {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'product_id': productId,
-      'sale_order_id': saleOrderId,
-      'product_name': productName,
+      'productId': productId,
+      'saleOrderId': saleOrderId,
+      'productName': productName,
       'quantity': quantity,
-      'unit_price': unitPrice,
-      'total_price': totalPrice,
-      'discount_amount': discountAmount,
-      'tax_amount': taxAmount,
-      'is_synced': isSynced,
-      'last_synced_at': lastSyncedAt?.toIso8601String(),
+      'unitPrice': unitPrice,
+      'totalPrice': totalPrice,
+      'discountAmount': discountAmount,
+      'taxAmount': taxAmount,
+      'isSynced': isSynced,
+      'lastSyncedAt': lastSyncedAt?.toIso8601String(),
     };
   }
 }

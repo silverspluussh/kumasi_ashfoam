@@ -1,6 +1,8 @@
 import 'dart:typed_data';
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
 import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/company.model.dart';
+import 'package:ashfoam_sadiq/src/features/common/services/pdf_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -15,7 +17,7 @@ class ProformaPrintService {
     required BuildContext context,
     required Profoma proforma,
     required List<ProductDetails> items,
-    required Branche? branch,
+    CompanyModel? company,
   }) async {
     await showDialog(
       context: context,
@@ -45,7 +47,7 @@ class ProformaPrintService {
               const Divider(),
               Expanded(
                 child: PdfPreview(
-                  build: (format) => _generatePdf(proforma, items, branch),
+                  build: (format) => _generatePdf(proforma, items, company),
                   allowSharing: true,
                   allowPrinting: true,
                   canChangePageFormat: false,
@@ -63,7 +65,7 @@ class ProformaPrintService {
   static Future<Uint8List> _generatePdf(
     Profoma proforma,
     List<ProductDetails> items,
-    Branche? branch,
+    CompanyModel? company,
   ) async {
     final pdf = pw.Document();
 
@@ -76,35 +78,9 @@ class ProformaPrintService {
             // Company Header
             pw.Row(
               mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Text(
-                      'KUMASI ASHFOAM',
-                      style: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold,
-                        fontSize: 24,
-                      ),
-                    ),
-                    if (branch != null) ...[
-                      pw.Text(
-                        branch.branchName,
-                        style: const pw.TextStyle(fontSize: 10),
-                      ),
-                      if (branch.branchAddress != null)
-                        pw.Text(
-                          branch.branchAddress!,
-                          style: const pw.TextStyle(fontSize: 10),
-                        ),
-                      if (branch.contact != null)
-                        pw.Text(
-                          'Contact: ${branch.contact!}',
-                          style: const pw.TextStyle(fontSize: 10),
-                        ),
-                    ],
-                  ],
-                ),
+                PdfHelper.buildCompanyHeader(company),
                 pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.end,
                   children: [
@@ -112,7 +88,7 @@ class ProformaPrintService {
                       'PROFORMA INVOICE',
                       style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: 20,
+                        fontSize: 16,
                         color: PdfColors.blue900,
                       ),
                     ),
@@ -230,7 +206,7 @@ class ProformaPrintService {
                       ),
                       ...proforma.tax.map(
                         (t) => _summaryRow(
-                          t.tax.name,
+                          '${t.tax.name} (${t.tax.valuePercentage}%)',
                           _currencyFormat.format(t.taxAmount),
                         ),
                       ),
@@ -241,7 +217,7 @@ class ProformaPrintService {
                           mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                           children: [
                             pw.Text(
-                              'GRAND TOTAL',
+                              'GRAND TOTAL ',
                               style: pw.TextStyle(
                                 fontWeight: pw.FontWeight.bold,
                                 color: PdfColors.blue900,

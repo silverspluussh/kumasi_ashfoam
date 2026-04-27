@@ -4,7 +4,7 @@ enum ReturnOrderStatus { pending, approved, rejected, completed }
 
 enum CreditNoteStatus { draft, issued, applied, voided }
 
-class ReturnOrder {
+class ReturnOrderModel {
   final String id;
   final String returnOrderNumber;
   final String saleOrderId;
@@ -25,7 +25,7 @@ class ReturnOrder {
   final int isSynced;
   final DateTime? lastSyncedAt;
 
-  ReturnOrder({
+  ReturnOrderModel({
     required this.id,
     required this.returnOrderNumber,
     required this.saleOrderId,
@@ -47,7 +47,7 @@ class ReturnOrder {
     this.lastSyncedAt,
   });
 
-  ReturnOrder copyWith({
+  ReturnOrderModel copyWith({
     String? id,
     String? returnOrderNumber,
     String? saleOrderId,
@@ -68,7 +68,7 @@ class ReturnOrder {
     int? isSynced,
     DateTime? lastSyncedAt,
   }) {
-    return ReturnOrder(
+    return ReturnOrderModel(
       id: id ?? this.id,
       returnOrderNumber: returnOrderNumber ?? this.returnOrderNumber,
       saleOrderId: saleOrderId ?? this.saleOrderId,
@@ -115,44 +115,50 @@ class ReturnOrder {
     };
   }
 
-  factory ReturnOrder.fromMap(Map<String, dynamic> map) {
-    return ReturnOrder(
-      id: map['id'] as String,
-      returnOrderNumber: map['return_order_number'] as String,
-      saleOrderId: map['sale_order_id'] as String,
-      invoiceId: map['invoice_id'] as String?,
-      customerName: map['customer_name'] as String?,
-      branchId: map['branch_id'] as String?,
-      branchName: map['branch_name'] as String?,
-      totalItems: map['total_items'] as int,
-      totalAmount: (map['total_amount'] as num).toDouble(),
-      refundAmount: (map['refund_amount'] as num).toDouble(),
-      totalTax: (map['total_tax'] as num).toDouble(),
+  factory ReturnOrderModel.fromMap(Map<String, dynamic> map) {
+    return ReturnOrderModel(
+      id: map['id']?.toString() ?? '',
+      returnOrderNumber: map['return_order_number']?.toString() ?? '',
+      saleOrderId: map['sale_order_id']?.toString() ?? '',
+      invoiceId: map['invoice_id']?.toString(),
+      customerName: map['customer_name']?.toString(),
+      branchId: map['branch_id']?.toString(),
+      branchName: map['branch_name']?.toString(),
+      totalItems: (map['total_items'] as num?)?.toInt() ?? 0,
+      totalAmount: (map['total_amount'] as num?)?.toDouble() ?? 0.0,
+      refundAmount: (map['refund_amount'] as num?)?.toDouble() ?? 0.0,
+      totalTax: (map['total_tax'] as num?)?.toDouble() ?? 0.0,
       status: map['status'] != null
           ? ReturnOrderStatus.values.firstWhere(
-              (element) => element.name == map['status'] as String,
+              (element) => element.name == map['status']?.toString(),
               orElse: () => ReturnOrderStatus.pending,
             )
           : ReturnOrderStatus.pending,
-      reason: map['reason'] as String?,
-      createdBy: map['created_by'] as String,
-      returnDate: DateTime.parse(map['return_date'] as String),
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-      isSynced: map['is_synced'] as int? ?? 0,
+      reason: map['reason']?.toString(),
+      createdBy: map['created_by']?.toString() ?? '',
+      returnDate: map['return_date'] != null
+          ? DateTime.tryParse(map['return_date'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: map['updated_at'] != null
+          ? DateTime.tryParse(map['updated_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      isSynced: (map['is_synced'] as num?)?.toInt() ?? 0,
       lastSyncedAt: map['last_synced_at'] != null
-          ? DateTime.parse(map['last_synced_at'] as String)
+          ? DateTime.tryParse(map['last_synced_at'].toString())
           : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory ReturnOrder.fromJson(String source) =>
-      ReturnOrder.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ReturnOrderModel.fromJson(String source) =>
+      ReturnOrderModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
 
-class ReturnOrderItem {
+class ReturnOrderItemModel {
   final String id;
   final String? productId;
   final String returnOrderId;
@@ -166,7 +172,7 @@ class ReturnOrderItem {
   final int isSynced;
   final DateTime? lastSyncedAt;
 
-  ReturnOrderItem({
+  ReturnOrderItemModel({
     required this.id,
     this.productId,
     required this.returnOrderId,
@@ -181,7 +187,7 @@ class ReturnOrderItem {
     this.lastSyncedAt,
   });
 
-  ReturnOrderItem copyWith({
+  ReturnOrderItemModel copyWith({
     String? id,
     String? productId,
     String? productName,
@@ -195,7 +201,7 @@ class ReturnOrderItem {
     int? isSynced,
     DateTime? lastSyncedAt,
   }) {
-    return ReturnOrderItem(
+    return ReturnOrderItemModel(
       id: id ?? this.id,
       returnOrderId: returnOrderId ?? this.returnOrderId,
       productId: productId ?? this.productId,
@@ -228,29 +234,27 @@ class ReturnOrderItem {
     };
   }
 
-  factory ReturnOrderItem.fromMap(Map<String, dynamic> map) {
-    return ReturnOrderItem(
-      id: map['id'] as String,
-      productId: map['product_id'] as String?,
-      returnOrderId:  map['return_order_id'] as String,
-      productName: map['product_name'] as String,
-      quantity: (map['quantity'] as num).toInt(),
-      unitPrice: (map['unit_price'] as num).toDouble(),
-      totalPrice: (map['total_price'] as num).toDouble(),
-      taxAmount: map['tax_amount'] != null
-          ? (map['tax_amount'] as num).toDouble()
-          : 0.0,
-      reason: map['reason'] as String?,
-      refundAmount: (map['refund_amount'] as num).toDouble(),
-      isSynced: map['is_synced'] as int? ?? 0,
+  factory ReturnOrderItemModel.fromMap(Map<String, dynamic> map) {
+    return ReturnOrderItemModel(
+      id: map['id']?.toString() ?? '',
+      productId: map['product_id']?.toString(),
+      returnOrderId: map['return_order_id']?.toString() ?? '',
+      productName: map['product_name']?.toString() ?? '',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      unitPrice: (map['unit_price'] as num?)?.toDouble() ?? 0.0,
+      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0.0,
+      taxAmount: (map['tax_amount'] as num?)?.toDouble() ?? 0.0,
+      reason: map['reason']?.toString(),
+      refundAmount: (map['refund_amount'] as num?)?.toDouble() ?? 0.0,
+      isSynced: (map['is_synced'] as num?)?.toInt() ?? 0,
       lastSyncedAt: map['last_synced_at'] != null
-          ? DateTime.parse(map['last_synced_at'] as String)
+          ? DateTime.tryParse(map['last_synced_at'].toString())
           : null,
     );
   }
 }
 
-class CreditNote {
+class CreditNoteModel {
   final String id;
   final String creditNoteNumber;
   final String? invoiceId;
@@ -271,7 +275,7 @@ class CreditNote {
   final int isSynced;
   final DateTime? lastSyncedAt;
 
-  CreditNote({
+  CreditNoteModel({
     required this.id,
     required this.creditNoteNumber,
     this.invoiceId,
@@ -293,7 +297,7 @@ class CreditNote {
     this.lastSyncedAt,
   });
 
-  CreditNote copyWith({
+  CreditNoteModel copyWith({
     String? id,
     String? creditNoteNumber,
     String? invoiceId,
@@ -314,7 +318,7 @@ class CreditNote {
     int? isSynced,
     DateTime? lastSyncedAt,
   }) {
-    return CreditNote(
+    return CreditNoteModel(
       id: id ?? this.id,
       creditNoteNumber: creditNoteNumber ?? this.creditNoteNumber,
       invoiceId: invoiceId ?? this.invoiceId,
@@ -363,48 +367,52 @@ class CreditNote {
     };
   }
 
-  factory CreditNote.fromMap(Map<String, dynamic> map) {
-    return CreditNote(
-      id: map['id'] as String,
-      creditNoteNumber: map['credit_note_number'] as String,
-      invoiceId: map['invoice_id'] as String?,
-      returnOrderId: map['return_order_id'] as String?,
-      customerName: map['customer_name'] as String?,
-      branchId: map['branch_id'] as String?,
-      branchName: map['branch_name'] as String?,
-      totalItems: map['total_items'] as int,
-      totalAmount: (map['total_amount'] as num).toDouble(),
-      appliedAmount: map['applied_amount'] != null
-          ? (map['applied_amount'] as num).toDouble()
-          : 0.0,
+  factory CreditNoteModel.fromMap(Map<String, dynamic> map) {
+    return CreditNoteModel(
+      id: map['id']?.toString() ?? '',
+      creditNoteNumber: map['credit_note_number']?.toString() ?? '',
+      invoiceId: map['invoice_id']?.toString(),
+      returnOrderId: map['return_order_id']?.toString(),
+      customerName: map['customer_name']?.toString(),
+      branchId: map['branch_id']?.toString(),
+      branchName: map['branch_name']?.toString(),
+      totalItems: (map['total_items'] as num?)?.toInt() ?? 0,
+      totalAmount: (map['total_amount'] as num?)?.toDouble() ?? 0.0,
+      appliedAmount: (map['applied_amount'] as num?)?.toDouble() ?? 0.0,
       status: map['status'] != null
           ? CreditNoteStatus.values.firstWhere(
-              (element) => element.name == map['status'] as String,
+              (element) => element.name == map['status']?.toString(),
               orElse: () => CreditNoteStatus.draft,
             )
           : CreditNoteStatus.draft,
-      note: map['note'] as String?,
-      createdBy: map['created_by'] as String,
-      issuedAt: DateTime.parse(map['issued_at'] as String),
+      note: map['note']?.toString(),
+      createdBy: map['created_by']?.toString() ?? '',
+      issuedAt: map['issued_at'] != null
+          ? DateTime.tryParse(map['issued_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
       dueDate: map['due_date'] != null
-          ? DateTime.parse(map['due_date'] as String)
+          ? DateTime.tryParse(map['due_date'].toString())
           : null,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-      isSynced: map['is_synced'] as int? ?? 0,
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: map['updated_at'] != null
+          ? DateTime.tryParse(map['updated_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      isSynced: (map['is_synced'] as num?)?.toInt() ?? 0,
       lastSyncedAt: map['last_synced_at'] != null
-          ? DateTime.parse(map['last_synced_at'] as String)
+          ? DateTime.tryParse(map['last_synced_at'].toString())
           : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory CreditNote.fromJson(String source) =>
-      CreditNote.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CreditNoteModel.fromJson(String source) =>
+      CreditNoteModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }
 
-class CreditNoteItem {
+class CreditNoteItemModel {
   final String id;
   final String creditNoteId;
   final String? productId;
@@ -416,7 +424,7 @@ class CreditNoteItem {
   final int isSynced;
   final DateTime? lastSyncedAt;
 
-  CreditNoteItem({
+  CreditNoteItemModel({
     required this.id,
     this.productId,
     required this.creditNoteId,
@@ -429,7 +437,7 @@ class CreditNoteItem {
     this.lastSyncedAt,
   });
 
-  CreditNoteItem copyWith({
+  CreditNoteItemModel copyWith({
     String? id,
     String? productId,
     String? description,
@@ -441,7 +449,7 @@ class CreditNoteItem {
     int? isSynced,
     DateTime? lastSyncedAt,
   }) {
-    return CreditNoteItem(
+    return CreditNoteItemModel(
       id: id ?? this.id,
       productId: productId ?? this.productId,
       creditNoteId: creditNoteId ?? this.creditNoteId,
@@ -470,21 +478,19 @@ class CreditNoteItem {
     };
   }
 
-  factory CreditNoteItem.fromMap(Map<String, dynamic> map) {
-    return CreditNoteItem(
-      id: map['id'] as String,
-      productId: map['product_id'] as String?,
-      creditNoteId: map['credit_note_id'] as String,
-      description: map['description'] as String,
-      quantity: (map['quantity'] as num).toInt(),
-      unitPrice: (map['unit_price'] as num).toDouble(),
-      totalPrice: (map['total_price'] as num).toDouble(),
-      taxAmount: map['tax_amount'] != null
-          ? (map['tax_amount'] as num).toDouble()
-          : 0.0,
-      isSynced: map['is_synced'] as int? ?? 0,
+  factory CreditNoteItemModel.fromMap(Map<String, dynamic> map) {
+    return CreditNoteItemModel(
+      id: map['id']?.toString() ?? '',
+      productId: map['product_id']?.toString(),
+      creditNoteId: map['credit_note_id']?.toString() ?? '',
+      description: map['description']?.toString() ?? '',
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      unitPrice: (map['unit_price'] as num?)?.toDouble() ?? 0.0,
+      totalPrice: (map['total_price'] as num?)?.toDouble() ?? 0.0,
+      taxAmount: (map['tax_amount'] as num?)?.toDouble() ?? 0.0,
+      isSynced: (map['is_synced'] as num?)?.toInt() ?? 0,
       lastSyncedAt: map['last_synced_at'] != null
-          ? DateTime.parse(map['last_synced_at'] as String)
+          ? DateTime.tryParse(map['last_synced_at'].toString())
           : null,
     );
   }

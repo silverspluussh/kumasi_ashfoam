@@ -1,4 +1,4 @@
-class BranchPayment {
+class BranchPaymentModel {
   final String id;
   final String branchId;
   final String branchName;
@@ -8,7 +8,7 @@ class BranchPayment {
   final DateTime createdAt;
   final String createdBy;
 
-  BranchPayment({
+  BranchPaymentModel({
     required this.id,
     required this.title,
     this.note,
@@ -19,7 +19,7 @@ class BranchPayment {
     required this.createdBy,
   });
 
-  BranchPayment copyWith({
+  BranchPaymentModel copyWith({
     String? id,
     String? branchId,
     String? branchName,
@@ -29,7 +29,7 @@ class BranchPayment {
     DateTime? createdAt,
     String? createdBy,
   }) {
-    return BranchPayment(
+    return BranchPaymentModel(
       id: id ?? this.id,
       branchId: branchId ?? this.branchId,
       branchName: branchName ?? this.branchName,
@@ -54,16 +54,18 @@ class BranchPayment {
     };
   }
 
-  factory BranchPayment.fromMap(Map<String, dynamic> map) {
-    return BranchPayment(
-      id: map['id'] as String,
-      branchId: map['branch_id'] as String,
-      branchName: map['branch_name'] as String,
-      amount: (map['amount'] as num).toDouble(),
+  factory BranchPaymentModel.fromMap(Map<String, dynamic> map) {
+    return BranchPaymentModel(
+      id: map['id'] as String? ?? '',
+      branchId: map['branch_id'] as String? ?? map['branchId'] as String? ?? '',
+      branchName: map['branch_name'] as String? ?? map['branchName'] as String? ?? 'Unknown Branch',
+      amount: (map['amount'] as num? ?? 0).toDouble(),
       note: map['note'] as String?,
-      title: map['title'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      createdBy: map['created_by'] as String,
+      title: map['title'] as String? ?? 'Payment',
+      createdAt: map['created_at'] != null
+          ? (DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now())
+          : DateTime.now(),
+      createdBy: map['created_by'] as String? ?? map['createdBy'] as String? ?? 'system',
     );
   }
 }

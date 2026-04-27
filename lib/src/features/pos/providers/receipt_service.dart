@@ -1,5 +1,8 @@
 import 'dart:typed_data';
+import 'package:ashfoam_sadiq/src/data/local/database_service.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/company.model.dart';
+import 'package:ashfoam_sadiq/src/features/common/services/pdf_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
@@ -11,8 +14,12 @@ class ReceiptService {
   static final _currencyFormat = NumberFormat.currency(symbol: 'GH¢');
   static final _dateFormat = DateFormat('dd MMM yyyy HH:mm');
 
-  static Future<void> printReceipt(SaleOrderModel order, List<SaleOrderItem> items) async {
-    final pdf = await _generateReceipt(order, items);
+  static Future<void> printReceipt(
+    SaleOrderModel order,
+    List<SaleOrderItem> items, {
+    CompanyModel? company,
+  }) async {
+    final pdf = await _generateReceipt(order, items, company: company);
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf,
       name: 'Receipt_${order.orderNumber}.pdf',
@@ -22,8 +29,9 @@ class ReceiptService {
   static Future<void> showPreview(
     BuildContext context,
     SaleOrderModel order,
-    List<SaleOrderItem> items,
-  ) async {
+    List<SaleOrderItem> items, {
+    CompanyModel? company,
+  }) async {
     await showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -52,7 +60,8 @@ class ReceiptService {
               const Divider(),
               Expanded(
                 child: PdfPreview(
-                  build: (format) => _generateReceipt(order, items),
+                  build: (format) =>
+                      _generateReceipt(order, items, company: company),
                   allowSharing: true,
                   allowPrinting: true,
                   canChangePageFormat: false,
@@ -74,7 +83,12 @@ class ReceiptService {
     );
   }
 
-  static Future<Uint8List> _generateReceipt(SaleOrderModel order, List<SaleOrderItem> items) async {
+  static Future<Uint8List> _generateReceipt(
+    SaleOrderModel order,
+    List<SaleOrderItem> items, {
+    CompanyModel? company,
+  }) async {
+    final allTaxes = await DatabaseService.instance.getTaxes();
     final pdf = pw.Document();
 
     // Use a thermal printer friendly format (approx 80mm)
@@ -95,75 +109,166 @@ class ReceiptService {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.center,
             children: [
-              pw.Text(
-                'KUMASI ASHFOAM',
-                style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14),
-              ),
-              pw.SizedBox(height: 2),
-              pw.Text('Authorized Distributor', style: const pw.TextStyle(fontSize: 8)),
-              pw.SizedBox(height: 5),
-              pw.Text('OFFICIAL RECEIPT', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+              PdfHelper.buildReceiptHeader(company),
               pw.Divider(thickness: 1),
-              
+
               pw.Align(
                 alignment: pw.Alignment.centerLeft,
                 child: pw.Column(
                   crossAxisAlignment: pw.CrossAxisAlignment.start,
                   children: [
                     _receiptRow('Order #:', order.orderNumber),
-                    _receiptRow('Date:', _dateFormat.format(order.createdAt ?? DateTime.now())),
+                    _receiptRow(
+                      'Date:',
+                      _dateFormat.format(order.createdAt ?? DateTime.now()),
+                    ),
                     _receiptRow('Customer:', order.customerName ?? 'Walk-in'),
-                    _receiptRow('Cashier:', order.createdBy),
                   ],
                 ),
               ),
-              
+
               pw.SizedBox(height: 10),
               pw.Divider(thickness: 0.5),
               pw.Row(
                 children: [
-                  pw.Expanded(flex: 3, child: pw.Text('Item', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8))),
-                  pw.Expanded(flex: 1, child: pw.Text('Qty', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8), textAlign: pw.TextAlign.center)),
-                  pw.Expanded(flex: 2, child: pw.Text('Price', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8), textAlign: pw.TextAlign.right)),
-                  pw.Expanded(flex: 2, child: pw.Text('Total', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8), textAlign: pw.TextAlign.right)),
+                  pw.Expanded(
+                    flex: 3,
+                    child: pw.Text(
+                      'Item',
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ),
+                  pw.Expanded(
+                    flex: 1,
+                    child: pw.Text(
+                      'Qty',
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 8,
+                      ),
+                      textAlign: pw.TextAlign.center,
+                    ),
+                  ),
+                  pw.Expanded(
+                    flex: 2,
+                    child: pw.Text(
+                      'Price',
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 8,
+                      ),
+                      textAlign: pw.TextAlign.right,
+                    ),
+                  ),
+                  pw.Expanded(
+                    flex: 2,
+                    child: pw.Text(
+                      'Total',
+                      style: pw.TextStyle(
+                        fontWeight: pw.FontWeight.bold,
+                        fontSize: 8,
+                      ),
+                      textAlign: pw.TextAlign.right,
+                    ),
+                  ),
                 ],
               ),
               pw.Divider(thickness: 0.5),
 
-              ...items.map((item) => pw.Padding(
-                padding: const pw.EdgeInsets.symmetric(vertical: 2),
-                child: pw.Row(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.Expanded(flex: 3, child: pw.Text(item.productName, style: const pw.TextStyle(fontSize: 7))),
-                    pw.Expanded(flex: 1, child: pw.Text(item.quantity.toString(), style: const pw.TextStyle(fontSize: 7), textAlign: pw.TextAlign.center)),
-                    pw.Expanded(flex: 2, child: pw.Text(item.unitPrice.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 7), textAlign: pw.TextAlign.right)),
-                    pw.Expanded(flex: 2, child: pw.Text(item.totalPrice.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 7), textAlign: pw.TextAlign.right)),
-                  ],
+              ...items.map(
+                (item) => pw.Padding(
+                  padding: const pw.EdgeInsets.symmetric(vertical: 2),
+                  child: pw.Row(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Expanded(
+                        flex: 3,
+                        child: pw.Text(
+                          item.productName,
+                          style: const pw.TextStyle(fontSize: 7),
+                        ),
+                      ),
+                      pw.Expanded(
+                        flex: 1,
+                        child: pw.Text(
+                          item.quantity.toString(),
+                          style: const pw.TextStyle(fontSize: 7),
+                          textAlign: pw.TextAlign.center,
+                        ),
+                      ),
+                      pw.Expanded(
+                        flex: 2,
+                        child: pw.Text(
+                          item.unitPrice.toStringAsFixed(2),
+                          style: const pw.TextStyle(fontSize: 7),
+                          textAlign: pw.TextAlign.right,
+                        ),
+                      ),
+                      pw.Expanded(
+                        flex: 2,
+                        child: pw.Text(
+                          item.totalPrice.toStringAsFixed(2),
+                          style: const pw.TextStyle(fontSize: 7),
+                          textAlign: pw.TextAlign.right,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
 
               pw.Divider(thickness: 1),
               pw.Column(
                 children: [
-                   _receiptTotalRow('Subtotal', (order.totalAmount - order.taxAmount)),
-                   if (order.discountAmount > 0)
+                  _receiptTotalRow(
+                    'Subtotal',
+                    order.totalAmount + order.discountAmount,
+                  ),
+                  if (order.discountAmount > 0)
                     _receiptTotalRow('Discount', -order.discountAmount),
-                   _receiptTotalRow('VAT (15%)', order.taxAmount),
-                   pw.Divider(thickness: 0.5),
-                   pw.Row(
+                  ...allTaxes.map((tax) {
+                    final calculatedTax =
+                        order.totalAmount * (tax.valuePercentage / 100);
+                    return _receiptTotalRow(
+                      '${tax.name} (${tax.valuePercentage}%)',
+                      calculatedTax,
+                    );
+                  }),
+                  pw.Divider(thickness: 0.5),
+                  pw.Row(
                     mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
                     children: [
-                      pw.Text('TOTAL', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
-                      pw.Text(_currencyFormat.format(order.totalAmount), style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10)),
+                      pw.Text(
+                        'TOTAL',
+                        style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
+                      pw.Text(
+                        _currencyFormat.format(order.totalAmount),
+                        style: pw.TextStyle(
+                          fontWeight: pw.FontWeight.bold,
+                          fontSize: 10,
+                        ),
+                      ),
                     ],
                   ),
                 ],
               ),
-              
+
               pw.SizedBox(height: 20),
-              pw.Text('THANK YOU FOR YOUR BUSINESS!', style: const pw.TextStyle(fontSize: 8)),
-              pw.Text('Please visit again.', style: const pw.TextStyle(fontSize: 7)),
+              pw.Text(
+                'THANK YOU FOR YOUR BUSINESS!',
+                style: const pw.TextStyle(fontSize: 8),
+              ),
+              pw.Text(
+                'Please visit again.',
+                style: const pw.TextStyle(fontSize: 7),
+              ),
             ],
           );
         },
@@ -180,7 +285,10 @@ class ReceiptService {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(label, style: const pw.TextStyle(fontSize: 8)),
-          pw.Text(value, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8)),
+          pw.Text(
+            value,
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8),
+          ),
         ],
       ),
     );
@@ -193,7 +301,10 @@ class ReceiptService {
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
           pw.Text(label, style: const pw.TextStyle(fontSize: 8)),
-          pw.Text(value.toStringAsFixed(2), style: const pw.TextStyle(fontSize: 8)),
+          pw.Text(
+            value.toStringAsFixed(2),
+            style: const pw.TextStyle(fontSize: 8),
+          ),
         ],
       ),
     );

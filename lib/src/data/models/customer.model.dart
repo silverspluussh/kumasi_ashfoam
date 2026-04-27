@@ -61,17 +61,17 @@ class CustomerModel {
 
   factory CustomerModel.fromMap(Map<String, dynamic> map) {
     return CustomerModel(
-      id: map['id'] as int,
-      name: map['name'] as String,
-      email: map['email'] as String?,
-      phone: map['phone'] as String?,
-      segment: map['segment'] as String?,
+      id: (map['id'] as num?)?.toInt() ?? 0,
+      name: map['name']?.toString() ?? '',
+      email: map['email']?.toString(),
+      phone: map['phone']?.toString(),
+      segment: map['segment']?.toString(),
       ordersCount: (map['orders_count'] as num?)?.toInt(),
       lifetimeValue: (map['lifetime_value'] as num?)?.toDouble(),
       lastOrderDate: map['last_order_date'] != null
-          ? DateTime.parse(map['last_order_date'] as String)
+          ? DateTime.tryParse(map['last_order_date'].toString())
           : null,
-      status: map['status'] as String?,
+      status: map['status']?.toString(),
     );
   }
 }

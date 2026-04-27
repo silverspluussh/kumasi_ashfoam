@@ -1,109 +1,67 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class InvoicesRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  InvoicesRepository({required this.apiClient});
+  InvoicesRepository({required this.supabase});
 
-  /// Fetch all invoices
-  Future<List<Map<String, dynamic>>> getInvoices({
-    int? page,
-    int? limit,
+  /// Fetch all invoices from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? status,
     String? customerId,
   }) async {
-    final response = await apiClient.get(
-      '/invoices',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (status != null) 'status': status,
-        if (customerId != null) 'customerId': customerId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_invoices').select();
+
+    if (status != null) {
+      query = query.eq('status', status);
+    }
+    if (customerId != null) {
+      query = query.eq('customer_id', customerId);
+    }
+
+    final response = await query;
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single invoice
-  Future<Map<String, dynamic>> getInvoice(String invoiceId) async {
-    final response = await apiClient.get('/invoices/$invoiceId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create invoice from sale order
-  Future<Map<String, dynamic>> createInvoice(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert invoices to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> invoices,
   ) async {
-    final response = await apiClient.post(
-      '/invoices',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (invoices.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_invoices')
+        .upsert(invoices)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update invoice
-  Future<Map<String, dynamic>> updateInvoice(
-    String invoiceId,
-    Map<String, dynamic> data,
+  /// Note: Invoices in this schema usually share items with the Sale Order 
+  /// or have a dedicated ashfoam_invoice_items table. 
+  /// Added fetchItems and bulkUploadItems for consistency.
+
+  /// Fetch invoice items from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String invoiceId) async {
+    final response = await supabase
+        .from('ashfoam_invoice_items')
+        .select()
+        .eq('invoice_id', invoiceId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert invoice items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/invoices/$invoiceId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Mark invoice as sent
-  Future<void> markInvoiceAsSent(String invoiceId) async {
-    await apiClient.post(
-      '/invoices/$invoiceId/mark-sent',
-      data: {},
-    );
-  }
-
-  /// Mark invoice as paid
-  Future<void> markInvoiceAsPaid(String invoiceId) async {
-    await apiClient.post(
-      '/invoices/$invoiceId/mark-paid',
-      data: {},
-    );
-  }
-
-  /// Generate invoice PDF
-  Future<String> generateInvoicePDF(String invoiceId) async {
-    final response = await apiClient.get('/invoices/$invoiceId/pdf');
-    return response.data['data']['pdfUrl'] ?? '';
-  }
-
-  /// Send invoice by email
-  Future<void> sendInvoiceByEmail(
-    String invoiceId,
-    String email,
-  ) async {
-    await apiClient.post(
-      '/invoices/$invoiceId/send-email',
-      data: {'email': email},
-    );
-  }
-
-  /// Get invoice summary/report
-  Future<Map<String, dynamic>> getInvoiceSummary({
-    String? period,
-    String? branchId,
-  }) async {
-    final response = await apiClient.get(
-      '/invoices/summary',
-      queryParameters: {
-        if (period != null) 'period': period,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Sync invoices
-  Future<List<Map<String, dynamic>>> syncInvoices() async {
-    final response = await apiClient.get('/invoices/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_invoice_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

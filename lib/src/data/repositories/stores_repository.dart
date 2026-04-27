@@ -1,70 +1,35 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StoresRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  StoresRepository({required this.apiClient});
+  StoresRepository({required this.supabase});
 
-  /// Fetch all stores
-  Future<List<Map<String, dynamic>>> getStores({
-    int? page,
-    int? limit,
+  /// Fetch all stores from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? branchId,
   }) async {
-    final response = await apiClient.get(
-      '/stores',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_stores').select();
+
+    if (branchId != null) {
+      query = query.eq('branch_id', branchId);
+    }
+
+    final response = await query.order('name', ascending: true);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single store
-  Future<Map<String, dynamic>> getStore(String storeId) async {
-    final response = await apiClient.get('/stores/$storeId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new store
-  Future<Map<String, dynamic>> createStore(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert stores to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> stores,
   ) async {
-    final response = await apiClient.post(
-      '/stores',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Update store
-  Future<Map<String, dynamic>> updateStore(
-    String storeId,
-    Map<String, dynamic> data,
-  ) async {
-    final response = await apiClient.put(
-      '/stores/$storeId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Delete store
-  Future<void> deleteStore(String storeId) async {
-    await apiClient.delete('/stores/$storeId');
-  }
-
-  /// Get store inventory
-  Future<List<Map<String, dynamic>>> getStoreInventory(String storeId) async {
-    final response = await apiClient.get('/stores/$storeId/inventory');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Sync stores
-  Future<List<Map<String, dynamic>>> syncStores() async {
-    final response = await apiClient.get('/stores/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (stores.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_stores')
+        .upsert(stores)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

@@ -58,7 +58,7 @@ class _CreateProformaDialogState extends ConsumerState<CreateProformaDialog> {
     });
   }
 
-  void _addTax(model.Tax tax) {
+  void _addTax(model.TaxModel tax) {
     if (_selectedTaxes.any((t) => t.tax.id == tax.id)) return;
     setState(() {
       _selectedTaxes.add(TaxComponent(tax: tax, taxAmount: 0));
@@ -330,7 +330,7 @@ class _CreateProformaDialogState extends ConsumerState<CreateProformaDialog> {
     );
   }
 
-  Widget _buildTaxSection(AsyncValue<List<model.Tax>> taxesAsync) {
+  Widget _buildTaxSection(AsyncValue<List<model.TaxModel>> taxesAsync) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -342,7 +342,7 @@ class _CreateProformaDialogState extends ConsumerState<CreateProformaDialog> {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
             ),
             taxesAsync.when(
-              data: (taxes) => PopupMenuButton<model.Tax>(
+              data: (taxes) => PopupMenuButton<model.TaxModel>(
                 onSelected: _addTax,
                 child: const Text(
                   "+ Add Tax",
@@ -481,6 +481,7 @@ class _ProductItemFormDialogState extends ConsumerState<ProductItemFormDialog> {
       title: const Text("Add Product Details"),
       actions: [
         FButton(
+          
           variant: FButtonVariant.outline,
           onPress: () => Navigator.pop(context),
           child: const Text("Cancel"),

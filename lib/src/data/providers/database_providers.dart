@@ -1,31 +1,42 @@
-import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
+import 'package:ashfoam_sadiq/src/data/local/app_database.dart' as db;
 import 'package:ashfoam_sadiq/src/data/local/database_service.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/customer.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/supplier.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/receipt.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/return_order.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/waybill.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/employee.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/expenses.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/payments.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/company.model.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'database_providers.g.dart';
 
-
 @riverpod
-DatabaseService databaseService(DatabaseServiceRef ref) {
+DatabaseService databaseService(Ref ref) {
   return DatabaseService.instance;
 }
 
 @riverpod
-Future<List<InventoryItem>> inventoryItems(InventoryItemsRef ref) async {
+Future<List<InventoryModel>> inventoryItems(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getInventoryItems();
 }
 
-
 @riverpod
-Future<List<Supplier>> suppliers(Ref ref) async {
+Future<List<SupplierModel>> suppliers(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getSuppliers();
 }
 
 @riverpod
-Future<List<SaleOrder>> saleOrders(Ref ref) async {
+Future<List<SaleOrderModel>> saleOrders(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getSalesOrders();
 }
@@ -42,22 +53,20 @@ Future<List<SaleOrderItem>> allSaleOrderItems(Ref ref) async {
   return dbService.getAllSaleOrderItems();
 }
 
-
 @riverpod
-Future<List<Customer>> customers(Ref ref) async {
+Future<List<CustomerModel>> customers(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getCustomers();
 }
 
-
 @riverpod
-Future<List<ReturnOrder>> returnOrders(Ref ref) async {
+Future<List<ReturnOrderModel>> returnOrders(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getReturnOrders();
 }
 
 @riverpod
-Future<List<ReturnOrderItem>> returnOrderItems(
+Future<List<ReturnOrderItemModel>> returnOrderItems(
   Ref ref,
   String returnOrderId,
 ) async {
@@ -66,20 +75,19 @@ Future<List<ReturnOrderItem>> returnOrderItems(
 }
 
 @riverpod
-Future<List<ReturnOrderItem>> allReturnOrderItems(Ref ref) async {
+Future<List<ReturnOrderItemModel>> allReturnOrderItems(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getAllReturnOrderItems();
 }
 
-
 @riverpod
-Future<List<CreditNote>> creditNotes(Ref ref) async {
+Future<List<CreditNoteModel>> creditNotes(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getCreditNotes();
 }
 
 @riverpod
-Future<List<CreditNoteItem>> creditNoteItems(
+Future<List<CreditNoteItemModel>> creditNoteItems(
   Ref ref,
   String creditNoteId,
 ) async {
@@ -88,101 +96,82 @@ Future<List<CreditNoteItem>> creditNoteItems(
 }
 
 @riverpod
-Future<List<CreditNoteItem>> allCreditNoteItems(Ref ref) async {
+Future<List<CreditNoteItemModel>> allCreditNoteItems(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getAllCreditNoteItems();
 }
 
-
 @riverpod
-Future<List<Invoice>> invoices(Ref ref) async {
+Future<List<InvoiceModel>> invoices(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getInvoices();
 }
 
-
 @riverpod
-Future<List<StockReport>> stockReports(Ref ref) async {
+Future<List<StockReportSummary>> stockReports(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getStockReports();
 }
 
-
 @riverpod
-Future<List<Employee>> employees(Ref ref) async {
+Future<List<EmployeeModel>> employees(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getEmployees();
 }
 
-
 @riverpod
-Future<List<Expense>> expenses(Ref ref) async {
+Future<List<ExpenseModel>> expenses(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getExpenses();
 }
 
-
 @riverpod
-Future<List<BranchPayment>> branchPayments(Ref ref) async {
+Future<List<BranchPaymentModel>> branchPayments(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getBranchPayments();
 }
 
-
 @riverpod
-Future<List<Receipt>> receipts(Ref ref) async {
+Future<List<ReceiptModel>> receipts(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getReceipts();
 }
 
-
 @riverpod
-Future<List<Proforma>> proformas(Ref ref) async {
+Future<List<Profoma>> proformas(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getProformas();
 }
 
-
 @riverpod
-Future<List<WayBill>> wayBills(Ref ref) async {
+Future<List<WayBillModel>> wayBills(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getWayBills();
 }
 
-
 @riverpod
-Future<List<ProductDetailsListData>> allProductDetails(
-  Ref ref,
-) async {
+Future<List<ProductDetails>> allProductDetails(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getProductDetails();
 }
 
 @riverpod
-Future<List<ProductDetailsListData>> proformaDetails(
-  Ref ref,
-  String proformaId,
-) async {
+Future<List<ProductDetails>> proformaDetails(Ref ref, String proformaId) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getProformaDetails(proformaId);
 }
 
 @riverpod
-Future<List<ProductDetailsListData>> wayBillDetails(
-  Ref ref,
-  String wayBillId,
-) async {
+Future<List<ProductDetails>> wayBillDetails(Ref ref, String wayBillId) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getWayBillDetails(wayBillId);
 }
 
-
 @riverpod
-Future<List<ProductBrand>> brands(Ref ref) async {
+Future<List<Brand>> brands(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getBrands();
 }
-
 
 @riverpod
 Future<List<ProductCategory>> categories(Ref ref) async {
@@ -190,9 +179,14 @@ Future<List<ProductCategory>> categories(Ref ref) async {
   return dbService.getCategories();
 }
 
-
 @riverpod
 Future<List<ProductSubCategory>> subCategories(Ref ref) async {
   final dbService = ref.watch(databaseServiceProvider);
   return dbService.getSubCategories();
+}
+
+@riverpod
+Future<CompanyModel?> companySettings(Ref ref) async {
+  final dbService = ref.watch(databaseServiceProvider);
+  return dbService.getCompanySettings();
 }

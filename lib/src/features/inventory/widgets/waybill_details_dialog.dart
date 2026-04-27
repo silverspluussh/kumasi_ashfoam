@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 class WaybillDetailsDialog extends ConsumerWidget {
-  final WayBill waybill;
+  final WayBillModel waybill;
 
   const WaybillDetailsDialog({super.key, required this.waybill});
 

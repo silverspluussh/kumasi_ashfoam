@@ -3,782 +3,6 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $BranchesTable extends Branches with TableInfo<$BranchesTable, Branche> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $BranchesTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<String> id = GeneratedColumn<String>(
-    'id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-    clientDefault: () => const Uuid().v4(),
-  );
-  static const VerificationMeta _storeIdMeta = const VerificationMeta(
-    'storeId',
-  );
-  @override
-  late final GeneratedColumn<String> storeId = GeneratedColumn<String>(
-    'store_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _storeNameMeta = const VerificationMeta(
-    'storeName',
-  );
-  @override
-  late final GeneratedColumn<String> storeName = GeneratedColumn<String>(
-    'store_name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _branchNameMeta = const VerificationMeta(
-    'branchName',
-  );
-  @override
-  late final GeneratedColumn<String> branchName = GeneratedColumn<String>(
-    'branch_name',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _branchAddressMeta = const VerificationMeta(
-    'branchAddress',
-  );
-  @override
-  late final GeneratedColumn<String> branchAddress = GeneratedColumn<String>(
-    'branch_address',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _contactMeta = const VerificationMeta(
-    'contact',
-  );
-  @override
-  late final GeneratedColumn<String> contact = GeneratedColumn<String>(
-    'contact',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _isActiveMeta = const VerificationMeta(
-    'isActive',
-  );
-  @override
-  late final GeneratedColumn<int> isActive = GeneratedColumn<int>(
-    'is_active',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(1),
-  );
-  static const VerificationMeta _isDeletedMeta = const VerificationMeta(
-    'isDeleted',
-  );
-  @override
-  late final GeneratedColumn<int> isDeleted = GeneratedColumn<int>(
-    'is_deleted',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _companyDetailsMeta = const VerificationMeta(
-    'companyDetails',
-  );
-  @override
-  late final GeneratedColumn<String> companyDetails = GeneratedColumn<String>(
-    'company_details',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
-  static const VerificationMeta _branchManagerNameMeta = const VerificationMeta(
-    'branchManagerName',
-  );
-  @override
-  late final GeneratedColumn<String> branchManagerName =
-      GeneratedColumn<String>(
-        'branch_manager_name',
-        aliasedName,
-        true,
-        type: DriftSqlType.string,
-        requiredDuringInsert: false,
-      );
-  static const VerificationMeta _branchManagerIdMeta = const VerificationMeta(
-    'branchManagerId',
-  );
-  @override
-  late final GeneratedColumn<String> branchManagerId = GeneratedColumn<String>(
-    'branch_manager_id',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  @override
-  List<GeneratedColumn> get $columns => [
-    id,
-    storeId,
-    storeName,
-    branchName,
-    branchAddress,
-    contact,
-    isActive,
-    isDeleted,
-    companyDetails,
-    branchManagerName,
-    branchManagerId,
-    createdAt,
-    updatedAt,
-  ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'branches';
-  @override
-  VerificationContext validateIntegrity(
-    Insertable<Branche> instance, {
-    bool isInserting = false,
-  }) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('store_id')) {
-      context.handle(
-        _storeIdMeta,
-        storeId.isAcceptableOrUnknown(data['store_id']!, _storeIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_storeIdMeta);
-    }
-    if (data.containsKey('store_name')) {
-      context.handle(
-        _storeNameMeta,
-        storeName.isAcceptableOrUnknown(data['store_name']!, _storeNameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_storeNameMeta);
-    }
-    if (data.containsKey('branch_name')) {
-      context.handle(
-        _branchNameMeta,
-        branchName.isAcceptableOrUnknown(data['branch_name']!, _branchNameMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_branchNameMeta);
-    }
-    if (data.containsKey('branch_address')) {
-      context.handle(
-        _branchAddressMeta,
-        branchAddress.isAcceptableOrUnknown(
-          data['branch_address']!,
-          _branchAddressMeta,
-        ),
-      );
-    }
-    if (data.containsKey('contact')) {
-      context.handle(
-        _contactMeta,
-        contact.isAcceptableOrUnknown(data['contact']!, _contactMeta),
-      );
-    }
-    if (data.containsKey('is_active')) {
-      context.handle(
-        _isActiveMeta,
-        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
-      );
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(
-        _isDeletedMeta,
-        isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta),
-      );
-    }
-    if (data.containsKey('company_details')) {
-      context.handle(
-        _companyDetailsMeta,
-        companyDetails.isAcceptableOrUnknown(
-          data['company_details']!,
-          _companyDetailsMeta,
-        ),
-      );
-    } else if (isInserting) {
-      context.missing(_companyDetailsMeta);
-    }
-    if (data.containsKey('branch_manager_name')) {
-      context.handle(
-        _branchManagerNameMeta,
-        branchManagerName.isAcceptableOrUnknown(
-          data['branch_manager_name']!,
-          _branchManagerNameMeta,
-        ),
-      );
-    }
-    if (data.containsKey('branch_manager_id')) {
-      context.handle(
-        _branchManagerIdMeta,
-        branchManagerId.isAcceptableOrUnknown(
-          data['branch_manager_id']!,
-          _branchManagerIdMeta,
-        ),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Branche map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Branche(
-      id: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}id'],
-      )!,
-      storeId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}store_id'],
-      )!,
-      storeName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}store_name'],
-      )!,
-      branchName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}branch_name'],
-      )!,
-      branchAddress: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}branch_address'],
-      ),
-      contact: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}contact'],
-      ),
-      isActive: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}is_active'],
-      )!,
-      isDeleted: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}is_deleted'],
-      )!,
-      companyDetails: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}company_details'],
-      )!,
-      branchManagerName: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}branch_manager_name'],
-      ),
-      branchManagerId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}branch_manager_id'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
-    );
-  }
-
-  @override
-  $BranchesTable createAlias(String alias) {
-    return $BranchesTable(attachedDatabase, alias);
-  }
-}
-
-class Branche extends DataClass implements Insertable<Branche> {
-  final String id;
-  final String storeId;
-  final String storeName;
-  final String branchName;
-  final String? branchAddress;
-  final String? contact;
-  final int isActive;
-  final int isDeleted;
-  final String companyDetails;
-  final String? branchManagerName;
-  final String? branchManagerId;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  const Branche({
-    required this.id,
-    required this.storeId,
-    required this.storeName,
-    required this.branchName,
-    this.branchAddress,
-    this.contact,
-    required this.isActive,
-    required this.isDeleted,
-    required this.companyDetails,
-    this.branchManagerName,
-    this.branchManagerId,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['id'] = Variable<String>(id);
-    map['store_id'] = Variable<String>(storeId);
-    map['store_name'] = Variable<String>(storeName);
-    map['branch_name'] = Variable<String>(branchName);
-    if (!nullToAbsent || branchAddress != null) {
-      map['branch_address'] = Variable<String>(branchAddress);
-    }
-    if (!nullToAbsent || contact != null) {
-      map['contact'] = Variable<String>(contact);
-    }
-    map['is_active'] = Variable<int>(isActive);
-    map['is_deleted'] = Variable<int>(isDeleted);
-    map['company_details'] = Variable<String>(companyDetails);
-    if (!nullToAbsent || branchManagerName != null) {
-      map['branch_manager_name'] = Variable<String>(branchManagerName);
-    }
-    if (!nullToAbsent || branchManagerId != null) {
-      map['branch_manager_id'] = Variable<String>(branchManagerId);
-    }
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
-    return map;
-  }
-
-  BranchesCompanion toCompanion(bool nullToAbsent) {
-    return BranchesCompanion(
-      id: Value(id),
-      storeId: Value(storeId),
-      storeName: Value(storeName),
-      branchName: Value(branchName),
-      branchAddress: branchAddress == null && nullToAbsent
-          ? const Value.absent()
-          : Value(branchAddress),
-      contact: contact == null && nullToAbsent
-          ? const Value.absent()
-          : Value(contact),
-      isActive: Value(isActive),
-      isDeleted: Value(isDeleted),
-      companyDetails: Value(companyDetails),
-      branchManagerName: branchManagerName == null && nullToAbsent
-          ? const Value.absent()
-          : Value(branchManagerName),
-      branchManagerId: branchManagerId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(branchManagerId),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
-    );
-  }
-
-  factory Branche.fromJson(
-    Map<String, dynamic> json, {
-    ValueSerializer? serializer,
-  }) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Branche(
-      id: serializer.fromJson<String>(json['id']),
-      storeId: serializer.fromJson<String>(json['storeId']),
-      storeName: serializer.fromJson<String>(json['storeName']),
-      branchName: serializer.fromJson<String>(json['branchName']),
-      branchAddress: serializer.fromJson<String?>(json['branchAddress']),
-      contact: serializer.fromJson<String?>(json['contact']),
-      isActive: serializer.fromJson<int>(json['isActive']),
-      isDeleted: serializer.fromJson<int>(json['isDeleted']),
-      companyDetails: serializer.fromJson<String>(json['companyDetails']),
-      branchManagerName: serializer.fromJson<String?>(
-        json['branchManagerName'],
-      ),
-      branchManagerId: serializer.fromJson<String?>(json['branchManagerId']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'id': serializer.toJson<String>(id),
-      'storeId': serializer.toJson<String>(storeId),
-      'storeName': serializer.toJson<String>(storeName),
-      'branchName': serializer.toJson<String>(branchName),
-      'branchAddress': serializer.toJson<String?>(branchAddress),
-      'contact': serializer.toJson<String?>(contact),
-      'isActive': serializer.toJson<int>(isActive),
-      'isDeleted': serializer.toJson<int>(isDeleted),
-      'companyDetails': serializer.toJson<String>(companyDetails),
-      'branchManagerName': serializer.toJson<String?>(branchManagerName),
-      'branchManagerId': serializer.toJson<String?>(branchManagerId),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
-    };
-  }
-
-  Branche copyWith({
-    String? id,
-    String? storeId,
-    String? storeName,
-    String? branchName,
-    Value<String?> branchAddress = const Value.absent(),
-    Value<String?> contact = const Value.absent(),
-    int? isActive,
-    int? isDeleted,
-    String? companyDetails,
-    Value<String?> branchManagerName = const Value.absent(),
-    Value<String?> branchManagerId = const Value.absent(),
-    DateTime? createdAt,
-    DateTime? updatedAt,
-  }) => Branche(
-    id: id ?? this.id,
-    storeId: storeId ?? this.storeId,
-    storeName: storeName ?? this.storeName,
-    branchName: branchName ?? this.branchName,
-    branchAddress: branchAddress.present
-        ? branchAddress.value
-        : this.branchAddress,
-    contact: contact.present ? contact.value : this.contact,
-    isActive: isActive ?? this.isActive,
-    isDeleted: isDeleted ?? this.isDeleted,
-    companyDetails: companyDetails ?? this.companyDetails,
-    branchManagerName: branchManagerName.present
-        ? branchManagerName.value
-        : this.branchManagerName,
-    branchManagerId: branchManagerId.present
-        ? branchManagerId.value
-        : this.branchManagerId,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
-  );
-  Branche copyWithCompanion(BranchesCompanion data) {
-    return Branche(
-      id: data.id.present ? data.id.value : this.id,
-      storeId: data.storeId.present ? data.storeId.value : this.storeId,
-      storeName: data.storeName.present ? data.storeName.value : this.storeName,
-      branchName: data.branchName.present
-          ? data.branchName.value
-          : this.branchName,
-      branchAddress: data.branchAddress.present
-          ? data.branchAddress.value
-          : this.branchAddress,
-      contact: data.contact.present ? data.contact.value : this.contact,
-      isActive: data.isActive.present ? data.isActive.value : this.isActive,
-      isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
-      companyDetails: data.companyDetails.present
-          ? data.companyDetails.value
-          : this.companyDetails,
-      branchManagerName: data.branchManagerName.present
-          ? data.branchManagerName.value
-          : this.branchManagerName,
-      branchManagerId: data.branchManagerId.present
-          ? data.branchManagerId.value
-          : this.branchManagerId,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('Branche(')
-          ..write('id: $id, ')
-          ..write('storeId: $storeId, ')
-          ..write('storeName: $storeName, ')
-          ..write('branchName: $branchName, ')
-          ..write('branchAddress: $branchAddress, ')
-          ..write('contact: $contact, ')
-          ..write('isActive: $isActive, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('companyDetails: $companyDetails, ')
-          ..write('branchManagerName: $branchManagerName, ')
-          ..write('branchManagerId: $branchManagerId, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(
-    id,
-    storeId,
-    storeName,
-    branchName,
-    branchAddress,
-    contact,
-    isActive,
-    isDeleted,
-    companyDetails,
-    branchManagerName,
-    branchManagerId,
-    createdAt,
-    updatedAt,
-  );
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Branche &&
-          other.id == this.id &&
-          other.storeId == this.storeId &&
-          other.storeName == this.storeName &&
-          other.branchName == this.branchName &&
-          other.branchAddress == this.branchAddress &&
-          other.contact == this.contact &&
-          other.isActive == this.isActive &&
-          other.isDeleted == this.isDeleted &&
-          other.companyDetails == this.companyDetails &&
-          other.branchManagerName == this.branchManagerName &&
-          other.branchManagerId == this.branchManagerId &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
-}
-
-class BranchesCompanion extends UpdateCompanion<Branche> {
-  final Value<String> id;
-  final Value<String> storeId;
-  final Value<String> storeName;
-  final Value<String> branchName;
-  final Value<String?> branchAddress;
-  final Value<String?> contact;
-  final Value<int> isActive;
-  final Value<int> isDeleted;
-  final Value<String> companyDetails;
-  final Value<String?> branchManagerName;
-  final Value<String?> branchManagerId;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
-  final Value<int> rowid;
-  const BranchesCompanion({
-    this.id = const Value.absent(),
-    this.storeId = const Value.absent(),
-    this.storeName = const Value.absent(),
-    this.branchName = const Value.absent(),
-    this.branchAddress = const Value.absent(),
-    this.contact = const Value.absent(),
-    this.isActive = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.companyDetails = const Value.absent(),
-    this.branchManagerName = const Value.absent(),
-    this.branchManagerId = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  BranchesCompanion.insert({
-    this.id = const Value.absent(),
-    required String storeId,
-    required String storeName,
-    required String branchName,
-    this.branchAddress = const Value.absent(),
-    this.contact = const Value.absent(),
-    this.isActive = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    required String companyDetails,
-    this.branchManagerName = const Value.absent(),
-    this.branchManagerId = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
-    this.rowid = const Value.absent(),
-  }) : storeId = Value(storeId),
-       storeName = Value(storeName),
-       branchName = Value(branchName),
-       companyDetails = Value(companyDetails);
-  static Insertable<Branche> custom({
-    Expression<String>? id,
-    Expression<String>? storeId,
-    Expression<String>? storeName,
-    Expression<String>? branchName,
-    Expression<String>? branchAddress,
-    Expression<String>? contact,
-    Expression<int>? isActive,
-    Expression<int>? isDeleted,
-    Expression<String>? companyDetails,
-    Expression<String>? branchManagerName,
-    Expression<String>? branchManagerId,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (id != null) 'id': id,
-      if (storeId != null) 'store_id': storeId,
-      if (storeName != null) 'store_name': storeName,
-      if (branchName != null) 'branch_name': branchName,
-      if (branchAddress != null) 'branch_address': branchAddress,
-      if (contact != null) 'contact': contact,
-      if (isActive != null) 'is_active': isActive,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (companyDetails != null) 'company_details': companyDetails,
-      if (branchManagerName != null) 'branch_manager_name': branchManagerName,
-      if (branchManagerId != null) 'branch_manager_id': branchManagerId,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  BranchesCompanion copyWith({
-    Value<String>? id,
-    Value<String>? storeId,
-    Value<String>? storeName,
-    Value<String>? branchName,
-    Value<String?>? branchAddress,
-    Value<String?>? contact,
-    Value<int>? isActive,
-    Value<int>? isDeleted,
-    Value<String>? companyDetails,
-    Value<String?>? branchManagerName,
-    Value<String?>? branchManagerId,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
-    Value<int>? rowid,
-  }) {
-    return BranchesCompanion(
-      id: id ?? this.id,
-      storeId: storeId ?? this.storeId,
-      storeName: storeName ?? this.storeName,
-      branchName: branchName ?? this.branchName,
-      branchAddress: branchAddress ?? this.branchAddress,
-      contact: contact ?? this.contact,
-      isActive: isActive ?? this.isActive,
-      isDeleted: isDeleted ?? this.isDeleted,
-      companyDetails: companyDetails ?? this.companyDetails,
-      branchManagerName: branchManagerName ?? this.branchManagerName,
-      branchManagerId: branchManagerId ?? this.branchManagerId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<String>(id.value);
-    }
-    if (storeId.present) {
-      map['store_id'] = Variable<String>(storeId.value);
-    }
-    if (storeName.present) {
-      map['store_name'] = Variable<String>(storeName.value);
-    }
-    if (branchName.present) {
-      map['branch_name'] = Variable<String>(branchName.value);
-    }
-    if (branchAddress.present) {
-      map['branch_address'] = Variable<String>(branchAddress.value);
-    }
-    if (contact.present) {
-      map['contact'] = Variable<String>(contact.value);
-    }
-    if (isActive.present) {
-      map['is_active'] = Variable<int>(isActive.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<int>(isDeleted.value);
-    }
-    if (companyDetails.present) {
-      map['company_details'] = Variable<String>(companyDetails.value);
-    }
-    if (branchManagerName.present) {
-      map['branch_manager_name'] = Variable<String>(branchManagerName.value);
-    }
-    if (branchManagerId.present) {
-      map['branch_manager_id'] = Variable<String>(branchManagerId.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('BranchesCompanion(')
-          ..write('id: $id, ')
-          ..write('storeId: $storeId, ')
-          ..write('storeName: $storeName, ')
-          ..write('branchName: $branchName, ')
-          ..write('branchAddress: $branchAddress, ')
-          ..write('contact: $contact, ')
-          ..write('isActive: $isActive, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('companyDetails: $companyDetails, ')
-          ..write('branchManagerName: $branchManagerName, ')
-          ..write('branchManagerId: $branchManagerId, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
 class $StoresTable extends Stores with TableInfo<$StoresTable, Store> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -4759,6 +3983,29 @@ class $InventoryItemsTable extends InventoryItems
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -4784,6 +4031,8 @@ class $InventoryItemsTable extends InventoryItems
     isAvailable,
     createdAt,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4955,6 +4204,21 @@ class $InventoryItemsTable extends InventoryItems
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5056,6 +4320,14 @@ class $InventoryItemsTable extends InventoryItems
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       ),
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -5089,6 +4361,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
   final int isAvailable;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const InventoryItem({
     required this.id,
     required this.name,
@@ -5113,6 +4387,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
     required this.isAvailable,
     this.createdAt,
     this.updatedAt,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5174,6 +4450,10 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
     }
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -5232,6 +4512,10 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -5266,6 +4550,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
       isAvailable: serializer.fromJson<int>(json['isAvailable']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -5295,6 +4581,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
       'isAvailable': serializer.toJson<int>(isAvailable),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -5322,6 +4610,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
     int? isAvailable,
     Value<DateTime?> createdAt = const Value.absent(),
     Value<DateTime?> updatedAt = const Value.absent(),
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => InventoryItem(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -5350,6 +4640,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
     isAvailable: isAvailable ?? this.isAvailable,
     createdAt: createdAt.present ? createdAt.value : this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   InventoryItem copyWithCompanion(InventoryItemsCompanion data) {
     return InventoryItem(
@@ -5390,6 +4682,10 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
           : this.isAvailable,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -5418,7 +4714,9 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
           ..write('branchId: $branchId, ')
           ..write('isAvailable: $isAvailable, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -5448,6 +4746,8 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
     isAvailable,
     createdAt,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -5475,7 +4775,9 @@ class InventoryItem extends DataClass implements Insertable<InventoryItem> {
           other.branchId == this.branchId &&
           other.isAvailable == this.isAvailable &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
@@ -5502,6 +4804,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
   final Value<int> isAvailable;
   final Value<DateTime?> createdAt;
   final Value<DateTime?> updatedAt;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const InventoryItemsCompanion({
     this.id = const Value.absent(),
@@ -5527,6 +4831,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
     this.isAvailable = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   InventoryItemsCompanion.insert({
@@ -5553,6 +4859,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
     this.isAvailable = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : name = Value(name),
        sku = Value(sku),
@@ -5582,6 +4890,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
     Expression<int>? isAvailable,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5608,6 +4918,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
       if (isAvailable != null) 'is_available': isAvailable,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5636,6 +4948,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
     Value<int>? isAvailable,
     Value<DateTime?>? createdAt,
     Value<DateTime?>? updatedAt,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return InventoryItemsCompanion(
@@ -5662,6 +4976,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
       isAvailable: isAvailable ?? this.isAvailable,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5738,6 +5054,12 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5770,6 +5092,8 @@ class InventoryItemsCompanion extends UpdateCompanion<InventoryItem> {
           ..write('isAvailable: $isAvailable, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7405,6 +6729,29 @@ class $ReceiptsTable extends Receipts with TableInfo<$ReceiptsTable, Receipt> {
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -7414,6 +6761,8 @@ class $ReceiptsTable extends Receipts with TableInfo<$ReceiptsTable, Receipt> {
     branchId,
     branchName,
     totalAmount,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -7484,6 +6833,21 @@ class $ReceiptsTable extends Receipts with TableInfo<$ReceiptsTable, Receipt> {
     } else if (isInserting) {
       context.missing(_totalAmountMeta);
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -7521,6 +6885,14 @@ class $ReceiptsTable extends Receipts with TableInfo<$ReceiptsTable, Receipt> {
         DriftSqlType.double,
         data['${effectivePrefix}total_amount'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -7538,6 +6910,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
   final String branchId;
   final String branchName;
   final double totalAmount;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const Receipt({
     required this.id,
     required this.createdAt,
@@ -7546,6 +6920,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
     required this.branchId,
     required this.branchName,
     required this.totalAmount,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -7557,6 +6933,10 @@ class Receipt extends DataClass implements Insertable<Receipt> {
     map['branch_id'] = Variable<String>(branchId);
     map['branch_name'] = Variable<String>(branchName);
     map['total_amount'] = Variable<double>(totalAmount);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -7569,6 +6949,10 @@ class Receipt extends DataClass implements Insertable<Receipt> {
       branchId: Value(branchId),
       branchName: Value(branchName),
       totalAmount: Value(totalAmount),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -7585,6 +6969,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
       branchId: serializer.fromJson<String>(json['branchId']),
       branchName: serializer.fromJson<String>(json['branchName']),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -7598,6 +6984,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
       'branchId': serializer.toJson<String>(branchId),
       'branchName': serializer.toJson<String>(branchName),
       'totalAmount': serializer.toJson<double>(totalAmount),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -7609,6 +6997,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
     String? branchId,
     String? branchName,
     double? totalAmount,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => Receipt(
     id: id ?? this.id,
     createdAt: createdAt ?? this.createdAt,
@@ -7617,6 +7007,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
     branchId: branchId ?? this.branchId,
     branchName: branchName ?? this.branchName,
     totalAmount: totalAmount ?? this.totalAmount,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   Receipt copyWithCompanion(ReceiptsCompanion data) {
     return Receipt(
@@ -7633,6 +7025,10 @@ class Receipt extends DataClass implements Insertable<Receipt> {
       totalAmount: data.totalAmount.present
           ? data.totalAmount.value
           : this.totalAmount,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -7645,7 +7041,9 @@ class Receipt extends DataClass implements Insertable<Receipt> {
           ..write('createdByName: $createdByName, ')
           ..write('branchId: $branchId, ')
           ..write('branchName: $branchName, ')
-          ..write('totalAmount: $totalAmount')
+          ..write('totalAmount: $totalAmount, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -7659,6 +7057,8 @@ class Receipt extends DataClass implements Insertable<Receipt> {
     branchId,
     branchName,
     totalAmount,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -7670,7 +7070,9 @@ class Receipt extends DataClass implements Insertable<Receipt> {
           other.createdByName == this.createdByName &&
           other.branchId == this.branchId &&
           other.branchName == this.branchName &&
-          other.totalAmount == this.totalAmount);
+          other.totalAmount == this.totalAmount &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class ReceiptsCompanion extends UpdateCompanion<Receipt> {
@@ -7681,6 +7083,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
   final Value<String> branchId;
   final Value<String> branchName;
   final Value<double> totalAmount;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const ReceiptsCompanion({
     this.id = const Value.absent(),
@@ -7690,6 +7094,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
     this.branchId = const Value.absent(),
     this.branchName = const Value.absent(),
     this.totalAmount = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ReceiptsCompanion.insert({
@@ -7700,6 +7106,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
     required String branchId,
     required String branchName,
     required double totalAmount,
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : createdAt = Value(createdAt),
        createdBy = Value(createdBy),
@@ -7715,6 +7123,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
     Expression<String>? branchId,
     Expression<String>? branchName,
     Expression<double>? totalAmount,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -7725,6 +7135,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
       if (branchId != null) 'branch_id': branchId,
       if (branchName != null) 'branch_name': branchName,
       if (totalAmount != null) 'total_amount': totalAmount,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -7737,6 +7149,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
     Value<String>? branchId,
     Value<String>? branchName,
     Value<double>? totalAmount,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return ReceiptsCompanion(
@@ -7747,6 +7161,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
       branchId: branchId ?? this.branchId,
       branchName: branchName ?? this.branchName,
       totalAmount: totalAmount ?? this.totalAmount,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -7775,6 +7191,12 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
     if (totalAmount.present) {
       map['total_amount'] = Variable<double>(totalAmount.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -7791,6 +7213,8 @@ class ReceiptsCompanion extends UpdateCompanion<Receipt> {
           ..write('branchId: $branchId, ')
           ..write('branchName: $branchName, ')
           ..write('totalAmount: $totalAmount, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -7911,6 +7335,29 @@ class $ProformasTable extends Proformas
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -7923,6 +7370,8 @@ class $ProformasTable extends Proformas
     isDeleted,
     createdAt,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8015,6 +7464,21 @@ class $ProformasTable extends Proformas
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -8064,6 +7528,14 @@ class $ProformasTable extends Proformas
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -8084,6 +7556,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
   final int isDeleted;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const Proforma({
     required this.id,
     this.partyName,
@@ -8095,6 +7569,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
     required this.isDeleted,
     required this.createdAt,
     required this.updatedAt,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8115,6 +7591,10 @@ class Proforma extends DataClass implements Insertable<Proforma> {
     map['is_deleted'] = Variable<int>(isDeleted);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -8136,6 +7616,10 @@ class Proforma extends DataClass implements Insertable<Proforma> {
       isDeleted: Value(isDeleted),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -8155,6 +7639,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
       isDeleted: serializer.fromJson<int>(json['isDeleted']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -8171,6 +7657,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
       'isDeleted': serializer.toJson<int>(isDeleted),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -8185,6 +7673,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
     int? isDeleted,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => Proforma(
     id: id ?? this.id,
     partyName: partyName.present ? partyName.value : this.partyName,
@@ -8196,6 +7686,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
     isDeleted: isDeleted ?? this.isDeleted,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   Proforma copyWithCompanion(ProformasCompanion data) {
     return Proforma(
@@ -8217,6 +7709,10 @@ class Proforma extends DataClass implements Insertable<Proforma> {
       isDeleted: data.isDeleted.present ? data.isDeleted.value : this.isDeleted,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -8232,7 +7728,9 @@ class Proforma extends DataClass implements Insertable<Proforma> {
           ..write('totalAmount: $totalAmount, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -8249,6 +7747,8 @@ class Proforma extends DataClass implements Insertable<Proforma> {
     isDeleted,
     createdAt,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -8263,7 +7763,9 @@ class Proforma extends DataClass implements Insertable<Proforma> {
           other.totalAmount == this.totalAmount &&
           other.isDeleted == this.isDeleted &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class ProformasCompanion extends UpdateCompanion<Proforma> {
@@ -8277,6 +7779,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
   final Value<int> isDeleted;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const ProformasCompanion({
     this.id = const Value.absent(),
@@ -8289,6 +7793,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
     this.isDeleted = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProformasCompanion.insert({
@@ -8302,6 +7808,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
     this.isDeleted = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : tax = Value(tax),
        totalQuantity = Value(totalQuantity),
@@ -8319,6 +7827,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
     Expression<int>? isDeleted,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8332,6 +7842,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
       if (isDeleted != null) 'is_deleted': isDeleted,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8347,6 +7859,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
     Value<int>? isDeleted,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return ProformasCompanion(
@@ -8360,6 +7874,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
       isDeleted: isDeleted ?? this.isDeleted,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8397,6 +7913,12 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8416,6 +7938,8 @@ class ProformasCompanion extends UpdateCompanion<Proforma> {
           ..write('isDeleted: $isDeleted, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8526,6 +8050,29 @@ class $ProductDetailsListTable extends ProductDetailsList
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -8537,6 +8084,8 @@ class $ProductDetailsListTable extends ProductDetailsList
     unitPrice,
     discountPercentage,
     totalAmount,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -8622,6 +8171,21 @@ class $ProductDetailsListTable extends ProductDetailsList
     } else if (isInserting) {
       context.missing(_totalAmountMeta);
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -8667,6 +8231,14 @@ class $ProductDetailsListTable extends ProductDetailsList
         DriftSqlType.double,
         data['${effectivePrefix}total_amount'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -8687,6 +8259,8 @@ class ProductDetailsListData extends DataClass
   final double unitPrice;
   final double discountPercentage;
   final double totalAmount;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const ProductDetailsListData({
     required this.id,
     required this.productId,
@@ -8697,6 +8271,8 @@ class ProductDetailsListData extends DataClass
     required this.unitPrice,
     required this.discountPercentage,
     required this.totalAmount,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -8714,6 +8290,10 @@ class ProductDetailsListData extends DataClass
     map['unit_price'] = Variable<double>(unitPrice);
     map['discount_percentage'] = Variable<double>(discountPercentage);
     map['total_amount'] = Variable<double>(totalAmount);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -8732,6 +8312,10 @@ class ProductDetailsListData extends DataClass
       unitPrice: Value(unitPrice),
       discountPercentage: Value(discountPercentage),
       totalAmount: Value(totalAmount),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -8752,6 +8336,8 @@ class ProductDetailsListData extends DataClass
         json['discountPercentage'],
       ),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -8767,6 +8353,8 @@ class ProductDetailsListData extends DataClass
       'unitPrice': serializer.toJson<double>(unitPrice),
       'discountPercentage': serializer.toJson<double>(discountPercentage),
       'totalAmount': serializer.toJson<double>(totalAmount),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -8780,6 +8368,8 @@ class ProductDetailsListData extends DataClass
     double? unitPrice,
     double? discountPercentage,
     double? totalAmount,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => ProductDetailsListData(
     id: id ?? this.id,
     productId: productId ?? this.productId,
@@ -8790,6 +8380,8 @@ class ProductDetailsListData extends DataClass
     unitPrice: unitPrice ?? this.unitPrice,
     discountPercentage: discountPercentage ?? this.discountPercentage,
     totalAmount: totalAmount ?? this.totalAmount,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   ProductDetailsListData copyWithCompanion(ProductDetailsListCompanion data) {
     return ProductDetailsListData(
@@ -8810,6 +8402,10 @@ class ProductDetailsListData extends DataClass
       totalAmount: data.totalAmount.present
           ? data.totalAmount.value
           : this.totalAmount,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -8824,7 +8420,9 @@ class ProductDetailsListData extends DataClass
           ..write('quantity: $quantity, ')
           ..write('unitPrice: $unitPrice, ')
           ..write('discountPercentage: $discountPercentage, ')
-          ..write('totalAmount: $totalAmount')
+          ..write('totalAmount: $totalAmount, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -8840,6 +8438,8 @@ class ProductDetailsListData extends DataClass
     unitPrice,
     discountPercentage,
     totalAmount,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -8853,7 +8453,9 @@ class ProductDetailsListData extends DataClass
           other.quantity == this.quantity &&
           other.unitPrice == this.unitPrice &&
           other.discountPercentage == this.discountPercentage &&
-          other.totalAmount == this.totalAmount);
+          other.totalAmount == this.totalAmount &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class ProductDetailsListCompanion
@@ -8867,6 +8469,8 @@ class ProductDetailsListCompanion
   final Value<double> unitPrice;
   final Value<double> discountPercentage;
   final Value<double> totalAmount;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const ProductDetailsListCompanion({
     this.id = const Value.absent(),
@@ -8878,6 +8482,8 @@ class ProductDetailsListCompanion
     this.unitPrice = const Value.absent(),
     this.discountPercentage = const Value.absent(),
     this.totalAmount = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ProductDetailsListCompanion.insert({
@@ -8890,6 +8496,8 @@ class ProductDetailsListCompanion
     required double unitPrice,
     required double discountPercentage,
     required double totalAmount,
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : productId = Value(productId),
        productName = Value(productName),
@@ -8907,6 +8515,8 @@ class ProductDetailsListCompanion
     Expression<double>? unitPrice,
     Expression<double>? discountPercentage,
     Expression<double>? totalAmount,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -8919,6 +8529,8 @@ class ProductDetailsListCompanion
       if (unitPrice != null) 'unit_price': unitPrice,
       if (discountPercentage != null) 'discount_percentage': discountPercentage,
       if (totalAmount != null) 'total_amount': totalAmount,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -8933,6 +8545,8 @@ class ProductDetailsListCompanion
     Value<double>? unitPrice,
     Value<double>? discountPercentage,
     Value<double>? totalAmount,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return ProductDetailsListCompanion(
@@ -8945,6 +8559,8 @@ class ProductDetailsListCompanion
       unitPrice: unitPrice ?? this.unitPrice,
       discountPercentage: discountPercentage ?? this.discountPercentage,
       totalAmount: totalAmount ?? this.totalAmount,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -8979,6 +8595,12 @@ class ProductDetailsListCompanion
     if (totalAmount.present) {
       map['total_amount'] = Variable<double>(totalAmount.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -8997,6 +8619,8 @@ class ProductDetailsListCompanion
           ..write('unitPrice: $unitPrice, ')
           ..write('discountPercentage: $discountPercentage, ')
           ..write('totalAmount: $totalAmount, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9154,6 +8778,29 @@ class $WayBillsTable extends WayBills with TableInfo<$WayBillsTable, WayBill> {
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -9169,6 +8816,8 @@ class $WayBillsTable extends WayBills with TableInfo<$WayBillsTable, WayBill> {
     dispatchDate,
     createdAt,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9293,6 +8942,21 @@ class $WayBillsTable extends WayBills with TableInfo<$WayBillsTable, WayBill> {
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -9354,6 +9018,14 @@ class $WayBillsTable extends WayBills with TableInfo<$WayBillsTable, WayBill> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -9377,6 +9049,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
   final DateTime dispatchDate;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const WayBill({
     required this.id,
     required this.mainContent,
@@ -9391,6 +9065,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
     required this.dispatchDate,
     required this.createdAt,
     required this.updatedAt,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -9408,6 +9084,10 @@ class WayBill extends DataClass implements Insertable<WayBill> {
     map['dispatch_date'] = Variable<DateTime>(dispatchDate);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -9426,6 +9106,10 @@ class WayBill extends DataClass implements Insertable<WayBill> {
       dispatchDate: Value(dispatchDate),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -9448,6 +9132,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
       dispatchDate: serializer.fromJson<DateTime>(json['dispatchDate']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -9467,6 +9153,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
       'dispatchDate': serializer.toJson<DateTime>(dispatchDate),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -9484,6 +9172,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
     DateTime? dispatchDate,
     DateTime? createdAt,
     DateTime? updatedAt,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => WayBill(
     id: id ?? this.id,
     mainContent: mainContent ?? this.mainContent,
@@ -9498,6 +9188,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
     dispatchDate: dispatchDate ?? this.dispatchDate,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   WayBill copyWithCompanion(WayBillsCompanion data) {
     return WayBill(
@@ -9528,6 +9220,10 @@ class WayBill extends DataClass implements Insertable<WayBill> {
           : this.dispatchDate,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -9546,7 +9242,9 @@ class WayBill extends DataClass implements Insertable<WayBill> {
           ..write('isDeleted: $isDeleted, ')
           ..write('dispatchDate: $dispatchDate, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -9566,6 +9264,8 @@ class WayBill extends DataClass implements Insertable<WayBill> {
     dispatchDate,
     createdAt,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -9583,7 +9283,9 @@ class WayBill extends DataClass implements Insertable<WayBill> {
           other.isDeleted == this.isDeleted &&
           other.dispatchDate == this.dispatchDate &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class WayBillsCompanion extends UpdateCompanion<WayBill> {
@@ -9600,6 +9302,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
   final Value<DateTime> dispatchDate;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const WayBillsCompanion({
     this.id = const Value.absent(),
@@ -9615,6 +9319,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
     this.dispatchDate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   WayBillsCompanion.insert({
@@ -9631,6 +9337,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
     required DateTime dispatchDate,
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : mainContent = Value(mainContent),
        orderNumber = Value(orderNumber),
@@ -9655,6 +9363,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
     Expression<DateTime>? dispatchDate,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9671,6 +9381,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
       if (dispatchDate != null) 'dispatch_date': dispatchDate,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9689,6 +9401,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
     Value<DateTime>? dispatchDate,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return WayBillsCompanion(
@@ -9705,6 +9419,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
       dispatchDate: dispatchDate ?? this.dispatchDate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9751,6 +9467,12 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9773,6 +9495,8 @@ class WayBillsCompanion extends UpdateCompanion<WayBill> {
           ..write('dispatchDate: $dispatchDate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -9890,6 +9614,29 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -9902,6 +9649,8 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
     saleOrderId,
     branchName,
     branchId,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9989,6 +9738,21 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
         branchId.isAcceptableOrUnknown(data['branch_id']!, _branchIdMeta),
       );
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -10038,6 +9802,14 @@ class $InvoicesTable extends Invoices with TableInfo<$InvoicesTable, Invoice> {
         DriftSqlType.string,
         data['${effectivePrefix}branch_id'],
       ),
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -10058,6 +9830,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
   final String saleOrderId;
   final String? branchName;
   final String? branchId;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const Invoice({
     required this.id,
     required this.dueDate,
@@ -10069,6 +9843,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     required this.saleOrderId,
     this.branchName,
     this.branchId,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10091,6 +9867,10 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     if (!nullToAbsent || branchId != null) {
       map['branch_id'] = Variable<String>(branchId);
     }
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -10112,6 +9892,10 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       branchId: branchId == null && nullToAbsent
           ? const Value.absent()
           : Value(branchId),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -10131,6 +9915,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       saleOrderId: serializer.fromJson<String>(json['saleOrderId']),
       branchName: serializer.fromJson<String?>(json['branchName']),
       branchId: serializer.fromJson<String?>(json['branchId']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -10147,6 +9933,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
       'saleOrderId': serializer.toJson<String>(saleOrderId),
       'branchName': serializer.toJson<String?>(branchName),
       'branchId': serializer.toJson<String?>(branchId),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -10161,6 +9949,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     String? saleOrderId,
     Value<String?> branchName = const Value.absent(),
     Value<String?> branchId = const Value.absent(),
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => Invoice(
     id: id ?? this.id,
     dueDate: dueDate ?? this.dueDate,
@@ -10172,6 +9962,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     saleOrderId: saleOrderId ?? this.saleOrderId,
     branchName: branchName.present ? branchName.value : this.branchName,
     branchId: branchId.present ? branchId.value : this.branchId,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   Invoice copyWithCompanion(InvoicesCompanion data) {
     return Invoice(
@@ -10195,6 +9987,10 @@ class Invoice extends DataClass implements Insertable<Invoice> {
           ? data.branchName.value
           : this.branchName,
       branchId: data.branchId.present ? data.branchId.value : this.branchId,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -10210,7 +10006,9 @@ class Invoice extends DataClass implements Insertable<Invoice> {
           ..write('note: $note, ')
           ..write('saleOrderId: $saleOrderId, ')
           ..write('branchName: $branchName, ')
-          ..write('branchId: $branchId')
+          ..write('branchId: $branchId, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -10227,6 +10025,8 @@ class Invoice extends DataClass implements Insertable<Invoice> {
     saleOrderId,
     branchName,
     branchId,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -10241,7 +10041,9 @@ class Invoice extends DataClass implements Insertable<Invoice> {
           other.note == this.note &&
           other.saleOrderId == this.saleOrderId &&
           other.branchName == this.branchName &&
-          other.branchId == this.branchId);
+          other.branchId == this.branchId &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class InvoicesCompanion extends UpdateCompanion<Invoice> {
@@ -10255,6 +10057,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
   final Value<String> saleOrderId;
   final Value<String?> branchName;
   final Value<String?> branchId;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const InvoicesCompanion({
     this.id = const Value.absent(),
@@ -10267,6 +10071,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     this.saleOrderId = const Value.absent(),
     this.branchName = const Value.absent(),
     this.branchId = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   InvoicesCompanion.insert({
@@ -10280,6 +10086,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     required String saleOrderId,
     this.branchName = const Value.absent(),
     this.branchId = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : dueDate = Value(dueDate),
        totalAmount = Value(totalAmount),
@@ -10296,6 +10104,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     Expression<String>? saleOrderId,
     Expression<String>? branchName,
     Expression<String>? branchId,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -10309,6 +10119,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
       if (saleOrderId != null) 'sale_order_id': saleOrderId,
       if (branchName != null) 'branch_name': branchName,
       if (branchId != null) 'branch_id': branchId,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -10324,6 +10136,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     Value<String>? saleOrderId,
     Value<String?>? branchName,
     Value<String?>? branchId,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return InvoicesCompanion(
@@ -10337,6 +10151,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
       saleOrderId: saleOrderId ?? this.saleOrderId,
       branchName: branchName ?? this.branchName,
       branchId: branchId ?? this.branchId,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -10374,6 +10190,12 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
     if (branchId.present) {
       map['branch_id'] = Variable<String>(branchId.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -10393,6 +10215,8 @@ class InvoicesCompanion extends UpdateCompanion<Invoice> {
           ..write('saleOrderId: $saleOrderId, ')
           ..write('branchName: $branchName, ')
           ..write('branchId: $branchId, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -13920,6 +13744,29 @@ class $StockReportsTable extends StockReports
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -13930,6 +13777,8 @@ class $StockReportsTable extends StockReports
     createdAt,
     createdBy,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -14008,6 +13857,21 @@ class $StockReportsTable extends StockReports
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -14049,6 +13913,14 @@ class $StockReportsTable extends StockReports
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -14067,6 +13939,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
   final DateTime createdAt;
   final String createdBy;
   final DateTime updatedAt;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const StockReport({
     required this.id,
     required this.branchId,
@@ -14076,6 +13950,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
     required this.createdAt,
     required this.createdBy,
     required this.updatedAt,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -14088,6 +13964,10 @@ class StockReport extends DataClass implements Insertable<StockReport> {
     map['created_at'] = Variable<DateTime>(createdAt);
     map['created_by'] = Variable<String>(createdBy);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -14101,6 +13981,10 @@ class StockReport extends DataClass implements Insertable<StockReport> {
       createdAt: Value(createdAt),
       createdBy: Value(createdBy),
       updatedAt: Value(updatedAt),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -14118,6 +14002,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -14132,6 +14018,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'createdBy': serializer.toJson<String>(createdBy),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -14144,6 +14032,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
     DateTime? createdAt,
     String? createdBy,
     DateTime? updatedAt,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => StockReport(
     id: id ?? this.id,
     branchId: branchId ?? this.branchId,
@@ -14153,6 +14043,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
     createdAt: createdAt ?? this.createdAt,
     createdBy: createdBy ?? this.createdBy,
     updatedAt: updatedAt ?? this.updatedAt,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   StockReport copyWithCompanion(StockReportsCompanion data) {
     return StockReport(
@@ -14170,6 +14062,10 @@ class StockReport extends DataClass implements Insertable<StockReport> {
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -14183,7 +14079,9 @@ class StockReport extends DataClass implements Insertable<StockReport> {
           ..write('categoryStock: $categoryStock, ')
           ..write('createdAt: $createdAt, ')
           ..write('createdBy: $createdBy, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -14198,6 +14096,8 @@ class StockReport extends DataClass implements Insertable<StockReport> {
     createdAt,
     createdBy,
     updatedAt,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -14210,7 +14110,9 @@ class StockReport extends DataClass implements Insertable<StockReport> {
           other.categoryStock == this.categoryStock &&
           other.createdAt == this.createdAt &&
           other.createdBy == this.createdBy &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class StockReportsCompanion extends UpdateCompanion<StockReport> {
@@ -14222,6 +14124,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
   final Value<DateTime> createdAt;
   final Value<String> createdBy;
   final Value<DateTime> updatedAt;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const StockReportsCompanion({
     this.id = const Value.absent(),
@@ -14232,6 +14136,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
     this.createdAt = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StockReportsCompanion.insert({
@@ -14243,6 +14149,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
     required DateTime createdAt,
     required String createdBy,
     required DateTime updatedAt,
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : branchId = Value(branchId),
        branchName = Value(branchName),
@@ -14260,6 +14168,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
     Expression<DateTime>? createdAt,
     Expression<String>? createdBy,
     Expression<DateTime>? updatedAt,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -14271,6 +14181,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
       if (createdAt != null) 'created_at': createdAt,
       if (createdBy != null) 'created_by': createdBy,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -14284,6 +14196,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
     Value<DateTime>? createdAt,
     Value<String>? createdBy,
     Value<DateTime>? updatedAt,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return StockReportsCompanion(
@@ -14295,6 +14209,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
       updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -14326,6 +14242,12 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -14343,6 +14265,8 @@ class StockReportsCompanion extends UpdateCompanion<StockReport> {
           ..write('createdAt: $createdAt, ')
           ..write('createdBy: $createdBy, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14450,6 +14374,29 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -14461,6 +14408,8 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     branchId,
     branchName,
     expenseDate,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -14551,6 +14500,21 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
     } else if (isInserting) {
       context.missing(_expenseDateMeta);
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -14596,6 +14560,14 @@ class $ExpensesTable extends Expenses with TableInfo<$ExpensesTable, Expense> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}expense_date'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -14615,6 +14587,8 @@ class Expense extends DataClass implements Insertable<Expense> {
   final String branchId;
   final String branchName;
   final DateTime expenseDate;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const Expense({
     required this.id,
     required this.expenseType,
@@ -14625,6 +14599,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     required this.branchId,
     required this.branchName,
     required this.expenseDate,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -14640,6 +14616,10 @@ class Expense extends DataClass implements Insertable<Expense> {
     map['branch_id'] = Variable<String>(branchId);
     map['branch_name'] = Variable<String>(branchName);
     map['expense_date'] = Variable<DateTime>(expenseDate);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -14656,6 +14636,10 @@ class Expense extends DataClass implements Insertable<Expense> {
       branchId: Value(branchId),
       branchName: Value(branchName),
       expenseDate: Value(expenseDate),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -14674,6 +14658,8 @@ class Expense extends DataClass implements Insertable<Expense> {
       branchId: serializer.fromJson<String>(json['branchId']),
       branchName: serializer.fromJson<String>(json['branchName']),
       expenseDate: serializer.fromJson<DateTime>(json['expenseDate']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -14689,6 +14675,8 @@ class Expense extends DataClass implements Insertable<Expense> {
       'branchId': serializer.toJson<String>(branchId),
       'branchName': serializer.toJson<String>(branchName),
       'expenseDate': serializer.toJson<DateTime>(expenseDate),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -14702,6 +14690,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     String? branchId,
     String? branchName,
     DateTime? expenseDate,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => Expense(
     id: id ?? this.id,
     expenseType: expenseType ?? this.expenseType,
@@ -14712,6 +14702,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     branchId: branchId ?? this.branchId,
     branchName: branchName ?? this.branchName,
     expenseDate: expenseDate ?? this.expenseDate,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   Expense copyWithCompanion(ExpensesCompanion data) {
     return Expense(
@@ -14734,6 +14726,10 @@ class Expense extends DataClass implements Insertable<Expense> {
       expenseDate: data.expenseDate.present
           ? data.expenseDate.value
           : this.expenseDate,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -14748,7 +14744,9 @@ class Expense extends DataClass implements Insertable<Expense> {
           ..write('createdAt: $createdAt, ')
           ..write('branchId: $branchId, ')
           ..write('branchName: $branchName, ')
-          ..write('expenseDate: $expenseDate')
+          ..write('expenseDate: $expenseDate, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -14764,6 +14762,8 @@ class Expense extends DataClass implements Insertable<Expense> {
     branchId,
     branchName,
     expenseDate,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -14777,7 +14777,9 @@ class Expense extends DataClass implements Insertable<Expense> {
           other.createdAt == this.createdAt &&
           other.branchId == this.branchId &&
           other.branchName == this.branchName &&
-          other.expenseDate == this.expenseDate);
+          other.expenseDate == this.expenseDate &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class ExpensesCompanion extends UpdateCompanion<Expense> {
@@ -14790,6 +14792,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
   final Value<String> branchId;
   final Value<String> branchName;
   final Value<DateTime> expenseDate;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const ExpensesCompanion({
     this.id = const Value.absent(),
@@ -14801,6 +14805,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     this.branchId = const Value.absent(),
     this.branchName = const Value.absent(),
     this.expenseDate = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExpensesCompanion.insert({
@@ -14813,6 +14819,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     required String branchId,
     required String branchName,
     required DateTime expenseDate,
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : expenseType = Value(expenseType),
        amount = Value(amount),
@@ -14831,6 +14839,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Expression<String>? branchId,
     Expression<String>? branchName,
     Expression<DateTime>? expenseDate,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -14843,6 +14853,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       if (branchId != null) 'branch_id': branchId,
       if (branchName != null) 'branch_name': branchName,
       if (expenseDate != null) 'expense_date': expenseDate,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -14857,6 +14869,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     Value<String>? branchId,
     Value<String>? branchName,
     Value<DateTime>? expenseDate,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return ExpensesCompanion(
@@ -14869,6 +14883,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
       branchId: branchId ?? this.branchId,
       branchName: branchName ?? this.branchName,
       expenseDate: expenseDate ?? this.expenseDate,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -14903,6 +14919,12 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
     if (expenseDate.present) {
       map['expense_date'] = Variable<DateTime>(expenseDate.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -14921,6 +14943,8 @@ class ExpensesCompanion extends UpdateCompanion<Expense> {
           ..write('branchId: $branchId, ')
           ..write('branchName: $branchName, ')
           ..write('expenseDate: $expenseDate, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -15014,6 +15038,29 @@ class $BranchPaymentsTable extends BranchPayments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isSyncedMeta = const VerificationMeta(
+    'isSynced',
+  );
+  @override
+  late final GeneratedColumn<int> isSynced = GeneratedColumn<int>(
+    'is_synced',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastSyncedAtMeta = const VerificationMeta(
+    'lastSyncedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncedAt = GeneratedColumn<DateTime>(
+    'last_synced_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -15024,6 +15071,8 @@ class $BranchPaymentsTable extends BranchPayments
     title,
     createdAt,
     createdBy,
+    isSynced,
+    lastSyncedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -15094,6 +15143,21 @@ class $BranchPaymentsTable extends BranchPayments
     } else if (isInserting) {
       context.missing(_createdByMeta);
     }
+    if (data.containsKey('is_synced')) {
+      context.handle(
+        _isSyncedMeta,
+        isSynced.isAcceptableOrUnknown(data['is_synced']!, _isSyncedMeta),
+      );
+    }
+    if (data.containsKey('last_synced_at')) {
+      context.handle(
+        _lastSyncedAtMeta,
+        lastSyncedAt.isAcceptableOrUnknown(
+          data['last_synced_at']!,
+          _lastSyncedAtMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -15135,6 +15199,14 @@ class $BranchPaymentsTable extends BranchPayments
         DriftSqlType.string,
         data['${effectivePrefix}created_by'],
       )!,
+      isSynced: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}is_synced'],
+      )!,
+      lastSyncedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_synced_at'],
+      ),
     );
   }
 
@@ -15153,6 +15225,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
   final String title;
   final DateTime createdAt;
   final String createdBy;
+  final int isSynced;
+  final DateTime? lastSyncedAt;
   const BranchPayment({
     required this.id,
     required this.branchId,
@@ -15162,6 +15236,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
     required this.title,
     required this.createdAt,
     required this.createdBy,
+    required this.isSynced,
+    this.lastSyncedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -15176,6 +15252,10 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
     map['title'] = Variable<String>(title);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['created_by'] = Variable<String>(createdBy);
+    map['is_synced'] = Variable<int>(isSynced);
+    if (!nullToAbsent || lastSyncedAt != null) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt);
+    }
     return map;
   }
 
@@ -15189,6 +15269,10 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
       title: Value(title),
       createdAt: Value(createdAt),
       createdBy: Value(createdBy),
+      isSynced: Value(isSynced),
+      lastSyncedAt: lastSyncedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncedAt),
     );
   }
 
@@ -15206,6 +15290,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
       title: serializer.fromJson<String>(json['title']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
+      isSynced: serializer.fromJson<int>(json['isSynced']),
+      lastSyncedAt: serializer.fromJson<DateTime?>(json['lastSyncedAt']),
     );
   }
   @override
@@ -15220,6 +15306,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
       'title': serializer.toJson<String>(title),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'createdBy': serializer.toJson<String>(createdBy),
+      'isSynced': serializer.toJson<int>(isSynced),
+      'lastSyncedAt': serializer.toJson<DateTime?>(lastSyncedAt),
     };
   }
 
@@ -15232,6 +15320,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
     String? title,
     DateTime? createdAt,
     String? createdBy,
+    int? isSynced,
+    Value<DateTime?> lastSyncedAt = const Value.absent(),
   }) => BranchPayment(
     id: id ?? this.id,
     branchId: branchId ?? this.branchId,
@@ -15241,6 +15331,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
     title: title ?? this.title,
     createdAt: createdAt ?? this.createdAt,
     createdBy: createdBy ?? this.createdBy,
+    isSynced: isSynced ?? this.isSynced,
+    lastSyncedAt: lastSyncedAt.present ? lastSyncedAt.value : this.lastSyncedAt,
   );
   BranchPayment copyWithCompanion(BranchPaymentsCompanion data) {
     return BranchPayment(
@@ -15254,6 +15346,10 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
       title: data.title.present ? data.title.value : this.title,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      isSynced: data.isSynced.present ? data.isSynced.value : this.isSynced,
+      lastSyncedAt: data.lastSyncedAt.present
+          ? data.lastSyncedAt.value
+          : this.lastSyncedAt,
     );
   }
 
@@ -15267,7 +15363,9 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
           ..write('note: $note, ')
           ..write('title: $title, ')
           ..write('createdAt: $createdAt, ')
-          ..write('createdBy: $createdBy')
+          ..write('createdBy: $createdBy, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt')
           ..write(')'))
         .toString();
   }
@@ -15282,6 +15380,8 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
     title,
     createdAt,
     createdBy,
+    isSynced,
+    lastSyncedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -15294,7 +15394,9 @@ class BranchPayment extends DataClass implements Insertable<BranchPayment> {
           other.note == this.note &&
           other.title == this.title &&
           other.createdAt == this.createdAt &&
-          other.createdBy == this.createdBy);
+          other.createdBy == this.createdBy &&
+          other.isSynced == this.isSynced &&
+          other.lastSyncedAt == this.lastSyncedAt);
 }
 
 class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
@@ -15306,6 +15408,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
   final Value<String> title;
   final Value<DateTime> createdAt;
   final Value<String> createdBy;
+  final Value<int> isSynced;
+  final Value<DateTime?> lastSyncedAt;
   final Value<int> rowid;
   const BranchPaymentsCompanion({
     this.id = const Value.absent(),
@@ -15316,6 +15420,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
     this.title = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.createdBy = const Value.absent(),
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   BranchPaymentsCompanion.insert({
@@ -15327,6 +15433,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
     required String title,
     required DateTime createdAt,
     required String createdBy,
+    this.isSynced = const Value.absent(),
+    this.lastSyncedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : branchId = Value(branchId),
        branchName = Value(branchName),
@@ -15343,6 +15451,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
     Expression<String>? title,
     Expression<DateTime>? createdAt,
     Expression<String>? createdBy,
+    Expression<int>? isSynced,
+    Expression<DateTime>? lastSyncedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -15354,6 +15464,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
       if (title != null) 'title': title,
       if (createdAt != null) 'created_at': createdAt,
       if (createdBy != null) 'created_by': createdBy,
+      if (isSynced != null) 'is_synced': isSynced,
+      if (lastSyncedAt != null) 'last_synced_at': lastSyncedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -15367,6 +15479,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
     Value<String>? title,
     Value<DateTime>? createdAt,
     Value<String>? createdBy,
+    Value<int>? isSynced,
+    Value<DateTime?>? lastSyncedAt,
     Value<int>? rowid,
   }) {
     return BranchPaymentsCompanion(
@@ -15378,6 +15492,8 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
       title: title ?? this.title,
       createdAt: createdAt ?? this.createdAt,
       createdBy: createdBy ?? this.createdBy,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -15409,6 +15525,12 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
     if (createdBy.present) {
       map['created_by'] = Variable<String>(createdBy.value);
     }
+    if (isSynced.present) {
+      map['is_synced'] = Variable<int>(isSynced.value);
+    }
+    if (lastSyncedAt.present) {
+      map['last_synced_at'] = Variable<DateTime>(lastSyncedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -15426,6 +15548,1260 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
           ..write('title: $title, ')
           ..write('createdAt: $createdAt, ')
           ..write('createdBy: $createdBy, ')
+          ..write('isSynced: $isSynced, ')
+          ..write('lastSyncedAt: $lastSyncedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CompanySettingsTable extends CompanySettings
+    with TableInfo<$CompanySettingsTable, CompanySetting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CompanySettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: () => const Uuid().v4(),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _postalAddressMeta = const VerificationMeta(
+    'postalAddress',
+  );
+  @override
+  late final GeneratedColumn<String> postalAddress = GeneratedColumn<String>(
+    'postal_address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _commercialAddressMeta = const VerificationMeta(
+    'commercialAddress',
+  );
+  @override
+  late final GeneratedColumn<String> commercialAddress =
+      GeneratedColumn<String>(
+        'commercial_address',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _phonePrimaryMeta = const VerificationMeta(
+    'phonePrimary',
+  );
+  @override
+  late final GeneratedColumn<String> phonePrimary = GeneratedColumn<String>(
+    'phone_primary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _phoneSecondaryMeta = const VerificationMeta(
+    'phoneSecondary',
+  );
+  @override
+  late final GeneratedColumn<String> phoneSecondary = GeneratedColumn<String>(
+    'phone_secondary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _faxIdMeta = const VerificationMeta('faxId');
+  @override
+  late final GeneratedColumn<String> faxId = GeneratedColumn<String>(
+    'fax_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _emailMeta = const VerificationMeta('email');
+  @override
+  late final GeneratedColumn<String> email = GeneratedColumn<String>(
+    'email',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _websiteMeta = const VerificationMeta(
+    'website',
+  );
+  @override
+  late final GeneratedColumn<String> website = GeneratedColumn<String>(
+    'website',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _logoPathMeta = const VerificationMeta(
+    'logoPath',
+  );
+  @override
+  late final GeneratedColumn<String> logoPath = GeneratedColumn<String>(
+    'logo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    name,
+    postalAddress,
+    commercialAddress,
+    phonePrimary,
+    phoneSecondary,
+    faxId,
+    email,
+    website,
+    logoPath,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'company_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CompanySetting> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('postal_address')) {
+      context.handle(
+        _postalAddressMeta,
+        postalAddress.isAcceptableOrUnknown(
+          data['postal_address']!,
+          _postalAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('commercial_address')) {
+      context.handle(
+        _commercialAddressMeta,
+        commercialAddress.isAcceptableOrUnknown(
+          data['commercial_address']!,
+          _commercialAddressMeta,
+        ),
+      );
+    }
+    if (data.containsKey('phone_primary')) {
+      context.handle(
+        _phonePrimaryMeta,
+        phonePrimary.isAcceptableOrUnknown(
+          data['phone_primary']!,
+          _phonePrimaryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('phone_secondary')) {
+      context.handle(
+        _phoneSecondaryMeta,
+        phoneSecondary.isAcceptableOrUnknown(
+          data['phone_secondary']!,
+          _phoneSecondaryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('fax_id')) {
+      context.handle(
+        _faxIdMeta,
+        faxId.isAcceptableOrUnknown(data['fax_id']!, _faxIdMeta),
+      );
+    }
+    if (data.containsKey('email')) {
+      context.handle(
+        _emailMeta,
+        email.isAcceptableOrUnknown(data['email']!, _emailMeta),
+      );
+    }
+    if (data.containsKey('website')) {
+      context.handle(
+        _websiteMeta,
+        website.isAcceptableOrUnknown(data['website']!, _websiteMeta),
+      );
+    }
+    if (data.containsKey('logo_path')) {
+      context.handle(
+        _logoPathMeta,
+        logoPath.isAcceptableOrUnknown(data['logo_path']!, _logoPathMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CompanySetting map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CompanySetting(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      postalAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}postal_address'],
+      ),
+      commercialAddress: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}commercial_address'],
+      ),
+      phonePrimary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone_primary'],
+      ),
+      phoneSecondary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone_secondary'],
+      ),
+      faxId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fax_id'],
+      ),
+      email: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}email'],
+      ),
+      website: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}website'],
+      ),
+      logoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}logo_path'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CompanySettingsTable createAlias(String alias) {
+    return $CompanySettingsTable(attachedDatabase, alias);
+  }
+}
+
+class CompanySetting extends DataClass implements Insertable<CompanySetting> {
+  final String id;
+  final String name;
+  final String? postalAddress;
+  final String? commercialAddress;
+  final String? phonePrimary;
+  final String? phoneSecondary;
+  final String? faxId;
+  final String? email;
+  final String? website;
+  final String? logoPath;
+  final DateTime updatedAt;
+  const CompanySetting({
+    required this.id,
+    required this.name,
+    this.postalAddress,
+    this.commercialAddress,
+    this.phonePrimary,
+    this.phoneSecondary,
+    this.faxId,
+    this.email,
+    this.website,
+    this.logoPath,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || postalAddress != null) {
+      map['postal_address'] = Variable<String>(postalAddress);
+    }
+    if (!nullToAbsent || commercialAddress != null) {
+      map['commercial_address'] = Variable<String>(commercialAddress);
+    }
+    if (!nullToAbsent || phonePrimary != null) {
+      map['phone_primary'] = Variable<String>(phonePrimary);
+    }
+    if (!nullToAbsent || phoneSecondary != null) {
+      map['phone_secondary'] = Variable<String>(phoneSecondary);
+    }
+    if (!nullToAbsent || faxId != null) {
+      map['fax_id'] = Variable<String>(faxId);
+    }
+    if (!nullToAbsent || email != null) {
+      map['email'] = Variable<String>(email);
+    }
+    if (!nullToAbsent || website != null) {
+      map['website'] = Variable<String>(website);
+    }
+    if (!nullToAbsent || logoPath != null) {
+      map['logo_path'] = Variable<String>(logoPath);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  CompanySettingsCompanion toCompanion(bool nullToAbsent) {
+    return CompanySettingsCompanion(
+      id: Value(id),
+      name: Value(name),
+      postalAddress: postalAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(postalAddress),
+      commercialAddress: commercialAddress == null && nullToAbsent
+          ? const Value.absent()
+          : Value(commercialAddress),
+      phonePrimary: phonePrimary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phonePrimary),
+      phoneSecondary: phoneSecondary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phoneSecondary),
+      faxId: faxId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(faxId),
+      email: email == null && nullToAbsent
+          ? const Value.absent()
+          : Value(email),
+      website: website == null && nullToAbsent
+          ? const Value.absent()
+          : Value(website),
+      logoPath: logoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(logoPath),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory CompanySetting.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CompanySetting(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      postalAddress: serializer.fromJson<String?>(json['postalAddress']),
+      commercialAddress: serializer.fromJson<String?>(
+        json['commercialAddress'],
+      ),
+      phonePrimary: serializer.fromJson<String?>(json['phonePrimary']),
+      phoneSecondary: serializer.fromJson<String?>(json['phoneSecondary']),
+      faxId: serializer.fromJson<String?>(json['faxId']),
+      email: serializer.fromJson<String?>(json['email']),
+      website: serializer.fromJson<String?>(json['website']),
+      logoPath: serializer.fromJson<String?>(json['logoPath']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'postalAddress': serializer.toJson<String?>(postalAddress),
+      'commercialAddress': serializer.toJson<String?>(commercialAddress),
+      'phonePrimary': serializer.toJson<String?>(phonePrimary),
+      'phoneSecondary': serializer.toJson<String?>(phoneSecondary),
+      'faxId': serializer.toJson<String?>(faxId),
+      'email': serializer.toJson<String?>(email),
+      'website': serializer.toJson<String?>(website),
+      'logoPath': serializer.toJson<String?>(logoPath),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  CompanySetting copyWith({
+    String? id,
+    String? name,
+    Value<String?> postalAddress = const Value.absent(),
+    Value<String?> commercialAddress = const Value.absent(),
+    Value<String?> phonePrimary = const Value.absent(),
+    Value<String?> phoneSecondary = const Value.absent(),
+    Value<String?> faxId = const Value.absent(),
+    Value<String?> email = const Value.absent(),
+    Value<String?> website = const Value.absent(),
+    Value<String?> logoPath = const Value.absent(),
+    DateTime? updatedAt,
+  }) => CompanySetting(
+    id: id ?? this.id,
+    name: name ?? this.name,
+    postalAddress: postalAddress.present
+        ? postalAddress.value
+        : this.postalAddress,
+    commercialAddress: commercialAddress.present
+        ? commercialAddress.value
+        : this.commercialAddress,
+    phonePrimary: phonePrimary.present ? phonePrimary.value : this.phonePrimary,
+    phoneSecondary: phoneSecondary.present
+        ? phoneSecondary.value
+        : this.phoneSecondary,
+    faxId: faxId.present ? faxId.value : this.faxId,
+    email: email.present ? email.value : this.email,
+    website: website.present ? website.value : this.website,
+    logoPath: logoPath.present ? logoPath.value : this.logoPath,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  CompanySetting copyWithCompanion(CompanySettingsCompanion data) {
+    return CompanySetting(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      postalAddress: data.postalAddress.present
+          ? data.postalAddress.value
+          : this.postalAddress,
+      commercialAddress: data.commercialAddress.present
+          ? data.commercialAddress.value
+          : this.commercialAddress,
+      phonePrimary: data.phonePrimary.present
+          ? data.phonePrimary.value
+          : this.phonePrimary,
+      phoneSecondary: data.phoneSecondary.present
+          ? data.phoneSecondary.value
+          : this.phoneSecondary,
+      faxId: data.faxId.present ? data.faxId.value : this.faxId,
+      email: data.email.present ? data.email.value : this.email,
+      website: data.website.present ? data.website.value : this.website,
+      logoPath: data.logoPath.present ? data.logoPath.value : this.logoPath,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CompanySetting(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('postalAddress: $postalAddress, ')
+          ..write('commercialAddress: $commercialAddress, ')
+          ..write('phonePrimary: $phonePrimary, ')
+          ..write('phoneSecondary: $phoneSecondary, ')
+          ..write('faxId: $faxId, ')
+          ..write('email: $email, ')
+          ..write('website: $website, ')
+          ..write('logoPath: $logoPath, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    name,
+    postalAddress,
+    commercialAddress,
+    phonePrimary,
+    phoneSecondary,
+    faxId,
+    email,
+    website,
+    logoPath,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CompanySetting &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.postalAddress == this.postalAddress &&
+          other.commercialAddress == this.commercialAddress &&
+          other.phonePrimary == this.phonePrimary &&
+          other.phoneSecondary == this.phoneSecondary &&
+          other.faxId == this.faxId &&
+          other.email == this.email &&
+          other.website == this.website &&
+          other.logoPath == this.logoPath &&
+          other.updatedAt == this.updatedAt);
+}
+
+class CompanySettingsCompanion extends UpdateCompanion<CompanySetting> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<String?> postalAddress;
+  final Value<String?> commercialAddress;
+  final Value<String?> phonePrimary;
+  final Value<String?> phoneSecondary;
+  final Value<String?> faxId;
+  final Value<String?> email;
+  final Value<String?> website;
+  final Value<String?> logoPath;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const CompanySettingsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.postalAddress = const Value.absent(),
+    this.commercialAddress = const Value.absent(),
+    this.phonePrimary = const Value.absent(),
+    this.phoneSecondary = const Value.absent(),
+    this.faxId = const Value.absent(),
+    this.email = const Value.absent(),
+    this.website = const Value.absent(),
+    this.logoPath = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CompanySettingsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.postalAddress = const Value.absent(),
+    this.commercialAddress = const Value.absent(),
+    this.phonePrimary = const Value.absent(),
+    this.phoneSecondary = const Value.absent(),
+    this.faxId = const Value.absent(),
+    this.email = const Value.absent(),
+    this.website = const Value.absent(),
+    this.logoPath = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : name = Value(name);
+  static Insertable<CompanySetting> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<String>? postalAddress,
+    Expression<String>? commercialAddress,
+    Expression<String>? phonePrimary,
+    Expression<String>? phoneSecondary,
+    Expression<String>? faxId,
+    Expression<String>? email,
+    Expression<String>? website,
+    Expression<String>? logoPath,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (postalAddress != null) 'postal_address': postalAddress,
+      if (commercialAddress != null) 'commercial_address': commercialAddress,
+      if (phonePrimary != null) 'phone_primary': phonePrimary,
+      if (phoneSecondary != null) 'phone_secondary': phoneSecondary,
+      if (faxId != null) 'fax_id': faxId,
+      if (email != null) 'email': email,
+      if (website != null) 'website': website,
+      if (logoPath != null) 'logo_path': logoPath,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CompanySettingsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? name,
+    Value<String?>? postalAddress,
+    Value<String?>? commercialAddress,
+    Value<String?>? phonePrimary,
+    Value<String?>? phoneSecondary,
+    Value<String?>? faxId,
+    Value<String?>? email,
+    Value<String?>? website,
+    Value<String?>? logoPath,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return CompanySettingsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      postalAddress: postalAddress ?? this.postalAddress,
+      commercialAddress: commercialAddress ?? this.commercialAddress,
+      phonePrimary: phonePrimary ?? this.phonePrimary,
+      phoneSecondary: phoneSecondary ?? this.phoneSecondary,
+      faxId: faxId ?? this.faxId,
+      email: email ?? this.email,
+      website: website ?? this.website,
+      logoPath: logoPath ?? this.logoPath,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (postalAddress.present) {
+      map['postal_address'] = Variable<String>(postalAddress.value);
+    }
+    if (commercialAddress.present) {
+      map['commercial_address'] = Variable<String>(commercialAddress.value);
+    }
+    if (phonePrimary.present) {
+      map['phone_primary'] = Variable<String>(phonePrimary.value);
+    }
+    if (phoneSecondary.present) {
+      map['phone_secondary'] = Variable<String>(phoneSecondary.value);
+    }
+    if (faxId.present) {
+      map['fax_id'] = Variable<String>(faxId.value);
+    }
+    if (email.present) {
+      map['email'] = Variable<String>(email.value);
+    }
+    if (website.present) {
+      map['website'] = Variable<String>(website.value);
+    }
+    if (logoPath.present) {
+      map['logo_path'] = Variable<String>(logoPath.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CompanySettingsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('postalAddress: $postalAddress, ')
+          ..write('commercialAddress: $commercialAddress, ')
+          ..write('phonePrimary: $phonePrimary, ')
+          ..write('phoneSecondary: $phoneSecondary, ')
+          ..write('faxId: $faxId, ')
+          ..write('email: $email, ')
+          ..write('website: $website, ')
+          ..write('logoPath: $logoPath, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $StockAdjustmentsTable extends StockAdjustments
+    with TableInfo<$StockAdjustmentsTable, StockAdjustment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $StockAdjustmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    clientDefault: () => const Uuid().v4(),
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<String> productId = GeneratedColumn<String>(
+    'product_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityChangeMeta = const VerificationMeta(
+    'quantityChange',
+  );
+  @override
+  late final GeneratedColumn<int> quantityChange = GeneratedColumn<int>(
+    'quantity_change',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _typeMeta = const VerificationMeta('type');
+  @override
+  late final GeneratedColumn<String> type = GeneratedColumn<String>(
+    'type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reasonMeta = const VerificationMeta('reason');
+  @override
+  late final GeneratedColumn<String> reason = GeneratedColumn<String>(
+    'reason',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _referenceIdMeta = const VerificationMeta(
+    'referenceId',
+  );
+  @override
+  late final GeneratedColumn<String> referenceId = GeneratedColumn<String>(
+    'reference_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    productId,
+    productName,
+    quantityChange,
+    type,
+    reason,
+    referenceId,
+    createdAt,
+    createdBy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'stock_adjustments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<StockAdjustment> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('quantity_change')) {
+      context.handle(
+        _quantityChangeMeta,
+        quantityChange.isAcceptableOrUnknown(
+          data['quantity_change']!,
+          _quantityChangeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityChangeMeta);
+    }
+    if (data.containsKey('type')) {
+      context.handle(
+        _typeMeta,
+        type.isAcceptableOrUnknown(data['type']!, _typeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_typeMeta);
+    }
+    if (data.containsKey('reason')) {
+      context.handle(
+        _reasonMeta,
+        reason.isAcceptableOrUnknown(data['reason']!, _reasonMeta),
+      );
+    }
+    if (data.containsKey('reference_id')) {
+      context.handle(
+        _referenceIdMeta,
+        referenceId.isAcceptableOrUnknown(
+          data['reference_id']!,
+          _referenceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  StockAdjustment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return StockAdjustment(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_id'],
+      )!,
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      )!,
+      quantityChange: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quantity_change'],
+      )!,
+      type: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}type'],
+      )!,
+      reason: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reason'],
+      ),
+      referenceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reference_id'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+    );
+  }
+
+  @override
+  $StockAdjustmentsTable createAlias(String alias) {
+    return $StockAdjustmentsTable(attachedDatabase, alias);
+  }
+}
+
+class StockAdjustment extends DataClass implements Insertable<StockAdjustment> {
+  final String id;
+  final String productId;
+  final String productName;
+  final int quantityChange;
+  final String type;
+  final String? reason;
+  final String? referenceId;
+  final DateTime createdAt;
+  final String createdBy;
+  const StockAdjustment({
+    required this.id,
+    required this.productId,
+    required this.productName,
+    required this.quantityChange,
+    required this.type,
+    this.reason,
+    this.referenceId,
+    required this.createdAt,
+    required this.createdBy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['product_id'] = Variable<String>(productId);
+    map['product_name'] = Variable<String>(productName);
+    map['quantity_change'] = Variable<int>(quantityChange);
+    map['type'] = Variable<String>(type);
+    if (!nullToAbsent || reason != null) {
+      map['reason'] = Variable<String>(reason);
+    }
+    if (!nullToAbsent || referenceId != null) {
+      map['reference_id'] = Variable<String>(referenceId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['created_by'] = Variable<String>(createdBy);
+    return map;
+  }
+
+  StockAdjustmentsCompanion toCompanion(bool nullToAbsent) {
+    return StockAdjustmentsCompanion(
+      id: Value(id),
+      productId: Value(productId),
+      productName: Value(productName),
+      quantityChange: Value(quantityChange),
+      type: Value(type),
+      reason: reason == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reason),
+      referenceId: referenceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(referenceId),
+      createdAt: Value(createdAt),
+      createdBy: Value(createdBy),
+    );
+  }
+
+  factory StockAdjustment.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return StockAdjustment(
+      id: serializer.fromJson<String>(json['id']),
+      productId: serializer.fromJson<String>(json['productId']),
+      productName: serializer.fromJson<String>(json['productName']),
+      quantityChange: serializer.fromJson<int>(json['quantityChange']),
+      type: serializer.fromJson<String>(json['type']),
+      reason: serializer.fromJson<String?>(json['reason']),
+      referenceId: serializer.fromJson<String?>(json['referenceId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'productId': serializer.toJson<String>(productId),
+      'productName': serializer.toJson<String>(productName),
+      'quantityChange': serializer.toJson<int>(quantityChange),
+      'type': serializer.toJson<String>(type),
+      'reason': serializer.toJson<String?>(reason),
+      'referenceId': serializer.toJson<String?>(referenceId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'createdBy': serializer.toJson<String>(createdBy),
+    };
+  }
+
+  StockAdjustment copyWith({
+    String? id,
+    String? productId,
+    String? productName,
+    int? quantityChange,
+    String? type,
+    Value<String?> reason = const Value.absent(),
+    Value<String?> referenceId = const Value.absent(),
+    DateTime? createdAt,
+    String? createdBy,
+  }) => StockAdjustment(
+    id: id ?? this.id,
+    productId: productId ?? this.productId,
+    productName: productName ?? this.productName,
+    quantityChange: quantityChange ?? this.quantityChange,
+    type: type ?? this.type,
+    reason: reason.present ? reason.value : this.reason,
+    referenceId: referenceId.present ? referenceId.value : this.referenceId,
+    createdAt: createdAt ?? this.createdAt,
+    createdBy: createdBy ?? this.createdBy,
+  );
+  StockAdjustment copyWithCompanion(StockAdjustmentsCompanion data) {
+    return StockAdjustment(
+      id: data.id.present ? data.id.value : this.id,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      quantityChange: data.quantityChange.present
+          ? data.quantityChange.value
+          : this.quantityChange,
+      type: data.type.present ? data.type.value : this.type,
+      reason: data.reason.present ? data.reason.value : this.reason,
+      referenceId: data.referenceId.present
+          ? data.referenceId.value
+          : this.referenceId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StockAdjustment(')
+          ..write('id: $id, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('quantityChange: $quantityChange, ')
+          ..write('type: $type, ')
+          ..write('reason: $reason, ')
+          ..write('referenceId: $referenceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('createdBy: $createdBy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    productId,
+    productName,
+    quantityChange,
+    type,
+    reason,
+    referenceId,
+    createdAt,
+    createdBy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is StockAdjustment &&
+          other.id == this.id &&
+          other.productId == this.productId &&
+          other.productName == this.productName &&
+          other.quantityChange == this.quantityChange &&
+          other.type == this.type &&
+          other.reason == this.reason &&
+          other.referenceId == this.referenceId &&
+          other.createdAt == this.createdAt &&
+          other.createdBy == this.createdBy);
+}
+
+class StockAdjustmentsCompanion extends UpdateCompanion<StockAdjustment> {
+  final Value<String> id;
+  final Value<String> productId;
+  final Value<String> productName;
+  final Value<int> quantityChange;
+  final Value<String> type;
+  final Value<String?> reason;
+  final Value<String?> referenceId;
+  final Value<DateTime> createdAt;
+  final Value<String> createdBy;
+  final Value<int> rowid;
+  const StockAdjustmentsCompanion({
+    this.id = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.quantityChange = const Value.absent(),
+    this.type = const Value.absent(),
+    this.reason = const Value.absent(),
+    this.referenceId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  StockAdjustmentsCompanion.insert({
+    this.id = const Value.absent(),
+    required String productId,
+    required String productName,
+    required int quantityChange,
+    required String type,
+    this.reason = const Value.absent(),
+    this.referenceId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    required String createdBy,
+    this.rowid = const Value.absent(),
+  }) : productId = Value(productId),
+       productName = Value(productName),
+       quantityChange = Value(quantityChange),
+       type = Value(type),
+       createdBy = Value(createdBy);
+  static Insertable<StockAdjustment> custom({
+    Expression<String>? id,
+    Expression<String>? productId,
+    Expression<String>? productName,
+    Expression<int>? quantityChange,
+    Expression<String>? type,
+    Expression<String>? reason,
+    Expression<String>? referenceId,
+    Expression<DateTime>? createdAt,
+    Expression<String>? createdBy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (productId != null) 'product_id': productId,
+      if (productName != null) 'product_name': productName,
+      if (quantityChange != null) 'quantity_change': quantityChange,
+      if (type != null) 'type': type,
+      if (reason != null) 'reason': reason,
+      if (referenceId != null) 'reference_id': referenceId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (createdBy != null) 'created_by': createdBy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  StockAdjustmentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? productId,
+    Value<String>? productName,
+    Value<int>? quantityChange,
+    Value<String>? type,
+    Value<String?>? reason,
+    Value<String?>? referenceId,
+    Value<DateTime>? createdAt,
+    Value<String>? createdBy,
+    Value<int>? rowid,
+  }) {
+    return StockAdjustmentsCompanion(
+      id: id ?? this.id,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      quantityChange: quantityChange ?? this.quantityChange,
+      type: type ?? this.type,
+      reason: reason ?? this.reason,
+      referenceId: referenceId ?? this.referenceId,
+      createdAt: createdAt ?? this.createdAt,
+      createdBy: createdBy ?? this.createdBy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<String>(productId.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (quantityChange.present) {
+      map['quantity_change'] = Variable<int>(quantityChange.value);
+    }
+    if (type.present) {
+      map['type'] = Variable<String>(type.value);
+    }
+    if (reason.present) {
+      map['reason'] = Variable<String>(reason.value);
+    }
+    if (referenceId.present) {
+      map['reference_id'] = Variable<String>(referenceId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('StockAdjustmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('quantityChange: $quantityChange, ')
+          ..write('type: $type, ')
+          ..write('reason: $reason, ')
+          ..write('referenceId: $referenceId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('createdBy: $createdBy, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -15435,7 +16811,6 @@ class BranchPaymentsCompanion extends UpdateCompanion<BranchPayment> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $BranchesTable branches = $BranchesTable(this);
   late final $StoresTable stores = $StoresTable(this);
   late final $EmployeesTable employees = $EmployeesTable(this);
   late final $CustomersTable customers = $CustomersTable(this);
@@ -15466,12 +16841,17 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $StockReportsTable stockReports = $StockReportsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
   late final $BranchPaymentsTable branchPayments = $BranchPaymentsTable(this);
+  late final $CompanySettingsTable companySettings = $CompanySettingsTable(
+    this,
+  );
+  late final $StockAdjustmentsTable stockAdjustments = $StockAdjustmentsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
-    branches,
     stores,
     employees,
     customers,
@@ -15495,365 +16875,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stockReports,
     expenses,
     branchPayments,
+    companySettings,
+    stockAdjustments,
   ];
 }
 
-typedef $$BranchesTableCreateCompanionBuilder =
-    BranchesCompanion Function({
-      Value<String> id,
-      required String storeId,
-      required String storeName,
-      required String branchName,
-      Value<String?> branchAddress,
-      Value<String?> contact,
-      Value<int> isActive,
-      Value<int> isDeleted,
-      required String companyDetails,
-      Value<String?> branchManagerName,
-      Value<String?> branchManagerId,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<int> rowid,
-    });
-typedef $$BranchesTableUpdateCompanionBuilder =
-    BranchesCompanion Function({
-      Value<String> id,
-      Value<String> storeId,
-      Value<String> storeName,
-      Value<String> branchName,
-      Value<String?> branchAddress,
-      Value<String?> contact,
-      Value<int> isActive,
-      Value<int> isDeleted,
-      Value<String> companyDetails,
-      Value<String?> branchManagerName,
-      Value<String?> branchManagerId,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
-      Value<int> rowid,
-    });
-
-class $$BranchesTableFilterComposer
-    extends Composer<_$AppDatabase, $BranchesTable> {
-  $$BranchesTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get storeId => $composableBuilder(
-    column: $table.storeId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get storeName => $composableBuilder(
-    column: $table.storeName,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get branchName => $composableBuilder(
-    column: $table.branchName,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get branchAddress => $composableBuilder(
-    column: $table.branchAddress,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get contact => $composableBuilder(
-    column: $table.contact,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get companyDetails => $composableBuilder(
-    column: $table.companyDetails,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get branchManagerName => $composableBuilder(
-    column: $table.branchManagerName,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get branchManagerId => $composableBuilder(
-    column: $table.branchManagerId,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
-}
-
-class $$BranchesTableOrderingComposer
-    extends Composer<_$AppDatabase, $BranchesTable> {
-  $$BranchesTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<String> get id => $composableBuilder(
-    column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get storeId => $composableBuilder(
-    column: $table.storeId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get storeName => $composableBuilder(
-    column: $table.storeName,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get branchName => $composableBuilder(
-    column: $table.branchName,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get branchAddress => $composableBuilder(
-    column: $table.branchAddress,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get contact => $composableBuilder(
-    column: $table.contact,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get isDeleted => $composableBuilder(
-    column: $table.isDeleted,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get companyDetails => $composableBuilder(
-    column: $table.companyDetails,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get branchManagerName => $composableBuilder(
-    column: $table.branchManagerName,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get branchManagerId => $composableBuilder(
-    column: $table.branchManagerId,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-}
-
-class $$BranchesTableAnnotationComposer
-    extends Composer<_$AppDatabase, $BranchesTable> {
-  $$BranchesTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<String> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get storeId =>
-      $composableBuilder(column: $table.storeId, builder: (column) => column);
-
-  GeneratedColumn<String> get storeName =>
-      $composableBuilder(column: $table.storeName, builder: (column) => column);
-
-  GeneratedColumn<String> get branchName => $composableBuilder(
-    column: $table.branchName,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get branchAddress => $composableBuilder(
-    column: $table.branchAddress,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get contact =>
-      $composableBuilder(column: $table.contact, builder: (column) => column);
-
-  GeneratedColumn<int> get isActive =>
-      $composableBuilder(column: $table.isActive, builder: (column) => column);
-
-  GeneratedColumn<int> get isDeleted =>
-      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
-
-  GeneratedColumn<String> get companyDetails => $composableBuilder(
-    column: $table.companyDetails,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get branchManagerName => $composableBuilder(
-    column: $table.branchManagerName,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get branchManagerId => $composableBuilder(
-    column: $table.branchManagerId,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
-}
-
-class $$BranchesTableTableManager
-    extends
-        RootTableManager<
-          _$AppDatabase,
-          $BranchesTable,
-          Branche,
-          $$BranchesTableFilterComposer,
-          $$BranchesTableOrderingComposer,
-          $$BranchesTableAnnotationComposer,
-          $$BranchesTableCreateCompanionBuilder,
-          $$BranchesTableUpdateCompanionBuilder,
-          (Branche, BaseReferences<_$AppDatabase, $BranchesTable, Branche>),
-          Branche,
-          PrefetchHooks Function()
-        > {
-  $$BranchesTableTableManager(_$AppDatabase db, $BranchesTable table)
-    : super(
-        TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$BranchesTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$BranchesTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$BranchesTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                Value<String> storeId = const Value.absent(),
-                Value<String> storeName = const Value.absent(),
-                Value<String> branchName = const Value.absent(),
-                Value<String?> branchAddress = const Value.absent(),
-                Value<String?> contact = const Value.absent(),
-                Value<int> isActive = const Value.absent(),
-                Value<int> isDeleted = const Value.absent(),
-                Value<String> companyDetails = const Value.absent(),
-                Value<String?> branchManagerName = const Value.absent(),
-                Value<String?> branchManagerId = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => BranchesCompanion(
-                id: id,
-                storeId: storeId,
-                storeName: storeName,
-                branchName: branchName,
-                branchAddress: branchAddress,
-                contact: contact,
-                isActive: isActive,
-                isDeleted: isDeleted,
-                companyDetails: companyDetails,
-                branchManagerName: branchManagerName,
-                branchManagerId: branchManagerId,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                rowid: rowid,
-              ),
-          createCompanionCallback:
-              ({
-                Value<String> id = const Value.absent(),
-                required String storeId,
-                required String storeName,
-                required String branchName,
-                Value<String?> branchAddress = const Value.absent(),
-                Value<String?> contact = const Value.absent(),
-                Value<int> isActive = const Value.absent(),
-                Value<int> isDeleted = const Value.absent(),
-                required String companyDetails,
-                Value<String?> branchManagerName = const Value.absent(),
-                Value<String?> branchManagerId = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
-                Value<int> rowid = const Value.absent(),
-              }) => BranchesCompanion.insert(
-                id: id,
-                storeId: storeId,
-                storeName: storeName,
-                branchName: branchName,
-                branchAddress: branchAddress,
-                contact: contact,
-                isActive: isActive,
-                isDeleted: isDeleted,
-                companyDetails: companyDetails,
-                branchManagerName: branchManagerName,
-                branchManagerId: branchManagerId,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
-                rowid: rowid,
-              ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
-              .toList(),
-          prefetchHooksCallback: null,
-        ),
-      );
-}
-
-typedef $$BranchesTableProcessedTableManager =
-    ProcessedTableManager<
-      _$AppDatabase,
-      $BranchesTable,
-      Branche,
-      $$BranchesTableFilterComposer,
-      $$BranchesTableOrderingComposer,
-      $$BranchesTableAnnotationComposer,
-      $$BranchesTableCreateCompanionBuilder,
-      $$BranchesTableUpdateCompanionBuilder,
-      (Branche, BaseReferences<_$AppDatabase, $BranchesTable, Branche>),
-      Branche,
-      PrefetchHooks Function()
-    >;
 typedef $$StoresTableCreateCompanionBuilder =
     StoresCompanion Function({
       Value<String> id,
@@ -17833,6 +18859,8 @@ typedef $$InventoryItemsTableCreateCompanionBuilder =
       Value<int> isAvailable,
       Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$InventoryItemsTableUpdateCompanionBuilder =
@@ -17860,6 +18888,8 @@ typedef $$InventoryItemsTableUpdateCompanionBuilder =
       Value<int> isAvailable,
       Value<DateTime?> createdAt,
       Value<DateTime?> updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -17984,6 +19014,16 @@ class $$InventoryItemsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -18111,6 +19151,16 @@ class $$InventoryItemsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$InventoryItemsTableAnnotationComposer
@@ -18204,6 +19254,14 @@ class $$InventoryItemsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$InventoryItemsTableTableManager
@@ -18262,6 +19320,8 @@ class $$InventoryItemsTableTableManager
                 Value<int> isAvailable = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => InventoryItemsCompanion(
                 id: id,
@@ -18287,6 +19347,8 @@ class $$InventoryItemsTableTableManager
                 isAvailable: isAvailable,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -18314,6 +19376,8 @@ class $$InventoryItemsTableTableManager
                 Value<int> isAvailable = const Value.absent(),
                 Value<DateTime?> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => InventoryItemsCompanion.insert(
                 id: id,
@@ -18339,6 +19403,8 @@ class $$InventoryItemsTableTableManager
                 isAvailable: isAvailable,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -19102,6 +20168,8 @@ typedef $$ReceiptsTableCreateCompanionBuilder =
       required String branchId,
       required String branchName,
       required double totalAmount,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$ReceiptsTableUpdateCompanionBuilder =
@@ -19113,6 +20181,8 @@ typedef $$ReceiptsTableUpdateCompanionBuilder =
       Value<String> branchId,
       Value<String> branchName,
       Value<double> totalAmount,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -19157,6 +20227,16 @@ class $$ReceiptsTableFilterComposer
 
   ColumnFilters<double> get totalAmount => $composableBuilder(
     column: $table.totalAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -19204,6 +20284,16 @@ class $$ReceiptsTableOrderingComposer
     column: $table.totalAmount,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ReceiptsTableAnnotationComposer
@@ -19239,6 +20329,14 @@ class $$ReceiptsTableAnnotationComposer
 
   GeneratedColumn<double> get totalAmount => $composableBuilder(
     column: $table.totalAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => column,
   );
 }
@@ -19278,6 +20376,8 @@ class $$ReceiptsTableTableManager
                 Value<String> branchId = const Value.absent(),
                 Value<String> branchName = const Value.absent(),
                 Value<double> totalAmount = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ReceiptsCompanion(
                 id: id,
@@ -19287,6 +20387,8 @@ class $$ReceiptsTableTableManager
                 branchId: branchId,
                 branchName: branchName,
                 totalAmount: totalAmount,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -19298,6 +20400,8 @@ class $$ReceiptsTableTableManager
                 required String branchId,
                 required String branchName,
                 required double totalAmount,
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ReceiptsCompanion.insert(
                 id: id,
@@ -19307,6 +20411,8 @@ class $$ReceiptsTableTableManager
                 branchId: branchId,
                 branchName: branchName,
                 totalAmount: totalAmount,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -19343,6 +20449,8 @@ typedef $$ProformasTableCreateCompanionBuilder =
       Value<int> isDeleted,
       required DateTime createdAt,
       required DateTime updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$ProformasTableUpdateCompanionBuilder =
@@ -19357,6 +20465,8 @@ typedef $$ProformasTableUpdateCompanionBuilder =
       Value<int> isDeleted,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -19416,6 +20526,16 @@ class $$ProformasTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -19478,6 +20598,16 @@ class $$ProformasTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProformasTableAnnotationComposer
@@ -19526,6 +20656,14 @@ class $$ProformasTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$ProformasTableTableManager
@@ -19566,6 +20704,8 @@ class $$ProformasTableTableManager
                 Value<int> isDeleted = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProformasCompanion(
                 id: id,
@@ -19578,6 +20718,8 @@ class $$ProformasTableTableManager
                 isDeleted: isDeleted,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -19592,6 +20734,8 @@ class $$ProformasTableTableManager
                 Value<int> isDeleted = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProformasCompanion.insert(
                 id: id,
@@ -19604,6 +20748,8 @@ class $$ProformasTableTableManager
                 isDeleted: isDeleted,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -19639,6 +20785,8 @@ typedef $$ProductDetailsListTableCreateCompanionBuilder =
       required double unitPrice,
       required double discountPercentage,
       required double totalAmount,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$ProductDetailsListTableUpdateCompanionBuilder =
@@ -19652,6 +20800,8 @@ typedef $$ProductDetailsListTableUpdateCompanionBuilder =
       Value<double> unitPrice,
       Value<double> discountPercentage,
       Value<double> totalAmount,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -19706,6 +20856,16 @@ class $$ProductDetailsListTableFilterComposer
 
   ColumnFilters<double> get totalAmount => $composableBuilder(
     column: $table.totalAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -19763,6 +20923,16 @@ class $$ProductDetailsListTableOrderingComposer
     column: $table.totalAmount,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ProductDetailsListTableAnnotationComposer
@@ -19806,6 +20976,14 @@ class $$ProductDetailsListTableAnnotationComposer
 
   GeneratedColumn<double> get totalAmount => $composableBuilder(
     column: $table.totalAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => column,
   );
 }
@@ -19859,6 +21037,8 @@ class $$ProductDetailsListTableTableManager
                 Value<double> unitPrice = const Value.absent(),
                 Value<double> discountPercentage = const Value.absent(),
                 Value<double> totalAmount = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductDetailsListCompanion(
                 id: id,
@@ -19870,6 +21050,8 @@ class $$ProductDetailsListTableTableManager
                 unitPrice: unitPrice,
                 discountPercentage: discountPercentage,
                 totalAmount: totalAmount,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -19883,6 +21065,8 @@ class $$ProductDetailsListTableTableManager
                 required double unitPrice,
                 required double discountPercentage,
                 required double totalAmount,
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ProductDetailsListCompanion.insert(
                 id: id,
@@ -19894,6 +21078,8 @@ class $$ProductDetailsListTableTableManager
                 unitPrice: unitPrice,
                 discountPercentage: discountPercentage,
                 totalAmount: totalAmount,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -19940,6 +21126,8 @@ typedef $$WayBillsTableCreateCompanionBuilder =
       required DateTime dispatchDate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$WayBillsTableUpdateCompanionBuilder =
@@ -19957,6 +21145,8 @@ typedef $$WayBillsTableUpdateCompanionBuilder =
       Value<DateTime> dispatchDate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -20031,6 +21221,16 @@ class $$WayBillsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -20108,6 +21308,16 @@ class $$WayBillsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$WayBillsTableAnnotationComposer
@@ -20171,6 +21381,14 @@ class $$WayBillsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$WayBillsTableTableManager
@@ -20214,6 +21432,8 @@ class $$WayBillsTableTableManager
                 Value<DateTime> dispatchDate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => WayBillsCompanion(
                 id: id,
@@ -20229,6 +21449,8 @@ class $$WayBillsTableTableManager
                 dispatchDate: dispatchDate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -20246,6 +21468,8 @@ class $$WayBillsTableTableManager
                 required DateTime dispatchDate,
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => WayBillsCompanion.insert(
                 id: id,
@@ -20261,6 +21485,8 @@ class $$WayBillsTableTableManager
                 dispatchDate: dispatchDate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -20297,6 +21523,8 @@ typedef $$InvoicesTableCreateCompanionBuilder =
       required String saleOrderId,
       Value<String?> branchName,
       Value<String?> branchId,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$InvoicesTableUpdateCompanionBuilder =
@@ -20311,6 +21539,8 @@ typedef $$InvoicesTableUpdateCompanionBuilder =
       Value<String> saleOrderId,
       Value<String?> branchName,
       Value<String?> branchId,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -20370,6 +21600,16 @@ class $$InvoicesTableFilterComposer
 
   ColumnFilters<String> get branchId => $composableBuilder(
     column: $table.branchId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -20432,6 +21672,16 @@ class $$InvoicesTableOrderingComposer
     column: $table.branchId,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$InvoicesTableAnnotationComposer
@@ -20482,6 +21732,14 @@ class $$InvoicesTableAnnotationComposer
 
   GeneratedColumn<String> get branchId =>
       $composableBuilder(column: $table.branchId, builder: (column) => column);
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$InvoicesTableTableManager
@@ -20522,6 +21780,8 @@ class $$InvoicesTableTableManager
                 Value<String> saleOrderId = const Value.absent(),
                 Value<String?> branchName = const Value.absent(),
                 Value<String?> branchId = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => InvoicesCompanion(
                 id: id,
@@ -20534,6 +21794,8 @@ class $$InvoicesTableTableManager
                 saleOrderId: saleOrderId,
                 branchName: branchName,
                 branchId: branchId,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -20548,6 +21810,8 @@ class $$InvoicesTableTableManager
                 required String saleOrderId,
                 Value<String?> branchName = const Value.absent(),
                 Value<String?> branchId = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => InvoicesCompanion.insert(
                 id: id,
@@ -20560,6 +21824,8 @@ class $$InvoicesTableTableManager
                 saleOrderId: saleOrderId,
                 branchName: branchName,
                 branchId: branchId,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -22199,6 +23465,8 @@ typedef $$StockReportsTableCreateCompanionBuilder =
       required DateTime createdAt,
       required String createdBy,
       required DateTime updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$StockReportsTableUpdateCompanionBuilder =
@@ -22211,6 +23479,8 @@ typedef $$StockReportsTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String> createdBy,
       Value<DateTime> updatedAt,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -22260,6 +23530,16 @@ class $$StockReportsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -22312,6 +23592,16 @@ class $$StockReportsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$StockReportsTableAnnotationComposer
@@ -22352,6 +23642,14 @@ class $$StockReportsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$StockReportsTableTableManager
@@ -22393,6 +23691,8 @@ class $$StockReportsTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> createdBy = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockReportsCompanion(
                 id: id,
@@ -22403,6 +23703,8 @@ class $$StockReportsTableTableManager
                 createdAt: createdAt,
                 createdBy: createdBy,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -22415,6 +23717,8 @@ class $$StockReportsTableTableManager
                 required DateTime createdAt,
                 required String createdBy,
                 required DateTime updatedAt,
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockReportsCompanion.insert(
                 id: id,
@@ -22425,6 +23729,8 @@ class $$StockReportsTableTableManager
                 createdAt: createdAt,
                 createdBy: createdBy,
                 updatedAt: updatedAt,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -22463,6 +23769,8 @@ typedef $$ExpensesTableCreateCompanionBuilder =
       required String branchId,
       required String branchName,
       required DateTime expenseDate,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$ExpensesTableUpdateCompanionBuilder =
@@ -22476,6 +23784,8 @@ typedef $$ExpensesTableUpdateCompanionBuilder =
       Value<String> branchId,
       Value<String> branchName,
       Value<DateTime> expenseDate,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -22530,6 +23840,16 @@ class $$ExpensesTableFilterComposer
 
   ColumnFilters<DateTime> get expenseDate => $composableBuilder(
     column: $table.expenseDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -22587,6 +23907,16 @@ class $$ExpensesTableOrderingComposer
     column: $table.expenseDate,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ExpensesTableAnnotationComposer
@@ -22634,6 +23964,14 @@ class $$ExpensesTableAnnotationComposer
     column: $table.expenseDate,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$ExpensesTableTableManager
@@ -22673,6 +24011,8 @@ class $$ExpensesTableTableManager
                 Value<String> branchId = const Value.absent(),
                 Value<String> branchName = const Value.absent(),
                 Value<DateTime> expenseDate = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExpensesCompanion(
                 id: id,
@@ -22684,6 +24024,8 @@ class $$ExpensesTableTableManager
                 branchId: branchId,
                 branchName: branchName,
                 expenseDate: expenseDate,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -22697,6 +24039,8 @@ class $$ExpensesTableTableManager
                 required String branchId,
                 required String branchName,
                 required DateTime expenseDate,
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExpensesCompanion.insert(
                 id: id,
@@ -22708,6 +24052,8 @@ class $$ExpensesTableTableManager
                 branchId: branchId,
                 branchName: branchName,
                 expenseDate: expenseDate,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -22742,6 +24088,8 @@ typedef $$BranchPaymentsTableCreateCompanionBuilder =
       required String title,
       required DateTime createdAt,
       required String createdBy,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 typedef $$BranchPaymentsTableUpdateCompanionBuilder =
@@ -22754,6 +24102,8 @@ typedef $$BranchPaymentsTableUpdateCompanionBuilder =
       Value<String> title,
       Value<DateTime> createdAt,
       Value<String> createdBy,
+      Value<int> isSynced,
+      Value<DateTime?> lastSyncedAt,
       Value<int> rowid,
     });
 
@@ -22803,6 +24153,16 @@ class $$BranchPaymentsTableFilterComposer
 
   ColumnFilters<String> get createdBy => $composableBuilder(
     column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -22855,6 +24215,16 @@ class $$BranchPaymentsTableOrderingComposer
     column: $table.createdBy,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get isSynced => $composableBuilder(
+    column: $table.isSynced,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$BranchPaymentsTableAnnotationComposer
@@ -22891,6 +24261,14 @@ class $$BranchPaymentsTableAnnotationComposer
 
   GeneratedColumn<String> get createdBy =>
       $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<int> get isSynced =>
+      $composableBuilder(column: $table.isSynced, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncedAt => $composableBuilder(
+    column: $table.lastSyncedAt,
+    builder: (column) => column,
+  );
 }
 
 class $$BranchPaymentsTableTableManager
@@ -22934,6 +24312,8 @@ class $$BranchPaymentsTableTableManager
                 Value<String> title = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String> createdBy = const Value.absent(),
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BranchPaymentsCompanion(
                 id: id,
@@ -22944,6 +24324,8 @@ class $$BranchPaymentsTableTableManager
                 title: title,
                 createdAt: createdAt,
                 createdBy: createdBy,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -22956,6 +24338,8 @@ class $$BranchPaymentsTableTableManager
                 required String title,
                 required DateTime createdAt,
                 required String createdBy,
+                Value<int> isSynced = const Value.absent(),
+                Value<DateTime?> lastSyncedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => BranchPaymentsCompanion.insert(
                 id: id,
@@ -22966,6 +24350,8 @@ class $$BranchPaymentsTableTableManager
                 title: title,
                 createdAt: createdAt,
                 createdBy: createdBy,
+                isSynced: isSynced,
+                lastSyncedAt: lastSyncedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -22993,12 +24379,626 @@ typedef $$BranchPaymentsTableProcessedTableManager =
       BranchPayment,
       PrefetchHooks Function()
     >;
+typedef $$CompanySettingsTableCreateCompanionBuilder =
+    CompanySettingsCompanion Function({
+      Value<String> id,
+      required String name,
+      Value<String?> postalAddress,
+      Value<String?> commercialAddress,
+      Value<String?> phonePrimary,
+      Value<String?> phoneSecondary,
+      Value<String?> faxId,
+      Value<String?> email,
+      Value<String?> website,
+      Value<String?> logoPath,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$CompanySettingsTableUpdateCompanionBuilder =
+    CompanySettingsCompanion Function({
+      Value<String> id,
+      Value<String> name,
+      Value<String?> postalAddress,
+      Value<String?> commercialAddress,
+      Value<String?> phonePrimary,
+      Value<String?> phoneSecondary,
+      Value<String?> faxId,
+      Value<String?> email,
+      Value<String?> website,
+      Value<String?> logoPath,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+class $$CompanySettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $CompanySettingsTable> {
+  $$CompanySettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get postalAddress => $composableBuilder(
+    column: $table.postalAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get commercialAddress => $composableBuilder(
+    column: $table.commercialAddress,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phonePrimary => $composableBuilder(
+    column: $table.phonePrimary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phoneSecondary => $composableBuilder(
+    column: $table.phoneSecondary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get faxId => $composableBuilder(
+    column: $table.faxId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get website => $composableBuilder(
+    column: $table.website,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get logoPath => $composableBuilder(
+    column: $table.logoPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CompanySettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CompanySettingsTable> {
+  $$CompanySettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get postalAddress => $composableBuilder(
+    column: $table.postalAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get commercialAddress => $composableBuilder(
+    column: $table.commercialAddress,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phonePrimary => $composableBuilder(
+    column: $table.phonePrimary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phoneSecondary => $composableBuilder(
+    column: $table.phoneSecondary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get faxId => $composableBuilder(
+    column: $table.faxId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get email => $composableBuilder(
+    column: $table.email,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get website => $composableBuilder(
+    column: $table.website,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get logoPath => $composableBuilder(
+    column: $table.logoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CompanySettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CompanySettingsTable> {
+  $$CompanySettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get postalAddress => $composableBuilder(
+    column: $table.postalAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get commercialAddress => $composableBuilder(
+    column: $table.commercialAddress,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get phonePrimary => $composableBuilder(
+    column: $table.phonePrimary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get phoneSecondary => $composableBuilder(
+    column: $table.phoneSecondary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get faxId =>
+      $composableBuilder(column: $table.faxId, builder: (column) => column);
+
+  GeneratedColumn<String> get email =>
+      $composableBuilder(column: $table.email, builder: (column) => column);
+
+  GeneratedColumn<String> get website =>
+      $composableBuilder(column: $table.website, builder: (column) => column);
+
+  GeneratedColumn<String> get logoPath =>
+      $composableBuilder(column: $table.logoPath, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$CompanySettingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CompanySettingsTable,
+          CompanySetting,
+          $$CompanySettingsTableFilterComposer,
+          $$CompanySettingsTableOrderingComposer,
+          $$CompanySettingsTableAnnotationComposer,
+          $$CompanySettingsTableCreateCompanionBuilder,
+          $$CompanySettingsTableUpdateCompanionBuilder,
+          (
+            CompanySetting,
+            BaseReferences<
+              _$AppDatabase,
+              $CompanySettingsTable,
+              CompanySetting
+            >,
+          ),
+          CompanySetting,
+          PrefetchHooks Function()
+        > {
+  $$CompanySettingsTableTableManager(
+    _$AppDatabase db,
+    $CompanySettingsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CompanySettingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CompanySettingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CompanySettingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> postalAddress = const Value.absent(),
+                Value<String?> commercialAddress = const Value.absent(),
+                Value<String?> phonePrimary = const Value.absent(),
+                Value<String?> phoneSecondary = const Value.absent(),
+                Value<String?> faxId = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> website = const Value.absent(),
+                Value<String?> logoPath = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CompanySettingsCompanion(
+                id: id,
+                name: name,
+                postalAddress: postalAddress,
+                commercialAddress: commercialAddress,
+                phonePrimary: phonePrimary,
+                phoneSecondary: phoneSecondary,
+                faxId: faxId,
+                email: email,
+                website: website,
+                logoPath: logoPath,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                required String name,
+                Value<String?> postalAddress = const Value.absent(),
+                Value<String?> commercialAddress = const Value.absent(),
+                Value<String?> phonePrimary = const Value.absent(),
+                Value<String?> phoneSecondary = const Value.absent(),
+                Value<String?> faxId = const Value.absent(),
+                Value<String?> email = const Value.absent(),
+                Value<String?> website = const Value.absent(),
+                Value<String?> logoPath = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CompanySettingsCompanion.insert(
+                id: id,
+                name: name,
+                postalAddress: postalAddress,
+                commercialAddress: commercialAddress,
+                phonePrimary: phonePrimary,
+                phoneSecondary: phoneSecondary,
+                faxId: faxId,
+                email: email,
+                website: website,
+                logoPath: logoPath,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CompanySettingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CompanySettingsTable,
+      CompanySetting,
+      $$CompanySettingsTableFilterComposer,
+      $$CompanySettingsTableOrderingComposer,
+      $$CompanySettingsTableAnnotationComposer,
+      $$CompanySettingsTableCreateCompanionBuilder,
+      $$CompanySettingsTableUpdateCompanionBuilder,
+      (
+        CompanySetting,
+        BaseReferences<_$AppDatabase, $CompanySettingsTable, CompanySetting>,
+      ),
+      CompanySetting,
+      PrefetchHooks Function()
+    >;
+typedef $$StockAdjustmentsTableCreateCompanionBuilder =
+    StockAdjustmentsCompanion Function({
+      Value<String> id,
+      required String productId,
+      required String productName,
+      required int quantityChange,
+      required String type,
+      Value<String?> reason,
+      Value<String?> referenceId,
+      Value<DateTime> createdAt,
+      required String createdBy,
+      Value<int> rowid,
+    });
+typedef $$StockAdjustmentsTableUpdateCompanionBuilder =
+    StockAdjustmentsCompanion Function({
+      Value<String> id,
+      Value<String> productId,
+      Value<String> productName,
+      Value<int> quantityChange,
+      Value<String> type,
+      Value<String?> reason,
+      Value<String?> referenceId,
+      Value<DateTime> createdAt,
+      Value<String> createdBy,
+      Value<int> rowid,
+    });
+
+class $$StockAdjustmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $StockAdjustmentsTable> {
+  $$StockAdjustmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quantityChange => $composableBuilder(
+    column: $table.quantityChange,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get referenceId => $composableBuilder(
+    column: $table.referenceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$StockAdjustmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $StockAdjustmentsTable> {
+  $$StockAdjustmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quantityChange => $composableBuilder(
+    column: $table.quantityChange,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get type => $composableBuilder(
+    column: $table.type,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reason => $composableBuilder(
+    column: $table.reason,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get referenceId => $composableBuilder(
+    column: $table.referenceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$StockAdjustmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $StockAdjustmentsTable> {
+  $$StockAdjustmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get productId =>
+      $composableBuilder(column: $table.productId, builder: (column) => column);
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get quantityChange => $composableBuilder(
+    column: $table.quantityChange,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get type =>
+      $composableBuilder(column: $table.type, builder: (column) => column);
+
+  GeneratedColumn<String> get reason =>
+      $composableBuilder(column: $table.reason, builder: (column) => column);
+
+  GeneratedColumn<String> get referenceId => $composableBuilder(
+    column: $table.referenceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+}
+
+class $$StockAdjustmentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $StockAdjustmentsTable,
+          StockAdjustment,
+          $$StockAdjustmentsTableFilterComposer,
+          $$StockAdjustmentsTableOrderingComposer,
+          $$StockAdjustmentsTableAnnotationComposer,
+          $$StockAdjustmentsTableCreateCompanionBuilder,
+          $$StockAdjustmentsTableUpdateCompanionBuilder,
+          (
+            StockAdjustment,
+            BaseReferences<
+              _$AppDatabase,
+              $StockAdjustmentsTable,
+              StockAdjustment
+            >,
+          ),
+          StockAdjustment,
+          PrefetchHooks Function()
+        > {
+  $$StockAdjustmentsTableTableManager(
+    _$AppDatabase db,
+    $StockAdjustmentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$StockAdjustmentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$StockAdjustmentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$StockAdjustmentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> productId = const Value.absent(),
+                Value<String> productName = const Value.absent(),
+                Value<int> quantityChange = const Value.absent(),
+                Value<String> type = const Value.absent(),
+                Value<String?> reason = const Value.absent(),
+                Value<String?> referenceId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => StockAdjustmentsCompanion(
+                id: id,
+                productId: productId,
+                productName: productName,
+                quantityChange: quantityChange,
+                type: type,
+                reason: reason,
+                referenceId: referenceId,
+                createdAt: createdAt,
+                createdBy: createdBy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                required String productId,
+                required String productName,
+                required int quantityChange,
+                required String type,
+                Value<String?> reason = const Value.absent(),
+                Value<String?> referenceId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                required String createdBy,
+                Value<int> rowid = const Value.absent(),
+              }) => StockAdjustmentsCompanion.insert(
+                id: id,
+                productId: productId,
+                productName: productName,
+                quantityChange: quantityChange,
+                type: type,
+                reason: reason,
+                referenceId: referenceId,
+                createdAt: createdAt,
+                createdBy: createdBy,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$StockAdjustmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $StockAdjustmentsTable,
+      StockAdjustment,
+      $$StockAdjustmentsTableFilterComposer,
+      $$StockAdjustmentsTableOrderingComposer,
+      $$StockAdjustmentsTableAnnotationComposer,
+      $$StockAdjustmentsTableCreateCompanionBuilder,
+      $$StockAdjustmentsTableUpdateCompanionBuilder,
+      (
+        StockAdjustment,
+        BaseReferences<_$AppDatabase, $StockAdjustmentsTable, StockAdjustment>,
+      ),
+      StockAdjustment,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$BranchesTableTableManager get branches =>
-      $$BranchesTableTableManager(_db, _db.branches);
   $$StoresTableTableManager get stores =>
       $$StoresTableTableManager(_db, _db.stores);
   $$EmployeesTableTableManager get employees =>
@@ -23045,4 +25045,8 @@ class $AppDatabaseManager {
       $$ExpensesTableTableManager(_db, _db.expenses);
   $$BranchPaymentsTableTableManager get branchPayments =>
       $$BranchPaymentsTableTableManager(_db, _db.branchPayments);
+  $$CompanySettingsTableTableManager get companySettings =>
+      $$CompanySettingsTableTableManager(_db, _db.companySettings);
+  $$StockAdjustmentsTableTableManager get stockAdjustments =>
+      $$StockAdjustmentsTableTableManager(_db, _db.stockAdjustments);
 }

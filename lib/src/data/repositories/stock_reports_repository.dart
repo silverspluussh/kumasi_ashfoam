@@ -1,100 +1,62 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class StockReportsRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  StockReportsRepository({required this.apiClient});
+  StockReportsRepository({required this.supabase});
 
-  /// Fetch all stock reports
-  Future<List<Map<String, dynamic>>> getStockReports({
-    int? page,
-    int? limit,
+  /// Fetch all stock reports from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? branchId,
   }) async {
-    final response = await apiClient.get(
-      '/stock-reports',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_stock_reports').select();
+
+    if (branchId != null) {
+      query = query.eq('branch_id', branchId);
+    }
+
+    final response = await query.order('created_at', ascending: false);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single stock report
-  Future<Map<String, dynamic>> getStockReport(String reportId) async {
-    final response = await apiClient.get('/stock-reports/$reportId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new stock report
-  Future<Map<String, dynamic>> createStockReport(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert stock reports to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> reports,
   ) async {
-    final response = await apiClient.post(
-      '/stock-reports',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (reports.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_stock_reports')
+        .upsert(reports)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update stock report
-  Future<Map<String, dynamic>> updateStockReport(
-    String reportId,
-    Map<String, dynamic> data,
+  /// Note: Stock reports usually don't have separate line items in this scope, 
+  /// but added fetchItems and bulkUploadItems for consistency with the sync pattern.
+
+  /// Fetch stock report items (if applicable) from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String reportId) async {
+    final response = await supabase
+        .from('ashfoam_stock_report_items')
+        .select()
+        .eq('report_id', reportId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert stock report items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/stock-reports/$reportId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Get current stock levels
-  Future<List<Map<String, dynamic>>> getCurrentStockLevels({
-    String? branchId,
-  }) async {
-    final response = await apiClient.get(
-      '/stock-reports/current-levels',
-      queryParameters: {
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Get low stock items
-  Future<List<Map<String, dynamic>>> getLowStockItems({
-    String? branchId,
-  }) async {
-    final response = await apiClient.get(
-      '/stock-reports/low-stock',
-      queryParameters: {
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Get stock movement report
-  Future<Map<String, dynamic>> getStockMovementReport({
-    String? period,
-    String? branchId,
-  }) async {
-    final response = await apiClient.get(
-      '/stock-reports/movement',
-      queryParameters: {
-        if (period != null) 'period': period,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Sync stock reports
-  Future<List<Map<String, dynamic>>> syncStockReports() async {
-    final response = await apiClient.get('/stock-reports/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_stock_report_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

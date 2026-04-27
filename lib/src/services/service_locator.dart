@@ -1,14 +1,14 @@
 import 'package:ashfoam_sadiq/src/data/local/database_service.dart';
 import 'package:ashfoam_sadiq/src/services/cart_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final getIt = GetIt.instance;
 
-/// Register all application services
 void setupServiceLocator() {
-  // Database Service
   getIt.registerSingleton<DatabaseService>(DatabaseService.instance);
 
-  // Cart Service
   getIt.registerSingleton<CartService>(CartService());
+
+  getIt.registerSingleton<SupabaseClient>(Supabase.instance.client);
 }

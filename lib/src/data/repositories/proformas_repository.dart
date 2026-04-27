@@ -1,108 +1,63 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProformasRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  ProformasRepository({required this.apiClient});
+  ProformasRepository({required this.supabase});
 
-  /// Fetch all proformas
-  Future<List<Map<String, dynamic>>> getProformas({
-    int? page,
-    int? limit,
+  /// Fetch all proformas from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? status,
     String? customerId,
   }) async {
-    final response = await apiClient.get(
-      '/proformas',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (status != null) 'status': status,
-        if (customerId != null) 'customerId': customerId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_proformas').select();
+
+    if (status != null) {
+      query = query.eq('status', status);
+    }
+    if (customerId != null) {
+      query = query.eq('customer_id', customerId);
+    }
+
+    final response = await query;
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single proforma
-  Future<Map<String, dynamic>> getProforma(String proformaId) async {
-    final response = await apiClient.get('/proformas/$proformaId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create proforma
-  Future<Map<String, dynamic>> createProforma(
-    Map<String, dynamic> data,
-  ) async {
-    final response = await apiClient.post(
-      '/proformas',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Update proforma
-  Future<Map<String, dynamic>> updateProforma(
-    String proformaId,
-    Map<String, dynamic> data,
-  ) async {
-    final response = await apiClient.put(
-      '/proformas/$proformaId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Convert proforma to sale order
-  Future<Map<String, dynamic>> convertProformaToOrder(
-    String proformaId,
-  ) async {
-    final response = await apiClient.post(
-      '/proformas/$proformaId/convert-to-order',
-      data: {},
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Get proforma details/items
-  Future<List<Map<String, dynamic>>> getProformaDetails(
-    String proformaId,
-  ) async {
-    final response = await apiClient.get('/proformas/$proformaId/details');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Generate proforma PDF
-  Future<String> generateProformaPDF(String proformaId) async {
-    final response = await apiClient.get('/proformas/$proformaId/pdf');
-    return response.data['data']['pdfUrl'] ?? '';
-  }
-
-  /// Send proforma by email
-  Future<void> sendProformaByEmail(
-    String proformaId,
-    String email,
-  ) async {
-    await apiClient.post(
-      '/proformas/$proformaId/send-email',
-      data: {'email': email},
-    );
-  }
-
-  /// Sync proformas
-  Future<List<Map<String, dynamic>>> syncProformas() async {
-    final response = await apiClient.get('/proformas/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Push unsynced proformas to remote (local to remote sync)
-  Future<List<Map<String, dynamic>>> pushUnsyncedProformas(
+  /// Bulk upload/upsert proformas to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
     List<Map<String, dynamic>> proformas,
   ) async {
-    final response = await apiClient.post(
-      '/proformas/bulk-sync',
-      data: {'proformas': proformas},
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (proformas.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_proformas')
+        .upsert(proformas)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Fetch proforma details/items from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String proformaId) async {
+    final response = await supabase
+        .from('ashfoam_proforma_items')
+        .select()
+        .eq('proforma_id', proformaId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert proforma items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
+  ) async {
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_proforma_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

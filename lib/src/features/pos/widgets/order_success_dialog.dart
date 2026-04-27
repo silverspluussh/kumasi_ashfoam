@@ -1,9 +1,11 @@
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
 import 'package:ashfoam_sadiq/src/features/pos/providers/receipt_service.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 
-class OrderSuccessDialog extends StatelessWidget {
+class OrderSuccessDialog extends ConsumerWidget {
   final SaleOrderModel order;
   final List<SaleOrderItem> items;
 
@@ -14,7 +16,7 @@ class OrderSuccessDialog extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return FDialog(
       constraints: BoxConstraints(maxWidth: 400, maxHeight: 300),
       direction: Axis.horizontal,
@@ -42,7 +44,8 @@ class OrderSuccessDialog extends StatelessWidget {
       actions: [
         FButton(
           onPress: () async {
-            await ReceiptService.printReceipt(order, items);
+            final company = await ref.read(companySettingsProvider.future);
+            await ReceiptService.printReceipt(order, items, company: company);
           },
           prefix: const Icon(Icons.print),
           child: const Text('Print Receipt'),

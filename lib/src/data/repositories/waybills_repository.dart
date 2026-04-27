@@ -1,95 +1,59 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class WayBillsRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  WayBillsRepository({required this.apiClient});
+  WayBillsRepository({required this.supabase});
 
-  /// Fetch all waybills
-  Future<List<Map<String, dynamic>>> getWayBills({
-    int? page,
-    int? limit,
+  /// Fetch all waybills from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? status,
   }) async {
-    final response = await apiClient.get(
-      '/waybills',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (status != null) 'status': status,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_waybills').select();
+
+    if (status != null) {
+      query = query.eq('status', status);
+    }
+
+    final response = await query;
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single waybill
-  Future<Map<String, dynamic>> getWayBill(String wayBillId) async {
-    final response = await apiClient.get('/waybills/$wayBillId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create waybill
-  Future<Map<String, dynamic>> createWayBill(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert waybills to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> waybills,
   ) async {
-    final response = await apiClient.post(
-      '/waybills',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (waybills.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_waybills')
+        .upsert(waybills)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update waybill
-  Future<Map<String, dynamic>> updateWayBill(
-    String wayBillId,
-    Map<String, dynamic> data,
+  /// Fetch waybill details/items from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String wayBillId) async {
+    final response = await supabase
+        .from('ashfoam_waybill_items')
+        .select()
+        .eq('waybill_id', wayBillId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert waybill items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/waybills/$wayBillId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Mark waybill as dispatched
-  Future<void> markAsDispatched(String wayBillId) async {
-    await apiClient.post(
-      '/waybills/$wayBillId/dispatch',
-      data: {},
-    );
-  }
-
-  /// Mark waybill as delivered
-  Future<void> markAsDelivered(String wayBillId) async {
-    await apiClient.post(
-      '/waybills/$wayBillId/deliver',
-      data: {},
-    );
-  }
-
-  /// Get waybill tracking information
-  Future<Map<String, dynamic>> getWayBillTracking(String wayBillId) async {
-    final response = await apiClient.get('/waybills/$wayBillId/tracking');
-    return response.data['data'] ?? {};
-  }
-
-  /// Get waybill details/items
-  Future<List<Map<String, dynamic>>> getWayBillDetails(
-    String wayBillId,
-  ) async {
-    final response = await apiClient.get('/waybills/$wayBillId/details');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Generate waybill PDF
-  Future<String> generateWayBillPDF(String wayBillId) async {
-    final response = await apiClient.get('/waybills/$wayBillId/pdf');
-    return response.data['data']['pdfUrl'] ?? '';
-  }
-
-  /// Sync waybills
-  Future<List<Map<String, dynamic>>> syncWayBills() async {
-    final response = await apiClient.get('/waybills/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_waybill_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

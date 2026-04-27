@@ -1,6 +1,8 @@
 import 'dart:typed_data';
-import 'package:flutter/material.dart';
 import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/company.model.dart';
+import 'package:ashfoam_sadiq/src/features/common/services/pdf_helper.dart';
+import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -11,8 +13,11 @@ class StockReportPrintService {
   static final _dateFormat = DateFormat('MMMM yyyy');
   static final _fullDateFormat = DateFormat('dd MMM yyyy HH:mm');
 
-  static Future<void> printReport(StockReportSummary report) async {
-    final pdf = await _generateReport(report);
+  static Future<void> printReport(
+    StockReportSummary report, {
+    CompanyModel? company,
+  }) async {
+    final pdf = await _generateReport(report, company: company);
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf,
       name: 'Stock_Report_${_dateFormat.format(report.createdAt)}.pdf',
@@ -21,8 +26,9 @@ class StockReportPrintService {
 
   static Future<void> showPreview(
     BuildContext context,
-    StockReportSummary report,
-  ) async {
+    StockReportSummary report, {
+    CompanyModel? company,
+  }) async {
     await showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -51,7 +57,7 @@ class StockReportPrintService {
               const Divider(),
               Expanded(
                 child: PdfPreview(
-                  build: (format) => _generateReport(report),
+                  build: (format) => _generateReport(report, company: company),
                   allowSharing: true,
                   allowPrinting: true,
                   canChangePageFormat: false,
@@ -67,7 +73,10 @@ class StockReportPrintService {
     );
   }
 
-  static Future<Uint8List> _generateReport(StockReportSummary report) async {
+  static Future<Uint8List> _generateReport(
+    StockReportSummary report, {
+    CompanyModel? company,
+  }) async {
     final pdf = pw.Document();
 
     pdf.addPage(
@@ -81,27 +90,9 @@ class StockReportPrintService {
               level: 0,
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text(
-                        'KUMASI ASHFOAM',
-                        style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          fontSize: 24,
-                          color: PdfColors.black,
-                        ),
-                      ),
-                      pw.Text(
-                        'MONTHLY STOCK REPORT SUMMARY',
-                        style: pw.TextStyle(
-                          fontSize: 14,
-                          color: PdfColors.grey700,
-                        ),
-                      ),
-                    ],
-                  ),
+                  PdfHelper.buildCompanyHeader(company),
                   pw.Column(
                     crossAxisAlignment: pw.CrossAxisAlignment.end,
                     children: [

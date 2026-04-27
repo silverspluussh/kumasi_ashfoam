@@ -1,18 +1,18 @@
 import 'dart:convert';
 
-class Tax {
+class TaxModel {
   final String id;
   final String name;
   final double valuePercentage;
 
-  const Tax({
+  const TaxModel({
     required this.id,
     required this.name,
     required this.valuePercentage,
   });
 
-  Tax copyWith({String? id, String? name, double? valuePercentage}) {
-    return Tax(
+  TaxModel copyWith({String? id, String? name, double? valuePercentage}) {
+    return TaxModel(
       id: id ?? this.id,
       name: name ?? this.name,
       valuePercentage: valuePercentage ?? this.valuePercentage,
@@ -23,17 +23,17 @@ class Tax {
     return {'id': id, 'name': name, 'value_percentage': valuePercentage};
   }
 
-  factory Tax.fromMap(Map<String, dynamic> map) {
+  factory TaxModel.fromMap(Map<String, dynamic> map) {
     final value = map['value_percentage'] ?? map['valuePercentage'];
-    return Tax(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      valuePercentage: (value as num).toDouble(),
+    return TaxModel(
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      valuePercentage: (value as num?)?.toDouble() ?? 0.0,
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Tax.fromJson(String source) =>
-      Tax.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory TaxModel.fromJson(String source) =>
+      TaxModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

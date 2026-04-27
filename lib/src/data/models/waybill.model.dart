@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
 
-class WayBill {
+class WayBillModel {
   final String id;
   final Profoma mainContent;
   final String orderNumber;
@@ -17,7 +17,7 @@ class WayBill {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  WayBill({
+  WayBillModel({
     required this.id,
     required this.mainContent,
     required this.orderNumber,
@@ -33,7 +33,7 @@ class WayBill {
     required this.updatedAt,
   });
 
-  WayBill copyWith({
+  WayBillModel copyWith({
     String? id,
     Profoma? mainContent,
     String? orderNumber,
@@ -48,7 +48,7 @@ class WayBill {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return WayBill(
+    return WayBillModel(
       id: id ?? this.id,
       mainContent: mainContent ?? this.mainContent,
       orderNumber: orderNumber ?? this.orderNumber,
@@ -68,24 +68,23 @@ class WayBill {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'main_content': mainContent.toMap(),
-      'order_number': orderNumber,
-      'dispatch_doc_number': dispatchDocNumber,
-      'delivery_note': deliveryNote,
-      'sender_name': senderName,
+      'mainContent': mainContent.toMap(),
+      'orderNumber': orderNumber,
+      'dispatchDocNumber': dispatchDocNumber,
+      'deliveryNote': deliveryNote,
+      'senderName': senderName,
       'destination': destination,
-      'dispatch_date': dispatchDate.toIso8601String(),
-      'party_name': partyName,
-      'is_deleted': isDeleted,
-
-      'created_by': createdBy,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
+      'dispatchDate': dispatchDate.toIso8601String(),
+      'partyName': partyName,
+      'isDeleted': isDeleted,
+      'createdBy': createdBy,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
     };
   }
 
-  factory WayBill.fromMap(Map<String, dynamic> map) {
-    return WayBill(
+  factory WayBillModel.fromMap(Map<String, dynamic> map) {
+    return WayBillModel(
       id: map['id'] as String? ?? '',
       mainContent: map['mainContent'] == null
           ? Profoma(
@@ -95,38 +94,44 @@ class WayBill {
               isDeleted: 0,
               totalAmount: 0.0,
               createdAt: DateTime.now(),
-              updatedAt: DateTime.now())
+              updatedAt: DateTime.now(),
+            )
           : (map['mainContent'] is String
-              ? Profoma.fromJson(map['mainContent'] as String)
-              : Profoma.fromMap(map['mainContent'] as Map<String, dynamic>)),
+                ? Profoma.fromJson(map['mainContent'] as String)
+                : Profoma.fromMap(map['mainContent'] as Map<String, dynamic>)),
       orderNumber: map['orderNumber'] as String? ?? '',
       dispatchDocNumber: map['dispatchDocNumber'] as String? ?? '',
       deliveryNote: map['deliveryNote'] as String? ?? '',
       senderName: map['senderName'] as String? ?? '',
       destination: map['destination'] as String? ?? '',
       dispatchDate: map['dispatchDate'] != null
-          ? (map['dispatchDate'] is int 
-              ? DateTime.fromMillisecondsSinceEpoch(map['dispatchDate'] as int)
-              : DateTime.parse(map['dispatchDate'] as String))
+          ? (map['dispatchDate'] is int
+                ? DateTime.fromMillisecondsSinceEpoch(
+                    map['dispatchDate'] as int,
+                  )
+                : DateTime.tryParse(map['dispatchDate'].toString()) ??
+                    DateTime.now())
           : DateTime.now(),
-      isDeleted: map['isDeleted'] as int? ?? 0,
-      partyName: map['partyName'] as String? ?? '',
-      createdBy: map['createdBy'] as String? ?? '',
+      isDeleted: (map['isDeleted'] as num?)?.toInt() ?? 0,
+      partyName: map['partyName']?.toString() ?? '',
+      createdBy: map['createdBy']?.toString() ?? '',
       createdAt: map['createdAt'] != null
-          ? (map['createdAt'] is int 
-              ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
-              : DateTime.parse(map['createdAt'] as String))
+          ? (map['createdAt'] is int
+                ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'] as int)
+                : DateTime.tryParse(map['createdAt'].toString()) ??
+                    DateTime.now())
           : DateTime.now(),
       updatedAt: map['updatedAt'] != null
-          ? (map['updatedAt'] is int 
-              ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
-              : DateTime.parse(map['updatedAt'] as String))
+          ? (map['updatedAt'] is int
+                ? DateTime.fromMillisecondsSinceEpoch(map['updatedAt'] as int)
+                : DateTime.tryParse(map['updatedAt'].toString()) ??
+                    DateTime.now())
           : DateTime.now(),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory WayBill.fromJson(String source) =>
-      WayBill.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory WayBillModel.fromJson(String source) =>
+      WayBillModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

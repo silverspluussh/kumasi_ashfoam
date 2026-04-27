@@ -6,1036 +6,1335 @@ part of 'database_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$databaseServiceHash() => r'823f3daaaa9caaca38697456e0cac9b2fa5bd157';
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint, type=warning
 
-/// See also [databaseService].
 @ProviderFor(databaseService)
-final databaseServiceProvider = AutoDisposeProvider<DatabaseService>.internal(
-  databaseService,
-  name: r'databaseServiceProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$databaseServiceHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final databaseServiceProvider = DatabaseServiceProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef DatabaseServiceRef = AutoDisposeProviderRef<DatabaseService>;
-String _$inventoryItemsHash() => r'626e21d247b32c29af3ce5fa75d176e8f1c900e7';
-
-/// See also [inventoryItems].
-@ProviderFor(inventoryItems)
-final inventoryItemsProvider =
-    AutoDisposeFutureProvider<List<InventoryItem>>.internal(
-      inventoryItems,
-      name: r'inventoryItemsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$inventoryItemsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef InventoryItemsRef = AutoDisposeFutureProviderRef<List<InventoryItem>>;
-String _$suppliersHash() => r'2b1c6512dfdea747f437a8fe36cfc99819b4846c';
-
-/// See also [suppliers].
-@ProviderFor(suppliers)
-final suppliersProvider = AutoDisposeFutureProvider<List<Supplier>>.internal(
-  suppliers,
-  name: r'suppliersProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$suppliersHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SuppliersRef = AutoDisposeFutureProviderRef<List<Supplier>>;
-String _$saleOrdersHash() => r'abc48f885745ae7d24ecdbe7ba8b4f3188008a8b';
-
-/// See also [saleOrders].
-@ProviderFor(saleOrders)
-final saleOrdersProvider = AutoDisposeFutureProvider<List<SaleOrder>>.internal(
-  saleOrders,
-  name: r'saleOrdersProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$saleOrdersHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SaleOrdersRef = AutoDisposeFutureProviderRef<List<SaleOrder>>;
-String _$saleOrderItemsHash() => r'40130deea2f3c5f72282e4cd46bcab508707091e';
-
-/// Copied from Dart SDK
-class _SystemHash {
-  _SystemHash._();
-
-  static int combine(int hash, int value) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + value);
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x0007ffff & hash) << 10));
-    return hash ^ (hash >> 6);
-  }
-
-  static int finish(int hash) {
-    // ignore: parameter_assignments
-    hash = 0x1fffffff & (hash + ((0x03ffffff & hash) << 3));
-    // ignore: parameter_assignments
-    hash = hash ^ (hash >> 11);
-    return 0x1fffffff & (hash + ((0x00003fff & hash) << 15));
-  }
-}
-
-/// See also [saleOrderItems].
-@ProviderFor(saleOrderItems)
-const saleOrderItemsProvider = SaleOrderItemsFamily();
-
-/// See also [saleOrderItems].
-class SaleOrderItemsFamily extends Family<AsyncValue<List<SaleOrderItem>>> {
-  /// See also [saleOrderItems].
-  const SaleOrderItemsFamily();
-
-  /// See also [saleOrderItems].
-  SaleOrderItemsProvider call(String saleOrderId) {
-    return SaleOrderItemsProvider(saleOrderId);
-  }
-
-  @override
-  SaleOrderItemsProvider getProviderOverride(
-    covariant SaleOrderItemsProvider provider,
-  ) {
-    return call(provider.saleOrderId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'saleOrderItemsProvider';
-}
-
-/// See also [saleOrderItems].
-class SaleOrderItemsProvider
-    extends AutoDisposeFutureProvider<List<SaleOrderItem>> {
-  /// See also [saleOrderItems].
-  SaleOrderItemsProvider(String saleOrderId)
-    : this._internal(
-        (ref) => saleOrderItems(ref as SaleOrderItemsRef, saleOrderId),
-        from: saleOrderItemsProvider,
-        name: r'saleOrderItemsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$saleOrderItemsHash,
-        dependencies: SaleOrderItemsFamily._dependencies,
-        allTransitiveDependencies:
-            SaleOrderItemsFamily._allTransitiveDependencies,
-        saleOrderId: saleOrderId,
+final class DatabaseServiceProvider
+    extends
+        $FunctionalProvider<DatabaseService, DatabaseService, DatabaseService>
+    with $Provider<DatabaseService> {
+  DatabaseServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'databaseServiceProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  SaleOrderItemsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.saleOrderId,
-  }) : super.internal();
+  @override
+  String debugGetCreateSourceHash() => _$databaseServiceHash();
 
-  final String saleOrderId;
+  @$internal
+  @override
+  $ProviderElement<DatabaseService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
 
   @override
-  Override overrideWith(
-    FutureOr<List<SaleOrderItem>> Function(SaleOrderItemsRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: SaleOrderItemsProvider._internal(
-        (ref) => create(ref as SaleOrderItemsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        saleOrderId: saleOrderId,
-      ),
-    );
+  DatabaseService create(Ref ref) {
+    return databaseService(ref);
   }
 
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DatabaseService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DatabaseService>(value),
+    );
+  }
+}
+
+String _$databaseServiceHash() => r'59eee919c01b00fdf56c694367d3db2529a4e2fd';
+
+@ProviderFor(inventoryItems)
+final inventoryItemsProvider = InventoryItemsProvider._();
+
+final class InventoryItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<InventoryModel>>,
+          List<InventoryModel>,
+          FutureOr<List<InventoryModel>>
+        >
+    with
+        $FutureModifier<List<InventoryModel>>,
+        $FutureProvider<List<InventoryModel>> {
+  InventoryItemsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'inventoryItemsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
   @override
-  AutoDisposeFutureProviderElement<List<SaleOrderItem>> createElement() {
-    return _SaleOrderItemsProviderElement(this);
+  String debugGetCreateSourceHash() => _$inventoryItemsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<InventoryModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<InventoryModel>> create(Ref ref) {
+    return inventoryItems(ref);
+  }
+}
+
+String _$inventoryItemsHash() => r'0e298c0ac755d037ae4d647bd8263480039021bf';
+
+@ProviderFor(suppliers)
+final suppliersProvider = SuppliersProvider._();
+
+final class SuppliersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SupplierModel>>,
+          List<SupplierModel>,
+          FutureOr<List<SupplierModel>>
+        >
+    with
+        $FutureModifier<List<SupplierModel>>,
+        $FutureProvider<List<SupplierModel>> {
+  SuppliersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'suppliersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$suppliersHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SupplierModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SupplierModel>> create(Ref ref) {
+    return suppliers(ref);
+  }
+}
+
+String _$suppliersHash() => r'e407eb004c93af52b845eccc1c8b1d1864787d7f';
+
+@ProviderFor(saleOrders)
+final saleOrdersProvider = SaleOrdersProvider._();
+
+final class SaleOrdersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SaleOrderModel>>,
+          List<SaleOrderModel>,
+          FutureOr<List<SaleOrderModel>>
+        >
+    with
+        $FutureModifier<List<SaleOrderModel>>,
+        $FutureProvider<List<SaleOrderModel>> {
+  SaleOrdersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'saleOrdersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$saleOrdersHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SaleOrderModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SaleOrderModel>> create(Ref ref) {
+    return saleOrders(ref);
+  }
+}
+
+String _$saleOrdersHash() => r'9139ab2a7afb68cc72d1a8bab41f89da9dd971fd';
+
+@ProviderFor(saleOrderItems)
+final saleOrderItemsProvider = SaleOrderItemsFamily._();
+
+final class SaleOrderItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SaleOrderItem>>,
+          List<SaleOrderItem>,
+          FutureOr<List<SaleOrderItem>>
+        >
+    with
+        $FutureModifier<List<SaleOrderItem>>,
+        $FutureProvider<List<SaleOrderItem>> {
+  SaleOrderItemsProvider._({
+    required SaleOrderItemsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'saleOrderItemsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$saleOrderItemsHash();
+
+  @override
+  String toString() {
+    return r'saleOrderItemsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SaleOrderItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SaleOrderItem>> create(Ref ref) {
+    final argument = this.argument as String;
+    return saleOrderItems(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is SaleOrderItemsProvider && other.saleOrderId == saleOrderId;
+    return other is SaleOrderItemsProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, saleOrderId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin SaleOrderItemsRef on AutoDisposeFutureProviderRef<List<SaleOrderItem>> {
-  /// The parameter `saleOrderId` of this provider.
-  String get saleOrderId;
-}
+String _$saleOrderItemsHash() => r'40130deea2f3c5f72282e4cd46bcab508707091e';
 
-class _SaleOrderItemsProviderElement
-    extends AutoDisposeFutureProviderElement<List<SaleOrderItem>>
-    with SaleOrderItemsRef {
-  _SaleOrderItemsProviderElement(super.provider);
+final class SaleOrderItemsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<SaleOrderItem>>, String> {
+  SaleOrderItemsFamily._()
+    : super(
+        retry: null,
+        name: r'saleOrderItemsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  SaleOrderItemsProvider call(String saleOrderId) =>
+      SaleOrderItemsProvider._(argument: saleOrderId, from: this);
 
   @override
-  String get saleOrderId => (origin as SaleOrderItemsProvider).saleOrderId;
+  String toString() => r'saleOrderItemsProvider';
+}
+
+@ProviderFor(allSaleOrderItems)
+final allSaleOrderItemsProvider = AllSaleOrderItemsProvider._();
+
+final class AllSaleOrderItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<SaleOrderItem>>,
+          List<SaleOrderItem>,
+          FutureOr<List<SaleOrderItem>>
+        >
+    with
+        $FutureModifier<List<SaleOrderItem>>,
+        $FutureProvider<List<SaleOrderItem>> {
+  AllSaleOrderItemsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allSaleOrderItemsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$allSaleOrderItemsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<SaleOrderItem>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<SaleOrderItem>> create(Ref ref) {
+    return allSaleOrderItems(ref);
+  }
 }
 
 String _$allSaleOrderItemsHash() => r'3255d5c1b2b0ce137328d93194cb14e6e01e3037';
 
-/// See also [allSaleOrderItems].
-@ProviderFor(allSaleOrderItems)
-final allSaleOrderItemsProvider =
-    AutoDisposeFutureProvider<List<SaleOrderItem>>.internal(
-      allSaleOrderItems,
-      name: r'allSaleOrderItemsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$allSaleOrderItemsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AllSaleOrderItemsRef =
-    AutoDisposeFutureProviderRef<List<SaleOrderItem>>;
-String _$customersHash() => r'6da35f037bd81f73f04cef8e721e67cc1b092e78';
-
-/// See also [customers].
 @ProviderFor(customers)
-final customersProvider = AutoDisposeFutureProvider<List<Customer>>.internal(
-  customers,
-  name: r'customersProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$customersHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final customersProvider = CustomersProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef CustomersRef = AutoDisposeFutureProviderRef<List<Customer>>;
-String _$returnOrdersHash() => r'9c69fc2b02d2b87b917b4515cb88e24db2b63728';
-
-/// See also [returnOrders].
-@ProviderFor(returnOrders)
-final returnOrdersProvider =
-    AutoDisposeFutureProvider<List<ReturnOrder>>.internal(
-      returnOrders,
-      name: r'returnOrdersProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$returnOrdersHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ReturnOrdersRef = AutoDisposeFutureProviderRef<List<ReturnOrder>>;
-String _$returnOrderItemsHash() => r'cf3fb19e60f1336a757c76b2dc796d4f922a6f2c';
-
-/// See also [returnOrderItems].
-@ProviderFor(returnOrderItems)
-const returnOrderItemsProvider = ReturnOrderItemsFamily();
-
-/// See also [returnOrderItems].
-class ReturnOrderItemsFamily extends Family<AsyncValue<List<ReturnOrderItem>>> {
-  /// See also [returnOrderItems].
-  const ReturnOrderItemsFamily();
-
-  /// See also [returnOrderItems].
-  ReturnOrderItemsProvider call(String returnOrderId) {
-    return ReturnOrderItemsProvider(returnOrderId);
-  }
-
-  @override
-  ReturnOrderItemsProvider getProviderOverride(
-    covariant ReturnOrderItemsProvider provider,
-  ) {
-    return call(provider.returnOrderId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'returnOrderItemsProvider';
-}
-
-/// See also [returnOrderItems].
-class ReturnOrderItemsProvider
-    extends AutoDisposeFutureProvider<List<ReturnOrderItem>> {
-  /// See also [returnOrderItems].
-  ReturnOrderItemsProvider(String returnOrderId)
-    : this._internal(
-        (ref) => returnOrderItems(ref as ReturnOrderItemsRef, returnOrderId),
-        from: returnOrderItemsProvider,
-        name: r'returnOrderItemsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$returnOrderItemsHash,
-        dependencies: ReturnOrderItemsFamily._dependencies,
-        allTransitiveDependencies:
-            ReturnOrderItemsFamily._allTransitiveDependencies,
-        returnOrderId: returnOrderId,
+final class CustomersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<CustomerModel>>,
+          List<CustomerModel>,
+          FutureOr<List<CustomerModel>>
+        >
+    with
+        $FutureModifier<List<CustomerModel>>,
+        $FutureProvider<List<CustomerModel>> {
+  CustomersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'customersProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  ReturnOrderItemsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.returnOrderId,
-  }) : super.internal();
+  @override
+  String debugGetCreateSourceHash() => _$customersHash();
 
-  final String returnOrderId;
+  @$internal
+  @override
+  $FutureProviderElement<List<CustomerModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  Override overrideWith(
-    FutureOr<List<ReturnOrderItem>> Function(ReturnOrderItemsRef provider)
-    create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ReturnOrderItemsProvider._internal(
-        (ref) => create(ref as ReturnOrderItemsRef),
-        from: from,
-        name: null,
+  FutureOr<List<CustomerModel>> create(Ref ref) {
+    return customers(ref);
+  }
+}
+
+String _$customersHash() => r'f88d82308be02a459549c7930d1eacb44c043dcb';
+
+@ProviderFor(returnOrders)
+final returnOrdersProvider = ReturnOrdersProvider._();
+
+final class ReturnOrdersProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ReturnOrderModel>>,
+          List<ReturnOrderModel>,
+          FutureOr<List<ReturnOrderModel>>
+        >
+    with
+        $FutureModifier<List<ReturnOrderModel>>,
+        $FutureProvider<List<ReturnOrderModel>> {
+  ReturnOrdersProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'returnOrdersProvider',
+        isAutoDispose: true,
         dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        returnOrderId: returnOrderId,
-      ),
-    );
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$returnOrdersHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ReturnOrderModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ReturnOrderModel>> create(Ref ref) {
+    return returnOrders(ref);
+  }
+}
+
+String _$returnOrdersHash() => r'7f5ba2db30f12c4ace154df9ae42eb56bc517e8e';
+
+@ProviderFor(returnOrderItems)
+final returnOrderItemsProvider = ReturnOrderItemsFamily._();
+
+final class ReturnOrderItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ReturnOrderItemModel>>,
+          List<ReturnOrderItemModel>,
+          FutureOr<List<ReturnOrderItemModel>>
+        >
+    with
+        $FutureModifier<List<ReturnOrderItemModel>>,
+        $FutureProvider<List<ReturnOrderItemModel>> {
+  ReturnOrderItemsProvider._({
+    required ReturnOrderItemsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'returnOrderItemsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$returnOrderItemsHash();
+
+  @override
+  String toString() {
+    return r'returnOrderItemsProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  AutoDisposeFutureProviderElement<List<ReturnOrderItem>> createElement() {
-    return _ReturnOrderItemsProviderElement(this);
+  $FutureProviderElement<List<ReturnOrderItemModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ReturnOrderItemModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return returnOrderItems(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is ReturnOrderItemsProvider &&
-        other.returnOrderId == returnOrderId;
+    return other is ReturnOrderItemsProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, returnOrderId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin ReturnOrderItemsRef
-    on AutoDisposeFutureProviderRef<List<ReturnOrderItem>> {
-  /// The parameter `returnOrderId` of this provider.
-  String get returnOrderId;
-}
+String _$returnOrderItemsHash() => r'e9f71e1ec167f8d0472b67c238e1ae9388a79063';
 
-class _ReturnOrderItemsProviderElement
-    extends AutoDisposeFutureProviderElement<List<ReturnOrderItem>>
-    with ReturnOrderItemsRef {
-  _ReturnOrderItemsProviderElement(super.provider);
+final class ReturnOrderItemsFamily extends $Family
+    with
+        $FunctionalFamilyOverride<
+          FutureOr<List<ReturnOrderItemModel>>,
+          String
+        > {
+  ReturnOrderItemsFamily._()
+    : super(
+        retry: null,
+        name: r'returnOrderItemsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  ReturnOrderItemsProvider call(String returnOrderId) =>
+      ReturnOrderItemsProvider._(argument: returnOrderId, from: this);
 
   @override
-  String get returnOrderId =>
-      (origin as ReturnOrderItemsProvider).returnOrderId;
+  String toString() => r'returnOrderItemsProvider';
+}
+
+@ProviderFor(allReturnOrderItems)
+final allReturnOrderItemsProvider = AllReturnOrderItemsProvider._();
+
+final class AllReturnOrderItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ReturnOrderItemModel>>,
+          List<ReturnOrderItemModel>,
+          FutureOr<List<ReturnOrderItemModel>>
+        >
+    with
+        $FutureModifier<List<ReturnOrderItemModel>>,
+        $FutureProvider<List<ReturnOrderItemModel>> {
+  AllReturnOrderItemsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allReturnOrderItemsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$allReturnOrderItemsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ReturnOrderItemModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ReturnOrderItemModel>> create(Ref ref) {
+    return allReturnOrderItems(ref);
+  }
 }
 
 String _$allReturnOrderItemsHash() =>
-    r'5a25941d0f1cd525e6d76499ca092047c72504da';
+    r'10496f45ee192b7a279550bb6d2669a7937fbb4e';
 
-/// See also [allReturnOrderItems].
-@ProviderFor(allReturnOrderItems)
-final allReturnOrderItemsProvider =
-    AutoDisposeFutureProvider<List<ReturnOrderItem>>.internal(
-      allReturnOrderItems,
-      name: r'allReturnOrderItemsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$allReturnOrderItemsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AllReturnOrderItemsRef =
-    AutoDisposeFutureProviderRef<List<ReturnOrderItem>>;
-String _$creditNotesHash() => r'438eb2f61c7aa725d253b1494b596e6912c2eb6d';
-
-/// See also [creditNotes].
 @ProviderFor(creditNotes)
-final creditNotesProvider =
-    AutoDisposeFutureProvider<List<CreditNote>>.internal(
-      creditNotes,
-      name: r'creditNotesProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$creditNotesHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final creditNotesProvider = CreditNotesProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef CreditNotesRef = AutoDisposeFutureProviderRef<List<CreditNote>>;
-String _$creditNoteItemsHash() => r'89b9d2d9c42a9d71ba1e14b58a353afd156d8bec';
-
-/// See also [creditNoteItems].
-@ProviderFor(creditNoteItems)
-const creditNoteItemsProvider = CreditNoteItemsFamily();
-
-/// See also [creditNoteItems].
-class CreditNoteItemsFamily extends Family<AsyncValue<List<CreditNoteItem>>> {
-  /// See also [creditNoteItems].
-  const CreditNoteItemsFamily();
-
-  /// See also [creditNoteItems].
-  CreditNoteItemsProvider call(String creditNoteId) {
-    return CreditNoteItemsProvider(creditNoteId);
-  }
-
-  @override
-  CreditNoteItemsProvider getProviderOverride(
-    covariant CreditNoteItemsProvider provider,
-  ) {
-    return call(provider.creditNoteId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'creditNoteItemsProvider';
-}
-
-/// See also [creditNoteItems].
-class CreditNoteItemsProvider
-    extends AutoDisposeFutureProvider<List<CreditNoteItem>> {
-  /// See also [creditNoteItems].
-  CreditNoteItemsProvider(String creditNoteId)
-    : this._internal(
-        (ref) => creditNoteItems(ref as CreditNoteItemsRef, creditNoteId),
-        from: creditNoteItemsProvider,
-        name: r'creditNoteItemsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$creditNoteItemsHash,
-        dependencies: CreditNoteItemsFamily._dependencies,
-        allTransitiveDependencies:
-            CreditNoteItemsFamily._allTransitiveDependencies,
-        creditNoteId: creditNoteId,
+final class CreditNotesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<CreditNoteModel>>,
+          List<CreditNoteModel>,
+          FutureOr<List<CreditNoteModel>>
+        >
+    with
+        $FutureModifier<List<CreditNoteModel>>,
+        $FutureProvider<List<CreditNoteModel>> {
+  CreditNotesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'creditNotesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
       );
 
-  CreditNoteItemsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.creditNoteId,
-  }) : super.internal();
+  @override
+  String debugGetCreateSourceHash() => _$creditNotesHash();
 
-  final String creditNoteId;
+  @$internal
+  @override
+  $FutureProviderElement<List<CreditNoteModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  Override overrideWith(
-    FutureOr<List<CreditNoteItem>> Function(CreditNoteItemsRef provider) create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: CreditNoteItemsProvider._internal(
-        (ref) => create(ref as CreditNoteItemsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        creditNoteId: creditNoteId,
-      ),
-    );
+  FutureOr<List<CreditNoteModel>> create(Ref ref) {
+    return creditNotes(ref);
+  }
+}
+
+String _$creditNotesHash() => r'f799160078536e0847ff8830e2b7b6d6f6cdfc06';
+
+@ProviderFor(creditNoteItems)
+final creditNoteItemsProvider = CreditNoteItemsFamily._();
+
+final class CreditNoteItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<CreditNoteItemModel>>,
+          List<CreditNoteItemModel>,
+          FutureOr<List<CreditNoteItemModel>>
+        >
+    with
+        $FutureModifier<List<CreditNoteItemModel>>,
+        $FutureProvider<List<CreditNoteItemModel>> {
+  CreditNoteItemsProvider._({
+    required CreditNoteItemsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'creditNoteItemsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$creditNoteItemsHash();
+
+  @override
+  String toString() {
+    return r'creditNoteItemsProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  AutoDisposeFutureProviderElement<List<CreditNoteItem>> createElement() {
-    return _CreditNoteItemsProviderElement(this);
+  $FutureProviderElement<List<CreditNoteItemModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<CreditNoteItemModel>> create(Ref ref) {
+    final argument = this.argument as String;
+    return creditNoteItems(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is CreditNoteItemsProvider &&
-        other.creditNoteId == creditNoteId;
+    return other is CreditNoteItemsProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, creditNoteId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin CreditNoteItemsRef on AutoDisposeFutureProviderRef<List<CreditNoteItem>> {
-  /// The parameter `creditNoteId` of this provider.
-  String get creditNoteId;
-}
+String _$creditNoteItemsHash() => r'0b7a31230f17db8bd3ab629d7d1fe3be9f56fe8b';
 
-class _CreditNoteItemsProviderElement
-    extends AutoDisposeFutureProviderElement<List<CreditNoteItem>>
-    with CreditNoteItemsRef {
-  _CreditNoteItemsProviderElement(super.provider);
+final class CreditNoteItemsFamily extends $Family
+    with
+        $FunctionalFamilyOverride<FutureOr<List<CreditNoteItemModel>>, String> {
+  CreditNoteItemsFamily._()
+    : super(
+        retry: null,
+        name: r'creditNoteItemsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  CreditNoteItemsProvider call(String creditNoteId) =>
+      CreditNoteItemsProvider._(argument: creditNoteId, from: this);
 
   @override
-  String get creditNoteId => (origin as CreditNoteItemsProvider).creditNoteId;
+  String toString() => r'creditNoteItemsProvider';
+}
+
+@ProviderFor(allCreditNoteItems)
+final allCreditNoteItemsProvider = AllCreditNoteItemsProvider._();
+
+final class AllCreditNoteItemsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<CreditNoteItemModel>>,
+          List<CreditNoteItemModel>,
+          FutureOr<List<CreditNoteItemModel>>
+        >
+    with
+        $FutureModifier<List<CreditNoteItemModel>>,
+        $FutureProvider<List<CreditNoteItemModel>> {
+  AllCreditNoteItemsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allCreditNoteItemsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$allCreditNoteItemsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<CreditNoteItemModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<CreditNoteItemModel>> create(Ref ref) {
+    return allCreditNoteItems(ref);
+  }
 }
 
 String _$allCreditNoteItemsHash() =>
-    r'55c4eaa9aaea764a6cb051fd8aaf59d4533d002a';
+    r'de8b7d27af6d155f52a0a05421864db5e4102d6b';
 
-/// See also [allCreditNoteItems].
-@ProviderFor(allCreditNoteItems)
-final allCreditNoteItemsProvider =
-    AutoDisposeFutureProvider<List<CreditNoteItem>>.internal(
-      allCreditNoteItems,
-      name: r'allCreditNoteItemsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$allCreditNoteItemsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
-
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AllCreditNoteItemsRef =
-    AutoDisposeFutureProviderRef<List<CreditNoteItem>>;
-String _$invoicesHash() => r'f89ae9a27dcf7b89821091acaf6af343a5472b79';
-
-/// See also [invoices].
 @ProviderFor(invoices)
-final invoicesProvider = AutoDisposeFutureProvider<List<Invoice>>.internal(
-  invoices,
-  name: r'invoicesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$invoicesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final invoicesProvider = InvoicesProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef InvoicesRef = AutoDisposeFutureProviderRef<List<Invoice>>;
-String _$stockReportsHash() => r'909d52e058630ede24f4da28a50dfe6a38a4389b';
+final class InvoicesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<InvoiceModel>>,
+          List<InvoiceModel>,
+          FutureOr<List<InvoiceModel>>
+        >
+    with
+        $FutureModifier<List<InvoiceModel>>,
+        $FutureProvider<List<InvoiceModel>> {
+  InvoicesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'invoicesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [stockReports].
+  @override
+  String debugGetCreateSourceHash() => _$invoicesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<InvoiceModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<InvoiceModel>> create(Ref ref) {
+    return invoices(ref);
+  }
+}
+
+String _$invoicesHash() => r'1ae879d7f7b156c31494c260986b07964955b265';
+
 @ProviderFor(stockReports)
-final stockReportsProvider =
-    AutoDisposeFutureProvider<List<StockReport>>.internal(
-      stockReports,
-      name: r'stockReportsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$stockReportsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final stockReportsProvider = StockReportsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef StockReportsRef = AutoDisposeFutureProviderRef<List<StockReport>>;
-String _$employeesHash() => r'4673f6af14d8f868c8c259b83827ed33498262d9';
+final class StockReportsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<StockReportSummary>>,
+          List<StockReportSummary>,
+          FutureOr<List<StockReportSummary>>
+        >
+    with
+        $FutureModifier<List<StockReportSummary>>,
+        $FutureProvider<List<StockReportSummary>> {
+  StockReportsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'stockReportsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [employees].
+  @override
+  String debugGetCreateSourceHash() => _$stockReportsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<StockReportSummary>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<StockReportSummary>> create(Ref ref) {
+    return stockReports(ref);
+  }
+}
+
+String _$stockReportsHash() => r'663655d75b01f2cd386d0a759434593cf91294de';
+
 @ProviderFor(employees)
-final employeesProvider = AutoDisposeFutureProvider<List<Employee>>.internal(
-  employees,
-  name: r'employeesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$employeesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final employeesProvider = EmployeesProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef EmployeesRef = AutoDisposeFutureProviderRef<List<Employee>>;
-String _$expensesHash() => r'bb1948177f28e5e3094a3d127a525a6b12421af6';
+final class EmployeesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<EmployeeModel>>,
+          List<EmployeeModel>,
+          FutureOr<List<EmployeeModel>>
+        >
+    with
+        $FutureModifier<List<EmployeeModel>>,
+        $FutureProvider<List<EmployeeModel>> {
+  EmployeesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'employeesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [expenses].
+  @override
+  String debugGetCreateSourceHash() => _$employeesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<EmployeeModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<EmployeeModel>> create(Ref ref) {
+    return employees(ref);
+  }
+}
+
+String _$employeesHash() => r'2f079e43b1121209b5353b65d0d55f0ea79b83f9';
+
 @ProviderFor(expenses)
-final expensesProvider = AutoDisposeFutureProvider<List<Expense>>.internal(
-  expenses,
-  name: r'expensesProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$expensesHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final expensesProvider = ExpensesProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ExpensesRef = AutoDisposeFutureProviderRef<List<Expense>>;
-String _$branchPaymentsHash() => r'5a6364881a1c0bbed283c5e578343a98ef12db11';
+final class ExpensesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ExpenseModel>>,
+          List<ExpenseModel>,
+          FutureOr<List<ExpenseModel>>
+        >
+    with
+        $FutureModifier<List<ExpenseModel>>,
+        $FutureProvider<List<ExpenseModel>> {
+  ExpensesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'expensesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [branchPayments].
+  @override
+  String debugGetCreateSourceHash() => _$expensesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ExpenseModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ExpenseModel>> create(Ref ref) {
+    return expenses(ref);
+  }
+}
+
+String _$expensesHash() => r'3fb4f8b2674043fc29b42935e9dd79d5b67e9ce8';
+
 @ProviderFor(branchPayments)
-final branchPaymentsProvider =
-    AutoDisposeFutureProvider<List<BranchPayment>>.internal(
-      branchPayments,
-      name: r'branchPaymentsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$branchPaymentsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final branchPaymentsProvider = BranchPaymentsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef BranchPaymentsRef = AutoDisposeFutureProviderRef<List<BranchPayment>>;
-String _$receiptsHash() => r'6f449d00fea8aac5e0acb7dcffabb5e0531e1b00';
+final class BranchPaymentsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<BranchPaymentModel>>,
+          List<BranchPaymentModel>,
+          FutureOr<List<BranchPaymentModel>>
+        >
+    with
+        $FutureModifier<List<BranchPaymentModel>>,
+        $FutureProvider<List<BranchPaymentModel>> {
+  BranchPaymentsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'branchPaymentsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [receipts].
+  @override
+  String debugGetCreateSourceHash() => _$branchPaymentsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<BranchPaymentModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<BranchPaymentModel>> create(Ref ref) {
+    return branchPayments(ref);
+  }
+}
+
+String _$branchPaymentsHash() => r'86f9e7ea3023a1f560bc2231699099d5248f13d3';
+
 @ProviderFor(receipts)
-final receiptsProvider = AutoDisposeFutureProvider<List<Receipt>>.internal(
-  receipts,
-  name: r'receiptsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$receiptsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final receiptsProvider = ReceiptsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ReceiptsRef = AutoDisposeFutureProviderRef<List<Receipt>>;
-String _$proformasHash() => r'fa8578fcdf53c870f676e01edbe6759d1a9be181';
+final class ReceiptsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ReceiptModel>>,
+          List<ReceiptModel>,
+          FutureOr<List<ReceiptModel>>
+        >
+    with
+        $FutureModifier<List<ReceiptModel>>,
+        $FutureProvider<List<ReceiptModel>> {
+  ReceiptsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'receiptsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [proformas].
+  @override
+  String debugGetCreateSourceHash() => _$receiptsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ReceiptModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ReceiptModel>> create(Ref ref) {
+    return receipts(ref);
+  }
+}
+
+String _$receiptsHash() => r'40442fd8670c248af098e8f6711c074d839957f7';
+
 @ProviderFor(proformas)
-final proformasProvider = AutoDisposeFutureProvider<List<Proforma>>.internal(
-  proformas,
-  name: r'proformasProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$proformasHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final proformasProvider = ProformasProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef ProformasRef = AutoDisposeFutureProviderRef<List<Proforma>>;
-String _$wayBillsHash() => r'b39eca130e4f9e194040bb9d6cf624467e666b1b';
+final class ProformasProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Profoma>>,
+          List<Profoma>,
+          FutureOr<List<Profoma>>
+        >
+    with $FutureModifier<List<Profoma>>, $FutureProvider<List<Profoma>> {
+  ProformasProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'proformasProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [wayBills].
+  @override
+  String debugGetCreateSourceHash() => _$proformasHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Profoma>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Profoma>> create(Ref ref) {
+    return proformas(ref);
+  }
+}
+
+String _$proformasHash() => r'eb3c13d4d9c49aa30e01f69b1349595f18f3575f';
+
 @ProviderFor(wayBills)
-final wayBillsProvider = AutoDisposeFutureProvider<List<WayBill>>.internal(
-  wayBills,
-  name: r'wayBillsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$wayBillsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final wayBillsProvider = WayBillsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef WayBillsRef = AutoDisposeFutureProviderRef<List<WayBill>>;
-String _$allProductDetailsHash() => r'c2cf3b66c201df319f41d1776266b6b1ab720e52';
+final class WayBillsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<WayBillModel>>,
+          List<WayBillModel>,
+          FutureOr<List<WayBillModel>>
+        >
+    with
+        $FutureModifier<List<WayBillModel>>,
+        $FutureProvider<List<WayBillModel>> {
+  WayBillsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'wayBillsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [allProductDetails].
+  @override
+  String debugGetCreateSourceHash() => _$wayBillsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<WayBillModel>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<WayBillModel>> create(Ref ref) {
+    return wayBills(ref);
+  }
+}
+
+String _$wayBillsHash() => r'5243d2e16a7ca7bd759a0bcab8b81fa8a7808a04';
+
 @ProviderFor(allProductDetails)
-final allProductDetailsProvider =
-    AutoDisposeFutureProvider<List<ProductDetailsListData>>.internal(
-      allProductDetails,
-      name: r'allProductDetailsProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$allProductDetailsHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+final allProductDetailsProvider = AllProductDetailsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef AllProductDetailsRef =
-    AutoDisposeFutureProviderRef<List<ProductDetailsListData>>;
-String _$proformaDetailsHash() => r'e8a74cb9f3dd64e6d5376c71f31f6a19d03a1282';
+final class AllProductDetailsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProductDetails>>,
+          List<ProductDetails>,
+          FutureOr<List<ProductDetails>>
+        >
+    with
+        $FutureModifier<List<ProductDetails>>,
+        $FutureProvider<List<ProductDetails>> {
+  AllProductDetailsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allProductDetailsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
 
-/// See also [proformaDetails].
+  @override
+  String debugGetCreateSourceHash() => _$allProductDetailsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ProductDetails>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProductDetails>> create(Ref ref) {
+    return allProductDetails(ref);
+  }
+}
+
+String _$allProductDetailsHash() => r'a9376b49a511bce52a1f605706943e0834b18f12';
+
 @ProviderFor(proformaDetails)
-const proformaDetailsProvider = ProformaDetailsFamily();
+final proformaDetailsProvider = ProformaDetailsFamily._();
 
-/// See also [proformaDetails].
-class ProformaDetailsFamily
-    extends Family<AsyncValue<List<ProductDetailsListData>>> {
-  /// See also [proformaDetails].
-  const ProformaDetailsFamily();
+final class ProformaDetailsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProductDetails>>,
+          List<ProductDetails>,
+          FutureOr<List<ProductDetails>>
+        >
+    with
+        $FutureModifier<List<ProductDetails>>,
+        $FutureProvider<List<ProductDetails>> {
+  ProformaDetailsProvider._({
+    required ProformaDetailsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'proformaDetailsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
-  /// See also [proformaDetails].
-  ProformaDetailsProvider call(String proformaId) {
-    return ProformaDetailsProvider(proformaId);
+  @override
+  String debugGetCreateSourceHash() => _$proformaDetailsHash();
+
+  @override
+  String toString() {
+    return r'proformaDetailsProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ProductDetails>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProductDetails>> create(Ref ref) {
+    final argument = this.argument as String;
+    return proformaDetails(ref, argument);
   }
 
   @override
-  ProformaDetailsProvider getProviderOverride(
-    covariant ProformaDetailsProvider provider,
-  ) {
-    return call(provider.proformaId);
+  bool operator ==(Object other) {
+    return other is ProformaDetailsProvider && other.argument == argument;
   }
 
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
-
   @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'proformaDetailsProvider';
+  int get hashCode {
+    return argument.hashCode;
+  }
 }
 
-/// See also [proformaDetails].
-class ProformaDetailsProvider
-    extends AutoDisposeFutureProvider<List<ProductDetailsListData>> {
-  /// See also [proformaDetails].
-  ProformaDetailsProvider(String proformaId)
-    : this._internal(
-        (ref) => proformaDetails(ref as ProformaDetailsRef, proformaId),
-        from: proformaDetailsProvider,
+String _$proformaDetailsHash() => r'562fb3e03bc49b09d52e9c02a996d837cdac19cc';
+
+final class ProformaDetailsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<ProductDetails>>, String> {
+  ProformaDetailsFamily._()
+    : super(
+        retry: null,
         name: r'proformaDetailsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$proformaDetailsHash,
-        dependencies: ProformaDetailsFamily._dependencies,
-        allTransitiveDependencies:
-            ProformaDetailsFamily._allTransitiveDependencies,
-        proformaId: proformaId,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
       );
 
-  ProformaDetailsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.proformaId,
-  }) : super.internal();
-
-  final String proformaId;
+  ProformaDetailsProvider call(String proformaId) =>
+      ProformaDetailsProvider._(argument: proformaId, from: this);
 
   @override
-  Override overrideWith(
-    FutureOr<List<ProductDetailsListData>> Function(ProformaDetailsRef provider)
-    create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: ProformaDetailsProvider._internal(
-        (ref) => create(ref as ProformaDetailsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        proformaId: proformaId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<List<ProductDetailsListData>>
-  createElement() {
-    return _ProformaDetailsProviderElement(this);
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return other is ProformaDetailsProvider && other.proformaId == proformaId;
-  }
-
-  @override
-  int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, proformaId.hashCode);
-
-    return _SystemHash.finish(hash);
-  }
+  String toString() => r'proformaDetailsProvider';
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin ProformaDetailsRef
-    on AutoDisposeFutureProviderRef<List<ProductDetailsListData>> {
-  /// The parameter `proformaId` of this provider.
-  String get proformaId;
-}
-
-class _ProformaDetailsProviderElement
-    extends AutoDisposeFutureProviderElement<List<ProductDetailsListData>>
-    with ProformaDetailsRef {
-  _ProformaDetailsProviderElement(super.provider);
-
-  @override
-  String get proformaId => (origin as ProformaDetailsProvider).proformaId;
-}
-
-String _$wayBillDetailsHash() => r'441459b9db750ead6bd9840a2b61b9cc32336c5b';
-
-/// See also [wayBillDetails].
 @ProviderFor(wayBillDetails)
-const wayBillDetailsProvider = WayBillDetailsFamily();
+final wayBillDetailsProvider = WayBillDetailsFamily._();
 
-/// See also [wayBillDetails].
-class WayBillDetailsFamily
-    extends Family<AsyncValue<List<ProductDetailsListData>>> {
-  /// See also [wayBillDetails].
-  const WayBillDetailsFamily();
+final class WayBillDetailsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProductDetails>>,
+          List<ProductDetails>,
+          FutureOr<List<ProductDetails>>
+        >
+    with
+        $FutureModifier<List<ProductDetails>>,
+        $FutureProvider<List<ProductDetails>> {
+  WayBillDetailsProvider._({
+    required WayBillDetailsFamily super.from,
+    required String super.argument,
+  }) : super(
+         retry: null,
+         name: r'wayBillDetailsProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
 
-  /// See also [wayBillDetails].
-  WayBillDetailsProvider call(String wayBillId) {
-    return WayBillDetailsProvider(wayBillId);
+  @override
+  String debugGetCreateSourceHash() => _$wayBillDetailsHash();
+
+  @override
+  String toString() {
+    return r'wayBillDetailsProvider'
+        ''
+        '($argument)';
   }
 
+  @$internal
   @override
-  WayBillDetailsProvider getProviderOverride(
-    covariant WayBillDetailsProvider provider,
-  ) {
-    return call(provider.wayBillId);
-  }
-
-  static const Iterable<ProviderOrFamily>? _dependencies = null;
+  $FutureProviderElement<List<ProductDetails>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
 
   @override
-  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
-
-  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
-
-  @override
-  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
-      _allTransitiveDependencies;
-
-  @override
-  String? get name => r'wayBillDetailsProvider';
-}
-
-/// See also [wayBillDetails].
-class WayBillDetailsProvider
-    extends AutoDisposeFutureProvider<List<ProductDetailsListData>> {
-  /// See also [wayBillDetails].
-  WayBillDetailsProvider(String wayBillId)
-    : this._internal(
-        (ref) => wayBillDetails(ref as WayBillDetailsRef, wayBillId),
-        from: wayBillDetailsProvider,
-        name: r'wayBillDetailsProvider',
-        debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-            ? null
-            : _$wayBillDetailsHash,
-        dependencies: WayBillDetailsFamily._dependencies,
-        allTransitiveDependencies:
-            WayBillDetailsFamily._allTransitiveDependencies,
-        wayBillId: wayBillId,
-      );
-
-  WayBillDetailsProvider._internal(
-    super._createNotifier, {
-    required super.name,
-    required super.dependencies,
-    required super.allTransitiveDependencies,
-    required super.debugGetCreateSourceHash,
-    required super.from,
-    required this.wayBillId,
-  }) : super.internal();
-
-  final String wayBillId;
-
-  @override
-  Override overrideWith(
-    FutureOr<List<ProductDetailsListData>> Function(WayBillDetailsRef provider)
-    create,
-  ) {
-    return ProviderOverride(
-      origin: this,
-      override: WayBillDetailsProvider._internal(
-        (ref) => create(ref as WayBillDetailsRef),
-        from: from,
-        name: null,
-        dependencies: null,
-        allTransitiveDependencies: null,
-        debugGetCreateSourceHash: null,
-        wayBillId: wayBillId,
-      ),
-    );
-  }
-
-  @override
-  AutoDisposeFutureProviderElement<List<ProductDetailsListData>>
-  createElement() {
-    return _WayBillDetailsProviderElement(this);
+  FutureOr<List<ProductDetails>> create(Ref ref) {
+    final argument = this.argument as String;
+    return wayBillDetails(ref, argument);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is WayBillDetailsProvider && other.wayBillId == wayBillId;
+    return other is WayBillDetailsProvider && other.argument == argument;
   }
 
   @override
   int get hashCode {
-    var hash = _SystemHash.combine(0, runtimeType.hashCode);
-    hash = _SystemHash.combine(hash, wayBillId.hashCode);
-
-    return _SystemHash.finish(hash);
+    return argument.hashCode;
   }
 }
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-mixin WayBillDetailsRef
-    on AutoDisposeFutureProviderRef<List<ProductDetailsListData>> {
-  /// The parameter `wayBillId` of this provider.
-  String get wayBillId;
-}
+String _$wayBillDetailsHash() => r'c29b1459e0879910dd43c33643602fcf57a52547';
 
-class _WayBillDetailsProviderElement
-    extends AutoDisposeFutureProviderElement<List<ProductDetailsListData>>
-    with WayBillDetailsRef {
-  _WayBillDetailsProviderElement(super.provider);
+final class WayBillDetailsFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<ProductDetails>>, String> {
+  WayBillDetailsFamily._()
+    : super(
+        retry: null,
+        name: r'wayBillDetailsProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  WayBillDetailsProvider call(String wayBillId) =>
+      WayBillDetailsProvider._(argument: wayBillId, from: this);
 
   @override
-  String get wayBillId => (origin as WayBillDetailsProvider).wayBillId;
+  String toString() => r'wayBillDetailsProvider';
 }
 
-String _$brandsHash() => r'9522229039b1bdfa9ad124a217cad31a78aeb394';
-
-/// See also [brands].
 @ProviderFor(brands)
-final brandsProvider = AutoDisposeFutureProvider<List<ProductBrand>>.internal(
-  brands,
-  name: r'brandsProvider',
-  debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-      ? null
-      : _$brandsHash,
-  dependencies: null,
-  allTransitiveDependencies: null,
-);
+final brandsProvider = BrandsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef BrandsRef = AutoDisposeFutureProviderRef<List<ProductBrand>>;
+final class BrandsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Brand>>,
+          List<Brand>,
+          FutureOr<List<Brand>>
+        >
+    with $FutureModifier<List<Brand>>, $FutureProvider<List<Brand>> {
+  BrandsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'brandsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$brandsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Brand>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Brand>> create(Ref ref) {
+    return brands(ref);
+  }
+}
+
+String _$brandsHash() => r'c67d7a88445282b1765e6703264ce9ec21079bb6';
+
+@ProviderFor(categories)
+final categoriesProvider = CategoriesProvider._();
+
+final class CategoriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProductCategory>>,
+          List<ProductCategory>,
+          FutureOr<List<ProductCategory>>
+        >
+    with
+        $FutureModifier<List<ProductCategory>>,
+        $FutureProvider<List<ProductCategory>> {
+  CategoriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'categoriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$categoriesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ProductCategory>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProductCategory>> create(Ref ref) {
+    return categories(ref);
+  }
+}
+
 String _$categoriesHash() => r'b6c732e81c42d270b78a500584cbc842d6ffb48d';
 
-/// See also [categories].
-@ProviderFor(categories)
-final categoriesProvider =
-    AutoDisposeFutureProvider<List<ProductCategory>>.internal(
-      categories,
-      name: r'categoriesProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$categoriesHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+@ProviderFor(subCategories)
+final subCategoriesProvider = SubCategoriesProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef CategoriesRef = AutoDisposeFutureProviderRef<List<ProductCategory>>;
+final class SubCategoriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<ProductSubCategory>>,
+          List<ProductSubCategory>,
+          FutureOr<List<ProductSubCategory>>
+        >
+    with
+        $FutureModifier<List<ProductSubCategory>>,
+        $FutureProvider<List<ProductSubCategory>> {
+  SubCategoriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'subCategoriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$subCategoriesHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<List<ProductSubCategory>> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<ProductSubCategory>> create(Ref ref) {
+    return subCategories(ref);
+  }
+}
+
 String _$subCategoriesHash() => r'f2f19813f89ebfb02768a65cb59a2c0a7d3aba85';
 
-/// See also [subCategories].
-@ProviderFor(subCategories)
-final subCategoriesProvider =
-    AutoDisposeFutureProvider<List<ProductSubCategory>>.internal(
-      subCategories,
-      name: r'subCategoriesProvider',
-      debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
-          ? null
-          : _$subCategoriesHash,
-      dependencies: null,
-      allTransitiveDependencies: null,
-    );
+@ProviderFor(companySettings)
+final companySettingsProvider = CompanySettingsProvider._();
 
-@Deprecated('Will be removed in 3.0. Use Ref instead')
-// ignore: unused_element
-typedef SubCategoriesRef =
-    AutoDisposeFutureProviderRef<List<ProductSubCategory>>;
-// ignore_for_file: type=lint
-// ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package
+final class CompanySettingsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<CompanyModel?>,
+          CompanyModel?,
+          FutureOr<CompanyModel?>
+        >
+    with $FutureModifier<CompanyModel?>, $FutureProvider<CompanyModel?> {
+  CompanySettingsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'companySettingsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$companySettingsHash();
+
+  @$internal
+  @override
+  $FutureProviderElement<CompanyModel?> $createElement(
+    $ProviderPointer pointer,
+  ) => $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<CompanyModel?> create(Ref ref) {
+    return companySettings(ref);
+  }
+}
+
+String _$companySettingsHash() => r'3df31fb75dd5b91abd6d85e9ee0a34a393c76801';

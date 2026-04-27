@@ -1,4 +1,5 @@
 import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/stock_report_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/services/stock_report_print_service.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,10 @@ class _StockReportsViewState extends ConsumerState<StockReportsView> {
     _dataGridSource = StockReportDataGridSource(
       reports: [],
       onViewDetails: _showDetails,
-      onPrint: (report) => StockReportPrintService.showPreview(context, report),
+      onPrint: (report) async {
+        final company = await ref.read(companySettingsProvider.future);
+        StockReportPrintService.showPreview(context, report, company: company);
+      },
       onDelete: _confirmDelete,
     );
   }

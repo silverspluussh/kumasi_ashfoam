@@ -1,5 +1,7 @@
-import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
+import 'package:ashfoam_sadiq/src/data/local/app_database.dart' as db;
+import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart';
+import 'package:ashfoam_sadiq/src/features/management/providers/management_providers.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +17,7 @@ class AddProductDialog extends ConsumerStatefulWidget {
 class _AddProductDialogState extends ConsumerState<AddProductDialog> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _categoryController = TextEditingController();
+  ProductCategory? _selectedCategory;
   final _priceController = TextEditingController();
   final _quantityController = TextEditingController(text: '0');
   final _unitController = TextEditingController(text: 'Pieces');
@@ -29,7 +31,6 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
   @override
   void dispose() {
     _nameController.dispose();
-    _categoryController.dispose();
     _priceController.dispose();
     _quantityController.dispose();
     _unitController.dispose();
@@ -68,12 +69,11 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
       try {
         final addItem = ref.read(addInventoryItemProvider);
 
-        final companion = InventoryItemsCompanion(
+        final companion = db.InventoryItemsCompanion(
           name: Value(_nameController.text),
           sku: Value(_generateSKU(_nameController.text)),
-          category: Value(
-            _categoryController.text.isEmpty ? null : _categoryController.text,
-          ),
+          category: Value(_selectedCategory?.name),
+          categoryId: Value(_selectedCategory?.id),
           retailPrice: Value(double.tryParse(_priceController.text) ?? 0.0),
           quantity: Value(int.tryParse(_quantityController.text) ?? 0),
           unit: Value(
@@ -112,6 +112,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     return FDialog(
       direction: Axis.vertical,
       title: const Text('Add New Product'),
+      
       body: SizedBox(
         width: 500,
         child: SingleChildScrollView(
@@ -124,20 +125,51 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                 _buildField(
                   label: 'Product Name*',
                   controller: _nameController,
+                  hint: 'Enter product name',
                   validator: (v) => v!.isEmpty ? 'Required' : null,
                 ),
                 Row(
                   spacing: 16,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Expanded(
-                      child: _buildField(
-                        label: 'Category',
-                        controller: _categoryController,
-                      ),
+                      child: ref
+                          .watch(categoryListProvider)
+                          .when(
+                            data: (categories) =>
+                                FSelect<ProductCategory>.searchBuilder(
+                                  label: const Text('Category'),
+                                  hint: 'Select category',
+                                  format: (c) => c.name,
+                                  filter: (query) => categories
+                                      .where(
+                                        (c) => c.name.toLowerCase().contains(
+                                          query.toLowerCase(),
+                                        ),
+                                      )
+                                      .toList(),
+                                  contentBuilder: (context, _, filtered) => [
+                                    for (final c in filtered)
+                                      FSelectItem.item(
+                                        title: Text(c.name),
+                                        value: c,
+                                      ),
+                                  ],
+                                  control: FSelectControl.lifted(
+                                    value: _selectedCategory,
+                                    onChange: (value) => setState(
+                                      () => _selectedCategory = value,
+                                    ),
+                                  ),
+                                ),
+                            loading: () => const LinearProgressIndicator(),
+                            error: (e, s) => Text('Error: $e'),
+                          ),
                     ),
                     Expanded(
                       child: _buildField(
                         label: 'Unit (e.g. Pieces, Sets)',
+                        hint: 'e.g. Pieces',
                         controller: _unitController,
                       ),
                     ),
@@ -151,12 +183,14 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                         label: 'Retail Price (GH₵)*',
                         controller: _priceController,
                         keyboardType: TextInputType.number,
+                        hint: 'GH₵ 0.0',
                         validator: (v) => v!.isEmpty ? 'Required' : null,
                       ),
                     ),
                     Expanded(
                       child: _buildField(
                         label: 'Initial Quantity*',
+                        hint: 'e.g. 5',
                         controller: _quantityController,
                         keyboardType: TextInputType.number,
                         validator: (v) => v!.isEmpty ? 'Required' : null,
@@ -175,12 +209,14 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                     Expanded(
                       child: _buildField(
                         label: 'Material',
+                        hint: 'e.g. Damask, Polyester',
                         controller: _materialController,
                       ),
                     ),
                     Expanded(
                       child: _buildField(
                         label: 'Size',
+                        hint: 'e.g. L/S, M/S, S/S, K/S, Q/S',
                         controller: _sizeController,
                       ),
                     ),
@@ -192,12 +228,14 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
                     Expanded(
                       child: _buildField(
                         label: 'Thickness',
+                        hint: 'e.g. 9", 6", 4", 3", 2"',
                         controller: _thicknessController,
                       ),
                     ),
                     Expanded(
                       child: _buildField(
                         label: 'Density',
+                        hint: 'e.g. HD1, HD2, HD3',
                         controller: _densityController,
                       ),
                     ),
@@ -223,6 +261,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
     required String label,
     required TextEditingController controller,
     String? Function(String?)? validator,
+    required String hint,
     TextInputType keyboardType = TextInputType.text,
   }) {
     final fieldStyle = const FTextFieldStyleDelta.delta(
@@ -243,6 +282,7 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
       label: Text(label),
       keyboardType: keyboardType,
       style: fieldStyle,
+      hint: hint,
       control: FTextFieldControl.managed(
         controller: controller,
         onChange: (v) {

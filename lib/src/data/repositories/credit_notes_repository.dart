@@ -1,95 +1,63 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class CreditNotesRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  CreditNotesRepository({required this.apiClient});
+  CreditNotesRepository({required this.supabase});
 
-  /// Fetch all credit notes
-  Future<List<Map<String, dynamic>>> getCreditNotes({
-    int? page,
-    int? limit,
+  /// Fetch all credit notes from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? status,
     String? customerId,
   }) async {
-    final response = await apiClient.get(
-      '/credits/notes',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (status != null) 'status': status,
-        if (customerId != null) 'customerId': customerId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_credit_notes').select();
+
+    if (status != null) {
+      query = query.eq('status', status);
+    }
+    if (customerId != null) {
+      query = query.eq('customer_id', customerId);
+    }
+
+    final response = await query;
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single credit note
-  Future<Map<String, dynamic>> getCreditNote(String noteId) async {
-    final response = await apiClient.get('/credits/notes/$noteId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new credit note
-  Future<Map<String, dynamic>> createCreditNote(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert credit notes to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> creditNotes,
   ) async {
-    final response = await apiClient.post(
-      '/credits/notes',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (creditNotes.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_credit_notes')
+        .upsert(creditNotes)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update credit note
-  Future<Map<String, dynamic>> updateCreditNote(
-    String noteId,
-    Map<String, dynamic> data,
+  /// Fetch credit note items from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String noteId) async {
+    final response = await supabase
+        .from('ashfoam_credit_note_items')
+        .select()
+        .eq('credit_note_id', noteId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert credit note items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/credits/notes/$noteId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Approve credit note
-  Future<Map<String, dynamic>> approveCreditNote(String noteId) async {
-    final response = await apiClient.post(
-      '/credits/notes/$noteId/approve',
-      data: {},
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Get credit note items
-  Future<List<Map<String, dynamic>>> getCreditNoteItems(
-    String noteId,
-  ) async {
-    final response = await apiClient.get('/credits/notes/$noteId/items');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
-  }
-
-  /// Add item to credit note
-  Future<Map<String, dynamic>> addCreditNoteItem(
-    String noteId,
-    Map<String, dynamic> itemData,
-  ) async {
-    final response = await apiClient.post(
-      '/credits/notes/$noteId/items',
-      data: itemData,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Remove item from credit note
-  Future<void> removeCreditNoteItem(String noteId, String itemId) async {
-    await apiClient.delete('/credits/notes/$noteId/items/$itemId');
-  }
-
-  /// Sync credit notes
-  Future<List<Map<String, dynamic>>> syncCreditNotes() async {
-    final response = await apiClient.get('/credits/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_credit_note_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

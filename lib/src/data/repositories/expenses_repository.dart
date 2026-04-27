@@ -1,97 +1,66 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ExpensesRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  ExpensesRepository({required this.apiClient});
+  ExpensesRepository({required this.supabase});
 
-  /// Fetch all expenses
-  Future<List<Map<String, dynamic>>> getExpenses({
-    int? page,
-    int? limit,
+  /// Fetch all expenses from Supabase (Fetch)
+  Future<List<Map<String, dynamic>>> fetch({
     String? category,
     String? branchId,
   }) async {
-    final response = await apiClient.get(
-      '/expenses',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (category != null) 'category': category,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_expenses').select();
+
+    if (category != null) {
+      query = query.eq('category', category);
+    }
+    if (branchId != null) {
+      query = query.eq('branch_id', branchId);
+    }
+
+    final response = await query.order('date', ascending: false);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single expense
-  Future<Map<String, dynamic>> getExpense(String expenseId) async {
-    final response = await apiClient.get('/expenses/$expenseId');
-    return response.data['data'] ?? {};
-  }
-
-  /// Create new expense
-  Future<Map<String, dynamic>> createExpense(
-    Map<String, dynamic> data,
+  /// Bulk upload/upsert expenses to Supabase (Bulk Upload)
+  Future<List<Map<String, dynamic>>> bulkUpload(
+    List<Map<String, dynamic>> expenses,
   ) async {
-    final response = await apiClient.post(
-      '/expenses',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    if (expenses.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_expenses')
+        .upsert(expenses)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Update expense
-  Future<Map<String, dynamic>> updateExpense(
-    String expenseId,
-    Map<String, dynamic> data,
+  /// Note: Expenses usually don't have separate line items in this scope, 
+  /// but added fetchItems and bulkUploadItems for consistency with the sync pattern.
+
+  /// Fetch expense items (if applicable) from Supabase (Fetch Items)
+  Future<List<Map<String, dynamic>>> fetchItems(String expenseId) async {
+    final response = await supabase
+        .from('ashfoam_expense_items')
+        .select()
+        .eq('expense_id', expenseId);
+        
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  /// Bulk upload/upsert expense items to Supabase (Bulk Upload Items)
+  Future<List<Map<String, dynamic>>> bulkUploadItems(
+    List<Map<String, dynamic>> items,
   ) async {
-    final response = await apiClient.put(
-      '/expenses/$expenseId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Approve expense
-  Future<void> approveExpense(String expenseId) async {
-    await apiClient.post(
-      '/expenses/$expenseId/approve',
-      data: {},
-    );
-  }
-
-  /// Reject expense
-  Future<void> rejectExpense(String expenseId, String reason) async {
-    await apiClient.post(
-      '/expenses/$expenseId/reject',
-      data: {'reason': reason},
-    );
-  }
-
-  /// Delete expense
-  Future<void> deleteExpense(String expenseId) async {
-    await apiClient.delete('/expenses/$expenseId');
-  }
-
-  /// Get expense report
-  Future<Map<String, dynamic>> getExpenseReport({
-    String? period,
-    String? branchId,
-  }) async {
-    final response = await apiClient.get(
-      '/expenses/report',
-      queryParameters: {
-        if (period != null) 'period': period,
-        if (branchId != null) 'branchId': branchId,
-      },
-    );
-    return response.data['data'] ?? {};
-  }
-
-  /// Sync expenses
-  Future<List<Map<String, dynamic>>> syncExpenses() async {
-    final response = await apiClient.get('/expenses/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    if (items.isEmpty) return [];
+    
+    final response = await supabase
+        .from('ashfoam_expense_items')
+        .upsert(items)
+        .select();
+        
+    return List<Map<String, dynamic>>.from(response);
   }
 }

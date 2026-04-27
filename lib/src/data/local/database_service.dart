@@ -1,7 +1,25 @@
 import 'dart:convert';
-import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
-
+import 'package:ashfoam_sadiq/src/data/local/app_database.dart' as db;
+import 'package:ashfoam_sadiq/src/data/local/drift_extensions.dart';
+import 'package:ashfoam_sadiq/src/data/local/model_mappings.dart';
+import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/customer.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/supplier.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/receipt.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/return_order.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/tax.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/waybill.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart'
+    as proforma_model;
+import 'package:ashfoam_sadiq/src/data/models/company.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/employee.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/expenses.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/stock_adjustment.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/payments.model.dart'
+    as payment_model;
 import 'package:drift/drift.dart' show Value, Variable;
 import 'package:uuid/uuid.dart';
 
@@ -10,17 +28,21 @@ class DatabaseService {
 
   static final DatabaseService instance = DatabaseService._internal();
 
-  final AppDatabase _database = AppDatabase();
+  final db.AppDatabase _database = db.AppDatabase();
 
-  AppDatabase get db => _database;
+  db.AppDatabase get appDatabase => _database;
+  db.AppDatabase get database => _database;
 
-  Future<List<InventoryItem>> getInventoryItems() =>
-      _database.select(_database.inventoryItems).get();
+  // Inventory
+  Future<List<InventoryModel>> getInventoryItems() => _database
+      .select(_database.inventoryItems)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
 
-  Future<int> addInventoryItem(InventoryItemsCompanion item) =>
+  Future<int> addInventoryItem(db.InventoryItemsCompanion item) =>
       _database.into(_database.inventoryItems).insert(item);
 
-  Future<bool> updateInventoryItem(InventoryItem item) =>
+  Future<bool> updateInventoryItem(db.InventoryItem item) =>
       _database.update(_database.inventoryItems).replace(item);
 
   Future<int> deleteInventoryItem(String id) async {
@@ -29,407 +51,111 @@ class DatabaseService {
     )..where((tbl) => tbl.id.equals(id))).go();
   }
 
-  Future<List<Supplier>> getSuppliers() =>
-      _database.select(_database.suppliers).get();
+  Future<void> adjustInventoryStock({
+    required String productId,
+    required int quantityChange,
+    required String type,
+    String? reason,
+    String? referenceId,
+    required String createdBy,
+  }) async {
+    await _database.transaction(() async {
+      final existing = await (_database.select(_database.inventoryItems)
+            ..where((tbl) => tbl.id.equals(productId)))
+          .getSingleOrNull();
 
-  Future<int> addSupplier(SuppliersCompanion supplier) =>
+      if (existing != null) {
+        // 1. Update quantity
+        await (_database.update(_database.inventoryItems)
+              ..where((tbl) => tbl.id.equals(productId)))
+            .write(
+          db.InventoryItemsCompanion(
+            quantity: Value(existing.quantity + quantityChange),
+            updatedAt: Value(DateTime.now()),
+          ),
+        );
+
+        // 2. Create log entry (using customStatement to avoid missing generated companion)
+        await _database.customStatement(
+          'INSERT INTO stock_adjustments (id, product_id, product_name, quantity_change, type, reason, reference_id, created_at, created_by) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [
+            const Uuid().v4(),
+            productId,
+            existing.name,
+            quantityChange,
+            type,
+            reason,
+            referenceId,
+            DateTime.now().millisecondsSinceEpoch ~/ 1000,
+            createdBy,
+          ],
+        );
+      }
+    });
+  }
+
+  Future<List<AdjustmentLog>> getStockAdjustmentLogs() => _database
+      .customSelect('SELECT * FROM stock_adjustments ORDER BY created_at DESC')
+      .get()
+      .then((rows) => rows.map((row) {
+            final createdAtVal = row.data['created_at'];
+            int milliseconds = 0;
+            if (createdAtVal is num) {
+              milliseconds = createdAtVal.toInt() * 1000;
+            } else if (createdAtVal is String) {
+              milliseconds = (int.tryParse(createdAtVal) ?? 0) * 1000;
+            }
+
+            return AdjustmentLog(
+              id: row.data['id'] as String,
+              productId: row.data['product_id'] as String,
+              productName: row.data['product_name'] as String,
+              quantityChange: (row.data['quantity_change'] as num).toInt(),
+              type: row.data['type'] as String,
+              reason: row.data['reason'] as String?,
+              referenceId: row.data['reference_id'] as String?,
+              createdAt: DateTime.fromMillisecondsSinceEpoch(milliseconds),
+              createdBy: row.data['created_by'] as String,
+            );
+          }).toList());
+
+  // Suppliers
+  Future<List<SupplierModel>> getSuppliers() => _database
+      .select(_database.suppliers)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addSupplier(db.SuppliersCompanion supplier) =>
       _database.into(_database.suppliers).insert(supplier);
 
-  Future<int> addInvoice(InvoicesCompanion invoice) =>
+  // Invoices
+  Future<List<InvoiceModel>> getInvoices() => _database
+      .select(_database.invoices)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addInvoice(db.InvoicesCompanion invoice) =>
       _database.into(_database.invoices).insert(invoice);
 
   Future<bool> updateInvoiceStatus(String id, String status) async {
     return await (_database.update(_database.invoices)
-          ..where((tbl) => tbl.id.equals(id)))
-        .write(InvoicesCompanion(status: Value(status))) >
+              ..where((tbl) => tbl.id.equals(id)))
+            .write(db.InvoicesCompanion(status: Value(status))) >
         0;
   }
 
-  Future<List<Invoice>> getInvoices() =>
-      _database.select(_database.invoices).get();
+  // Sales Orders
+  Future<List<SaleOrderModel>> getSalesOrders() => _database
+      .select(_database.saleOrders)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
 
-  Future<List<SaleOrder>> getSalesOrders() =>
-      _database.select(_database.saleOrders).get();
-
-  Future<int> addSalesOrder(SaleOrdersCompanion order) =>
+  Future<int> addSalesOrder(db.SaleOrdersCompanion order) =>
       _database.into(_database.saleOrders).insert(order);
 
-  Future<List<SaleOrderItem>> getSaleOrderItems(String saleOrderId) async {
-    return (_database.select(
-      _database.saleOrderItems,
-    )..where((tbl) => tbl.saleOrderId.equals(saleOrderId))).get();
-  }
-
-  Future<List<SaleOrderItem>> getAllSaleOrderItems() =>
-      _database.select(_database.saleOrderItems).get();
-
-  Future<int> addSaleOrderItem(SaleOrderItemsCompanion item) =>
-      _database.into(_database.saleOrderItems).insert(item);
-
-  Future<int> addSaleOrderItems(List<SaleOrderItemsCompanion> items) async {
-    var totalCount = 0;
-    for (final item in items) {
-      final count = await addSaleOrderItem(item);
-      totalCount += count;
-    }
-    return totalCount;
-  }
-
-  Future<bool> updateSaleOrderItem(SaleOrderItem item) =>
-      _database.update(_database.saleOrderItems).replace(item);
-
-  Future<int> deleteSaleOrderItem(String itemId) => (_database.delete(
-    _database.saleOrderItems,
-  )..where((tbl) => tbl.id.equals(itemId))).go();
-
-  Future<int> deleteSaleOrderItemsByOrder(String saleOrderId) =>
-      (_database.delete(
-        _database.saleOrderItems,
-      )..where((tbl) => tbl.saleOrderId.equals(saleOrderId))).go();
-
-  Future<List<Customer>> getCustomers() =>
-      _database.select(_database.customers).get();
-
-  Future<int> addCustomer(CustomersCompanion customer) =>
-      _database.into(_database.customers).insert(customer);
-
-  Future<List<ReturnOrder>> getReturnOrders() =>
-      _database.select(_database.returnOrders).get();
-
-  Future<int> addReturnOrder(ReturnOrdersCompanion order) =>
-      _database.into(_database.returnOrders).insert(order);
-
-  Future<List<ReturnOrderItem>> getReturnOrderItems(
-    String returnOrderId,
-  ) async {
-    return (_database.select(
-      _database.returnOrderItems,
-    )..where((tbl) => tbl.returnOrderId.equals(returnOrderId))).get();
-  }
-
-  Future<List<ReturnOrderItem>> getAllReturnOrderItems() =>
-      _database.select(_database.returnOrderItems).get();
-
-  Future<int> addReturnOrderItem(ReturnOrderItemsCompanion item) =>
-      _database.into(_database.returnOrderItems).insert(item);
-
-  Future<int> addReturnOrderItems(List<ReturnOrderItemsCompanion> items) async {
-    var totalCount = 0;
-    for (final item in items) {
-      final count = await addReturnOrderItem(item);
-      totalCount += count;
-    }
-    return totalCount;
-  }
-
-  Future<bool> updateReturnOrderItem(ReturnOrderItem item) =>
-      _database.update(_database.returnOrderItems).replace(item);
-
-  Future<int> deleteReturnOrderItem(String itemId) => (_database.delete(
-    _database.returnOrderItems,
-  )..where((tbl) => tbl.id.equals(itemId))).go();
-
-  Future<int> deleteReturnOrderItems(String returnOrderId) => (_database.delete(
-    _database.returnOrderItems,
-  )..where((tbl) => tbl.returnOrderId.equals(returnOrderId))).go();
-
-  Future<List<CreditNote>> getCreditNotes() =>
-      _database.select(_database.creditNotes).get();
-
-  Future<int> addCreditNote(CreditNotesCompanion note) =>
-      _database.into(_database.creditNotes).insert(note);
-
-  Future<List<CreditNoteItem>> getCreditNoteItems(String creditNoteId) async {
-    return (_database.select(
-      _database.creditNoteItems,
-    )..where((tbl) => tbl.creditNoteId.equals(creditNoteId))).get();
-  }
-
-  Future<List<CreditNoteItem>> getAllCreditNoteItems() =>
-      _database.select(_database.creditNoteItems).get();
-
-  Future<int> addCreditNoteItem(CreditNoteItemsCompanion item) =>
-      _database.into(_database.creditNoteItems).insert(item);
-
-  Future<int> addCreditNoteItems(List<CreditNoteItemsCompanion> items) async {
-    var totalCount = 0;
-    for (final item in items) {
-      final count = await addCreditNoteItem(item);
-      totalCount += count;
-    }
-    return totalCount;
-  }
-
-  Future<bool> updateCreditNoteItem(CreditNoteItem item) =>
-      _database.update(_database.creditNoteItems).replace(item);
-
-  Future<int> deleteCreditNoteItem(String itemId) => (_database.delete(
-    _database.creditNoteItems,
-  )..where((tbl) => tbl.id.equals(itemId))).go();
-
-  Future<int> deleteCreditNoteItems(String creditNoteId) => (_database.delete(
-    _database.creditNoteItems,
-  )..where((tbl) => tbl.creditNoteId.equals(creditNoteId))).go();
-
-  Future<List<StockReport>> getStockReports() =>
-      _database.select(_database.stockReports).get();
-
-  Future<int> addStockReport(StockReportsCompanion report) =>
-      _database.into(_database.stockReports).insert(report);
-
-  Future<int> deleteStockReport(String id) async {
-    return (_database.delete(
-      _database.stockReports,
-    )..where((tbl) => tbl.id.equals(id))).go();
-  }
-
-  Future<bool> updateBranch(String id, BranchesCompanion companion) async {
-    return await (_database.update(_database.branches)
-          ..where((tbl) => tbl.id.equals(id)))
-        .write(companion) >
-        0;
-  }
-
-  Future<List<Employee>> getEmployees() =>
-      _database.select(_database.employees).get();
-
-  Future<int> addEmployee(EmployeesCompanion employee) =>
-      _database.into(_database.employees).insert(employee);
-
-  Future<List<Expense>> getExpenses() =>
-      _database.select(_database.expenses).get();
-
-  Future<int> addExpense(ExpensesCompanion expense) =>
-      _database.into(_database.expenses).insert(expense);
-
-  Future<List<BranchPayment>> getBranchPayments() =>
-      _database.select(_database.branchPayments).get();
-
-  Future<int> addBranchPayment(BranchPaymentsCompanion payment) =>
-      _database.into(_database.branchPayments).insert(payment);
-
-  Future<List<Receipt>> getReceipts() =>
-      _database.select(_database.receipts).get();
-
-  Future<int> addReceipt(ReceiptsCompanion receipt) =>
-      _database.into(_database.receipts).insert(receipt);
-
-  Future<List<Proforma>> getProformas() =>
-      _database.select(_database.proformas).get();
-
-  Future<int> addProforma(ProformasCompanion proforma) =>
-      _database.into(_database.proformas).insert(proforma);
-
-  Future<List<WayBill>> getWayBills() =>
-      _database.select(_database.wayBills).get();
-
-  Future<int> addWayBill(WayBillsCompanion wayBill) =>
-      _database.into(_database.wayBills).insert(wayBill);
-
-  Future<List<ProductDetailsListData>> getProductDetails() =>
-      _database.select(_database.productDetailsList).get();
-
-  Future<List<ProductDetailsListData>> getProformaDetails(
-    String proformaId,
-  ) async {
-    return (_database.select(
-      _database.productDetailsList,
-    )..where((tbl) => tbl.proformaId.equals(proformaId))).get();
-  }
-
-  Future<List<ProductDetailsListData>> getWayBillDetails(
-    String wayBillId,
-  ) async {
-    return (_database.select(
-      _database.productDetailsList,
-    )..where((tbl) => tbl.waybillId.equals(wayBillId))).get();
-  }
-
-  Future<int> addProductDetails(ProductDetailsListCompanion details) =>
-      _database.into(_database.productDetailsList).insert(details);
-
-  Future<int> addProductDetailsList(
-    List<ProductDetailsListCompanion> detailsList,
-  ) async {
-    var totalCount = 0;
-    for (final details in detailsList) {
-      final count = await addProductDetails(details);
-      totalCount += count;
-    }
-    return totalCount;
-  }
-
-  Future<bool> updateProductDetails(ProductDetailsListData details) =>
-      _database.update(_database.productDetailsList).replace(details);
-
-  Future<int> deleteProductDetails(String detailsId) => (_database.delete(
-    _database.productDetailsList,
-  )..where((tbl) => tbl.id.equals(detailsId))).go();
-
-  Future<int> deleteProformaDetails(String proformaId) => (_database.delete(
-    _database.productDetailsList,
-  )..where((tbl) => tbl.proformaId.equals(proformaId))).go();
-
-  Future<int> deleteWayBillDetails(String wayBillId) => (_database.delete(
-    _database.productDetailsList,
-  )..where((tbl) => tbl.waybillId.equals(wayBillId))).go();
-
-  // Product Brands
-  Future<List<ProductBrand>> getBrands() =>
-      _database.select(_database.productBrands).get();
-
-  Future<int> addBrand(ProductBrandsCompanion brand) =>
-      _database.into(_database.productBrands).insert(brand);
-
-  // Product Categories
-  Future<List<ProductCategory>> getCategories() =>
-      _database.select(_database.productCategories).get();
-
-  Future<int> addCategory(ProductCategoriesCompanion category) =>
-      _database.into(_database.productCategories).insert(category);
-
-  // Product Sub Categories
-  Future<List<ProductSubCategory>> getSubCategories() =>
-      _database.select(_database.productSubCategories).get();
-
-  Future<int> addSubCategory(ProductSubCategoriesCompanion subCategory) =>
-      _database.into(_database.productSubCategories).insert(subCategory);
-
-  Future<List<SaleOrder>> getUnsyncedSaleOrders() async {
-    return (_database.select(
-      _database.saleOrders,
-    )..where((tbl) => tbl.isSynced.equals(0))).get();
-  }
-
-  /// Get all unsynced sale order items (isSynced = 0)
-  Future<List<SaleOrderItem>> getUnsyncedSaleOrderItems() async {
-    return (_database.select(
-      _database.saleOrderItems,
-    )..where((tbl) => tbl.isSynced.equals(0))).get();
-  }
-
-  Future<List<ReturnOrder>> getUnsyncedReturnOrders() async {
-    return (_database.select(
-      _database.returnOrders,
-    )..where((tbl) => tbl.isSynced.equals(0))).get();
-  }
-
-  Future<List<ReturnOrderItem>> getUnsyncedReturnOrderItems() async {
-    return (_database.select(
-      _database.returnOrderItems,
-    )..where((tbl) => tbl.isSynced.equals(0))).get();
-  }
-
-  Future<void> markSaleOrderAsSynced(String orderId) async {
-    final rows = await (_database.select(
-      _database.saleOrders,
-    )..where((tbl) => tbl.id.equals(orderId))).get();
-
-    if (rows.isNotEmpty) {
-      final order = rows.first;
-      await _database
-          .update(_database.saleOrders)
-          .replace(
-            order.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
-          );
-    }
-  }
-
-  /// Mark a sale order item as synced
-  Future<void> markSaleOrderItemAsSynced(String itemId) async {
-    final rows = await (_database.select(
-      _database.saleOrderItems,
-    )..where((tbl) => tbl.id.equals(itemId))).get();
-
-    if (rows.isNotEmpty) {
-      final item = rows.first;
-      await _database
-          .update(_database.saleOrderItems)
-          .replace(
-            item.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
-          );
-    }
-  }
-
-  /// Mark a return order as synced
-  Future<void> markReturnOrderAsSynced(String orderId) async {
-    final rows = await (_database.select(
-      _database.returnOrders,
-    )..where((tbl) => tbl.id.equals(orderId))).get();
-
-    if (rows.isNotEmpty) {
-      final order = rows.first;
-      await _database
-          .update(_database.returnOrders)
-          .replace(
-            order.copyWith(isSynced: 1, lastSyncedAt: Value(DateTime.now())),
-          );
-    }
-  }
-
-  /// Mark a return order item as synced
-  Future<void> markReturnOrderItemAsSynced(String itemId) async {
-    final rows = await (_database.select(
-      _database.returnOrderItems,
-    )..where((tbl) => tbl.id.equals(itemId))).get();
-
-    if (rows.isNotEmpty) {
-      final item = rows.first;
-      await _database
-          .update(_database.returnOrderItems)
-          .replace(item.copyWith(isSynced: 1));
-    }
-  }
-
-  /// Mark multiple sale orders as synced
-  Future<void> markSaleOrdersAsSynced(List<String> orderIds) async {
-    for (final id in orderIds) {
-      await markSaleOrderAsSynced(id);
-    }
-  }
-
-  /// Mark multiple sale order items as synced
-  Future<void> markSaleOrderItemsAsSynced(List<String> itemIds) async {
-    for (final id in itemIds) {
-      await markSaleOrderItemAsSynced(id);
-    }
-  }
-
-  /// Mark multiple return orders as synced
-  Future<void> markReturnOrdersAsSynced(List<String> orderIds) async {
-    for (final id in orderIds) {
-      await markReturnOrderAsSynced(id);
-    }
-  }
-
-  /// Mark multiple return order items as synced
-  Future<void> markReturnOrderItemsAsSynced(List<String> itemIds) async {
-    for (final id in itemIds) {
-      await markReturnOrderItemAsSynced(id);
-    }
-  }
-
-  Future<List<Branche>> getBranches() async =>
-      _database.select(_database.branches).get();
-
-  Future<List<Taxe>> getTaxes() async =>
-      _database.select(_database.taxes).get();
-
-  Future<int> addTax(TaxesCompanion tax) =>
-      _database.into(_database.taxes).insert(tax);
-
-  Future<bool> updateTax(String id, TaxesCompanion tax) =>
-      (_database.update(_database.taxes)..where((t) => t.id.equals(id)))
-          .write(tax)
-          .then((v) => v > 0);
-
-  Future<int> deleteTax(String id) =>
-      (_database.delete(_database.taxes)..where((t) => t.id.equals(id))).go();
-
-  /// Create a POS order with its items in a transaction
   Future<void> createPOSOrder(
-    SaleOrdersCompanion order,
-    List<SaleOrderItemsCompanion> items,
+    db.SaleOrdersCompanion order,
+    List<db.SaleOrderItemsCompanion> items,
   ) async {
     await _database.transaction(() async {
       await _database.into(_database.saleOrders).insert(order);
@@ -439,10 +165,131 @@ class DatabaseService {
     });
   }
 
-  /// Create a Waybill with its items in a transaction
+  Future<List<SaleOrderItem>> getSaleOrderItems(String saleOrderId) async {
+    return (_database.select(_database.saleOrderItems)
+          ..where((tbl) => tbl.saleOrderId.equals(saleOrderId)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<SaleOrderItem>> getAllSaleOrderItems() => _database
+      .select(_database.saleOrderItems)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addSaleOrderItem(db.SaleOrderItemsCompanion item) =>
+      _database.into(_database.saleOrderItems).insert(item);
+
+  // Customers
+  Future<List<CustomerModel>> getCustomers() => _database
+      .select(_database.customers)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addCustomer(db.CustomersCompanion customer) =>
+      _database.into(_database.customers).insert(customer);
+
+  // Return Orders
+  Future<List<ReturnOrderModel>> getReturnOrders() => _database
+      .select(_database.returnOrders)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addReturnOrder(db.ReturnOrdersCompanion order) =>
+      _database.into(_database.returnOrders).insert(order);
+
+  Future<List<ReturnOrderItemModel>> getReturnOrderItems(
+    String returnOrderId,
+  ) async {
+    return (_database.select(_database.returnOrderItems)
+          ..where((tbl) => tbl.returnOrderId.equals(returnOrderId)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<ReturnOrderItemModel>> getAllReturnOrderItems() => _database
+      .select(_database.returnOrderItems)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  // Credit Notes
+  Future<List<CreditNoteModel>> getCreditNotes() => _database
+      .select(_database.creditNotes)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addCreditNote(db.CreditNotesCompanion note) =>
+      _database.into(_database.creditNotes).insert(note);
+
+  Future<List<CreditNoteItemModel>> getCreditNoteItems(
+    String creditNoteId,
+  ) async {
+    return (_database.select(_database.creditNoteItems)
+          ..where((tbl) => tbl.creditNoteId.equals(creditNoteId)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<CreditNoteItemModel>> getAllCreditNoteItems() => _database
+      .select(_database.creditNoteItems)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  // Stock Reports
+  Future<List<StockReportSummary>> getStockReports() => _database
+      .select(_database.stockReports)
+      .get()
+      .then(
+        (rows) =>
+            rows.map((e) => StockReportSummary.fromMap(e.toJson())).toList(),
+      );
+
+  Future<int> deleteStockReport(String id) async {
+    return (_database.delete(
+      _database.stockReports,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  // Employees
+  Future<List<EmployeeModel>> getEmployees() => _database
+      .select(_database.employees)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addEmployee(db.EmployeesCompanion employee) =>
+      _database.into(_database.employees).insert(employee);
+
+  // Expenses
+  Future<List<ExpenseModel>> getExpenses() => _database
+      .select(_database.expenses)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addExpense(db.ExpensesCompanion expense) =>
+      _database.into(_database.expenses).insert(expense);
+
+  // Receipts, Proformas, Waybills
+  Future<List<ReceiptModel>> getReceipts() => _database
+      .select(_database.receipts)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<List<proforma_model.Profoma>> getProformas() => _database
+      .select(_database.proformas)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addProforma(db.ProformasCompanion proforma) =>
+      _database.into(_database.proformas).insert(proforma);
+
+  Future<List<WayBillModel>> getWayBills() => _database
+      .select(_database.wayBills)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
   Future<void> createWaybill(
-    WayBillsCompanion waybill,
-    List<ProductDetailsListCompanion> items,
+    db.WayBillsCompanion waybill,
+    List<db.ProductDetailsListCompanion> items,
   ) async {
     await _database.transaction(() async {
       await _database.into(_database.wayBills).insert(waybill);
@@ -452,22 +299,211 @@ class DatabaseService {
     });
   }
 
-  /// Generate a monthly stock report for the local database
+  Future<List<proforma_model.ProductDetails>> getWayBillDetails(
+    String waybillId,
+  ) async {
+    return (_database.select(_database.productDetailsList)
+          ..where((tbl) => tbl.waybillId.equals(waybillId)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  // Product Details (for Waybills/Proformas)
+  Future<List<proforma_model.ProductDetails>> getProductDetails() => _database
+      .select(_database.productDetailsList)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<void> addProductDetailsList(
+    List<db.ProductDetailsListCompanion> items,
+  ) async {
+    await _database.batch((batch) {
+      batch.insertAll(_database.productDetailsList, items);
+    });
+  }
+
+  Future<List<proforma_model.ProductDetails>> getProformaDetails(
+    String proformaId,
+  ) async {
+    return (_database.select(_database.productDetailsList)
+          ..where((tbl) => tbl.proformaId.equals(proformaId)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  // Brands, Categories, Subcategories
+  Future<List<Brand>> getBrands() => _database
+      .select(_database.productBrands)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<List<ProductCategory>> getCategories() => _database
+      .select(_database.productCategories)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<List<ProductSubCategory>> getSubCategories() => _database
+      .select(_database.productSubCategories)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addBrand(db.ProductBrandsCompanion brand) =>
+      _database.into(_database.productBrands).insert(brand);
+
+  Future<int> addCategory(db.ProductCategoriesCompanion category) =>
+      _database.into(_database.productCategories).insert(category);
+
+  // Company Settings
+  Future<CompanyModel?> getCompanySettings() => _database
+      .select(_database.companySettings)
+      .getSingleOrNull()
+      .then((row) => row?.toModel());
+
+  Future<void> updateCompanySettings(db.CompanySettingsCompanion settings) async {
+    final existing = await _database.select(_database.companySettings).getSingleOrNull();
+    if (existing != null) {
+      await (_database.update(_database.companySettings)
+            ..where((tbl) => tbl.id.equals(existing.id)))
+          .write(settings.copyWith(updatedAt: Value(DateTime.now())));
+    } else {
+      await _database.into(_database.companySettings).insert(settings);
+    }
+  }
+
+  // Branch Payments
+  Future<List<payment_model.BranchPaymentModel>> getBranchPayments() =>
+      _database
+          .select(_database.branchPayments)
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addBranchPayment(db.BranchPaymentsCompanion payment) =>
+      _database.into(_database.branchPayments).insert(payment);
+
+  // Sync Checks
+  Future<List<SaleOrderModel>> getUnsyncedSaleOrders() async {
+    return (_database.select(_database.saleOrders)
+          ..where((tbl) => tbl.isSynced.equals(0)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<SaleOrderItem>> getUnsyncedSaleOrderItems() async {
+    return (_database.select(_database.saleOrderItems)
+          ..where((tbl) => tbl.isSynced.equals(0)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<InvoiceModel>> getUnsyncedInvoices() async {
+    return (_database.select(_database.invoices)
+          ..where((tbl) => tbl.isSynced.equals(0)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<payment_model.BranchPaymentModel>> getUnsyncedPayments() async {
+    return (_database.select(_database.branchPayments)
+          ..where((tbl) => tbl.isSynced.equals(0)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<ReturnOrderModel>> getUnsyncedReturnOrders() async {
+    return (_database.select(_database.returnOrders)
+          ..where((tbl) => tbl.isSynced.equals(0)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  Future<List<ReturnOrderItemModel>> getUnsyncedReturnOrderItems() async {
+    return (_database.select(_database.returnOrderItems)
+          ..where((tbl) => tbl.isSynced.equals(0)))
+        .get()
+        .then((rows) => rows.map((e) => e.toModel()).toList());
+  }
+
+  // --- Mark As Synced Helpers ---
+  Future<int> markSaleOrderAsSynced(String id) {
+    return (_database.update(
+      _database.saleOrders,
+    )..where((tbl) => tbl.id.equals(id))).write(
+      db.SaleOrdersCompanion(
+        isSynced: const Value(1),
+        lastSyncedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<int> markSaleOrderItemAsSynced(String id) {
+    return (_database.update(
+      _database.saleOrderItems,
+    )..where((tbl) => tbl.id.equals(id))).write(
+      db.SaleOrderItemsCompanion(
+        isSynced: const Value(1),
+        lastSyncedAt: Value(DateTime.now()),
+      ),
+    );
+  }
+
+  Future<int> markInvoiceAsSynced(String id) {
+    return (_database.update(_database.invoices)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(db.InvoicesCompanion(isSynced: const Value(1)));
+  }
+
+  Future<int> markPaymentAsSynced(String id) {
+    return (_database.update(_database.branchPayments)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(db.BranchPaymentsCompanion(isSynced: const Value(1)));
+  }
+
+  Future<int> markReturnOrderAsSynced(String id) {
+    return (_database.update(_database.returnOrders)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(db.ReturnOrdersCompanion(isSynced: const Value(1)));
+  }
+
+  Future<int> markReturnOrderItemAsSynced(String id) {
+    return (_database.update(_database.returnOrderItems)
+          ..where((tbl) => tbl.id.equals(id)))
+        .write(db.ReturnOrderItemsCompanion(isSynced: const Value(1)));
+  }
+
+  //gettaxes
+  Future<List<TaxModel>> getTaxes() => _database
+      .select(_database.taxes)
+      .get()
+      .then((rows) => rows.map((e) => e.toModel()).toList());
+
+  Future<int> addTax(db.TaxesCompanion tax) =>
+      _database.into(_database.taxes).insert(tax);
+
+  Future<bool> updateTax(String id, db.TaxesCompanion tax) async {
+    return await (_database.update(
+          _database.taxes,
+        )..where((tbl) => tbl.id.equals(id))).write(tax) >
+        0;
+  }
+
+  Future<int> deleteTax(String id) async {
+    return (_database.delete(
+      _database.taxes,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  // Complex Queries (Preserved)
   Future<StockReportSummary> generateMonthlyStockReport({
     required int month,
     required int year,
     required String createdBy,
   }) async {
-    // 1. Get the first branch's info for metadata
-    final branchRow = await _database.select(_database.branches).getSingleOrNull();
-    final branchId = branchRow?.id ?? 'main-branch';
-    final branchName = branchRow?.branchName ?? 'Main Branch';
+    final storeId = 'main-store';
+    final storeName = 'Main Store';
 
-    // 2. Fetch Product Stock details
-    // SQLite stores DateTime as unix timestamps by default in Drift.
-    // We use datetime(col, 'unixepoch') to format them for strftime.
-    final productStocks = await _database.customSelect(
-      '''
+    final productStocks = await _database
+        .customSelect(
+          '''
       SELECT 
         i.id, i.name, i.sku, i.quantity, i.retail_price,
         COALESCE(sales.qty_sold, 0) as quantity_sold,
@@ -485,23 +521,30 @@ class DatabaseService {
         GROUP BY soi.product_id
       ) sales ON i.id = sales.product_id
       ''',
-      variables: [
-        Variable<String>(month.toString().padLeft(2, '0')),
-        Variable<String>(year.toString()),
-      ],
-    ).get().then((rows) => rows.map((row) => ProductStock(
-          id: row.read<String>('id'),
-          name: row.read<String>('name'),
-          sku: row.read<String>('sku'),
-          quantity: row.read<int>('quantity'),
-          retailPrice: row.read<double>('retail_price'),
-          quantitySold: row.read<int>('quantity_sold'),
-          totalSales: row.read<double>('total_sales'),
-        )).toList());
+          variables: [
+            Variable<String>(month.toString().padLeft(2, '0')),
+            Variable<String>(year.toString()),
+          ],
+        )
+        .get()
+        .then(
+          (rows) => rows
+              .map(
+                (row) => ProductStock(
+                  id: row.read<String>('id'),
+                  name: row.read<String>('name'),
+                  sku: row.read<String>('sku'),
+                  quantity: row.read<int>('quantity'),
+                  retailPrice: row.read<double>('retail_price'),
+                  quantitySold: row.read<int>('quantity_sold'),
+                  totalSales: row.read<double>('total_sales'),
+                ),
+              )
+              .toList(),
+        );
 
-    // 3. Fetch Category Stock summaries
-    final categoryStocks = await _database.customSelect(
-      '''
+    final categoryStocks = await _database
+        .customSelect('''
       SELECT 
         c.id as category_id,
         c.name as category_name,
@@ -510,25 +553,34 @@ class DatabaseService {
       FROM inventory_items i
       JOIN product_categories c ON i.category_id = c.id
       GROUP BY c.id, c.name
-      ''',
-      variables: [],
-    ).get().then((rows) => rows.map((row) => CategoryStock(
-          categoryId: row.read<String>('category_id'),
-          categoryName: row.read<String>('category_name'),
-          totalQuantity: row.read<int>('total_quantity'),
-          totalValue: row.read<double>('total_value'),
-        )).toList());
+      ''')
+        .get()
+        .then(
+          (rows) => rows
+              .map(
+                (row) => CategoryStock(
+                  categoryId: row.read<String>('category_id'),
+                  categoryName: row.read<String>('category_name'),
+                  totalQuantity: row.read<int>('total_quantity'),
+                  totalValue: row.read<double>('total_value'),
+                ),
+              )
+              .toList(),
+        );
 
-    // 4. Create the report entry
     final reportId = const Uuid().v4();
     final now = DateTime.now();
 
-    final companion = StockReportsCompanion(
+    final companion = db.StockReportsCompanion(
       id: Value(reportId),
-      branchId: Value(branchId),
-      branchName: Value(branchName),
-      currentStock: Value(jsonEncode(productStocks.map((x) => x.toMap()).toList())),
-      categoryStock: Value(jsonEncode(categoryStocks.map((x) => x.toMap()).toList())),
+      branchId: Value(storeId),
+      branchName: Value(storeName),
+      currentStock: Value(
+        jsonEncode(productStocks.map((x) => x.toMap()).toList()),
+      ),
+      categoryStock: Value(
+        jsonEncode(categoryStocks.map((x) => x.toMap()).toList()),
+      ),
       createdAt: Value(now),
       createdBy: Value(createdBy),
       updatedAt: Value(now),
@@ -538,8 +590,8 @@ class DatabaseService {
 
     return StockReportSummary(
       id: reportId,
-      branchId: branchId,
-      branchName: branchName,
+      branchId: storeId,
+      branchName: storeName,
       createdAt: now,
       createdBy: createdBy,
       currentStock: productStocks,

@@ -79,23 +79,42 @@ class Profoma {
       id: (map['id'] ?? map['id'] ?? '') as String,
       partyName: (map['partyName'] ?? map['party_name']) as String?,
       partyAddress: (map['partyAddress'] ?? map['party_address']) as String?,
-      tax: (map['tax'] as List<dynamic>?)
-              ?.map((item) => TaxComponent.fromMap(item as Map<String, dynamic>))
-              .toList() ??
-          [],
-      totalQuantity: (map['totalQuantity'] ?? map['total_quantity'] as num?)?.toInt() ?? 0,
+      tax: () {
+        final data = map['tax'];
+        if (data == null || data == '') return <TaxComponent>[];
+        try {
+          final List list = data is String ? jsonDecode(data) as List : data as List;
+          return list.map((item) {
+            if (item is TaxComponent) return item;
+            if (item is String) {
+               try { item = jsonDecode(item); } catch(_) {}
+            }
+            if (item is Map) return TaxComponent.fromMap(Map<String, dynamic>.from(item));
+            return null;
+          }).whereType<TaxComponent>().toList();
+        } catch (_) {
+          return <TaxComponent>[];
+        }
+      }(),
+      totalQuantity:
+          (map['totalQuantity'] as num? ?? map['total_quantity'] as num? ?? 0).toInt(),
       declaration: (map['declaration'] ?? map['declaration']) as String?,
-      isDeleted: (map['isDeleted'] ?? map['is_deleted'] as int?) ?? 0,
-      totalAmount: (map['totalAmount'] ?? map['total_amount'] as num?)?.toDouble() ?? 0.0,
+      isDeleted: (map['isDeleted'] as int? ?? map['is_deleted'] as int? ?? 0),
+      totalAmount:
+          (map['totalAmount'] as num? ?? map['total_amount'] as num? ?? 0.0).toDouble(),
       createdAt: (map['createdAt'] ?? map['created_at']) != null
-          ? ((map['createdAt'] ?? map['created_at']) is int 
-              ? DateTime.fromMillisecondsSinceEpoch((map['createdAt'] ?? map['created_at']) as int)
-              : DateTime.parse((map['createdAt'] ?? map['created_at']) as String))
+          ? ((map['createdAt'] ?? map['created_at']) is int
+                ? DateTime.fromMillisecondsSinceEpoch(
+                    (map['createdAt'] ?? map['created_at']) as int,
+                  )
+                : (DateTime.tryParse((map['createdAt'] ?? map['created_at']).toString()) ?? DateTime.now()))
           : DateTime.now(),
       updatedAt: (map['updatedAt'] ?? map['updated_at']) != null
-          ? ((map['updatedAt'] ?? map['updated_at']) is int 
-              ? DateTime.fromMillisecondsSinceEpoch((map['updatedAt'] ?? map['updated_at']) as int)
-              : DateTime.parse((map['updatedAt'] ?? map['updated_at']) as String))
+          ? ((map['updatedAt'] ?? map['updated_at']) is int
+                ? DateTime.fromMillisecondsSinceEpoch(
+                    (map['updatedAt'] ?? map['updated_at']) as int,
+                  )
+                : (DateTime.tryParse((map['updatedAt'] ?? map['updated_at']).toString()) ?? DateTime.now()))
           : DateTime.now(),
     );
   }
@@ -159,26 +178,26 @@ class ProductDetails {
 
   factory ProductDetails.fromMap(Map<String, dynamic> map) {
     return ProductDetails(
-      productId: map['productId'] as String? ?? 'N/A',
-      proformaId: map['proformaId'] as String?,
-      waybillId: map['waybillId'] as String?,
-      productName: map['productName'] as String? ?? 'Unknown Product',
+      productId: map['productId']?.toString() ?? map['product_id']?.toString() ?? 'N/A',
+      proformaId: map['proformaId']?.toString() ?? map['proforma_id']?.toString(),
+      waybillId: map['waybillId']?.toString() ?? map['waybill_id']?.toString(),
+      productName: map['productName']?.toString() ?? map['product_name']?.toString() ?? 'Unknown Product',
       quantity: (map['quantity'] as num?)?.toInt() ?? 0,
-      unitprice: (map['unitPrice'] as num?)?.toDouble() ?? 0.0,
+      unitprice: ((map['unitPrice'] ?? map['unit_price']) as num?)?.toDouble() ?? 0.0,
       discountPercentage:
-          (map['discountPercentage'] as num?)?.toDouble() ?? 0.0,
-      totalAmount: (map['totalAmount'] as num?)?.toDouble() ?? 0.0,
+          ((map['discountPercentage'] ?? map['discount_percentage']) as num?)?.toDouble() ?? 0.0,
+      totalAmount: ((map['totalAmount'] ?? map['total_amount']) as num?)?.toDouble() ?? 0.0,
     );
   }
 }
 
 class TaxComponent {
-  final Tax tax;
+  final TaxModel tax;
   final double taxAmount;
 
   TaxComponent({required this.tax, required this.taxAmount});
 
-  TaxComponent copyWith({Tax? tax, double? taxAmount}) {
+  TaxComponent copyWith({TaxModel? tax, double? taxAmount}) {
     return TaxComponent(
       tax: tax ?? this.tax,
       taxAmount: taxAmount ?? this.taxAmount,
@@ -191,8 +210,8 @@ class TaxComponent {
 
   factory TaxComponent.fromMap(Map<String, dynamic> map) {
     return TaxComponent(
-      tax: Tax.fromMap(map['tax'] as Map<String, dynamic>),
-      taxAmount: (map['tax_amount'] as num).toDouble(),
+      tax: TaxModel.fromMap(map['tax'] as Map<String, dynamic>? ?? {}),
+      taxAmount: (map['tax_amount'] as num? ?? map['taxAmount'] as num? ?? 0.0).toDouble(),
     );
   }
 }

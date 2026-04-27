@@ -1,9 +1,8 @@
 import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/proforma_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/services/proforma_print_service.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/widgets/create_proforma_dialog.dart';
-import 'package:ashfoam_sadiq/src/features/settings/providers/settings_providers.dart';
-import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/widgets/proforma_details_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,22 +52,49 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
                   data: (proformas) {
                     _dataGridSource.updateContext(context);
                     _dataGridSource.updateProformas(proformas);
-                    return SfDataGridTheme(
-                      data: SfDataGridThemeData(
-                        headerColor: Colors.black,
-                        gridLineColor: Colors.grey[200],
-                      ),
-                      child: SfDataGrid(
-                        source: _dataGridSource,
-                        columnWidthMode: ColumnWidthMode.fill,
-                        allowSorting: true,
-                        gridLinesVisibility: GridLinesVisibility.both,
-                        headerGridLinesVisibility: GridLinesVisibility.both,
-                        columns: _buildColumns(),
-                      ),
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final height = constraints.maxHeight.isFinite
+                            ? constraints.maxHeight
+                            : MediaQuery.sizeOf(context).height;
+                        ;
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: height - 190,
+                              child: SfDataGridTheme(
+                                data: SfDataGridThemeData(
+                                  headerColor: Colors.black,
+                                  gridLineColor: Colors.grey[200],
+                                ),
+                                child: SfDataGrid(
+                                  source: _dataGridSource,
+                                  columnWidthMode: ColumnWidthMode.fill,
+                                  allowSorting: true,
+                                  gridLinesVisibility: GridLinesVisibility.both,
+                                  headerGridLinesVisibility:
+                                      GridLinesVisibility.both,
+                                  columns: _buildColumns(),
+                                ),
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            SfDataPager(
+                              delegate: _dataGridSource,
+                              pageCount: proformas.isEmpty
+                                  ? 1
+                                  : (proformas.length /
+                                            _dataGridSource.rowsPerPage)
+                                        .ceilToDouble(),
+                              direction: Axis.horizontal,
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (err, stack) => Center(child: Text('Error: $err')),
                 ),
               ),
@@ -95,7 +121,9 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
             ),
             Text(
               "Manage and issue proforma invoices to clients",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -111,7 +139,8 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
                 ),
                 control: FTextFieldControl.managed(
                   onChange: (v) {
-                    ref.read(proformaSearchQueryProvider.notifier).state = v.text;
+                    ref.read(proformaSearchQueryProvider.notifier).state =
+                        v.text;
                   },
                 ),
               ),
@@ -182,13 +211,20 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
 class ProformaDataGridSource extends DataGridSource {
   BuildContext? _context;
   final WidgetRef ref;
-  ProformaDataGridSource({required List<Profoma> proformas, required this.ref}) {
+  final int rowsPerPage = 10;
+
+  ProformaDataGridSource({
+    required List<Profoma> proformas,
+    required this.ref,
+  }) {
     _proformas = proformas;
     _buildDataGridRows();
+    _updatePaginatedRows(0);
   }
 
   List<Profoma> _proformas = [];
   List<DataGridRow> _dataGridRows = [];
+  List<DataGridRow> _paginatedRows = [];
 
   void updateContext(BuildContext context) {
     _context = context;
@@ -197,14 +233,38 @@ class ProformaDataGridSource extends DataGridSource {
   void updateProformas(List<Profoma> proformas) {
     _proformas = proformas;
     _buildDataGridRows();
+    _updatePaginatedRows(0);
     notifyListeners();
+  }
+
+  void _updatePaginatedRows(int pageIndex) {
+    int startIndex = pageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
+    if (startIndex < _dataGridRows.length) {
+      _paginatedRows = _dataGridRows.sublist(
+        startIndex,
+        endIndex > _dataGridRows.length ? _dataGridRows.length : endIndex,
+      );
+    } else {
+      _paginatedRows = [];
+    }
+  }
+
+  @override
+  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+    _updatePaginatedRows(newPageIndex);
+    notifyListeners();
+    return true;
   }
 
   void _buildDataGridRows() {
     _dataGridRows = _proformas.map<DataGridRow>((p) {
       return DataGridRow(
         cells: [
-          DataGridCell<String>(columnName: 'party', value: p.partyName ?? 'Walk-in Client'),
+          DataGridCell<String>(
+            columnName: 'party',
+            value: p.partyName ?? 'Walk-in Client',
+          ),
           DataGridCell<int>(columnName: 'qty', value: p.totalQuantity),
           DataGridCell<double>(columnName: 'amount', value: p.totalAmount),
           DataGridCell<DateTime>(columnName: 'date', value: p.createdAt),
@@ -215,7 +275,7 @@ class ProformaDataGridSource extends DataGridSource {
   }
 
   @override
-  List<DataGridRow> get rows => _dataGridRows;
+  List<DataGridRow> get rows => _paginatedRows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
@@ -246,21 +306,25 @@ class ProformaDataGridSource extends DataGridSource {
                   if (_context != null) {
                     // Show a simple loading indicator or just handle it
                     try {
-                      final items = await ref.read(proformaItemsProvider(proforma.id).future);
-                      final branch = await ref.read(branchSettingsProvider.future);
-                      
+                      final items = await ref.read(
+                        proformaItemsProvider(proforma.id).future,
+                      );
+                      final company = await ref.read(companySettingsProvider.future);
+
                       if (_context!.mounted) {
                         await ProformaPrintService.showPreview(
                           context: _context!,
                           proforma: proforma,
                           items: items,
-                          branch: branch,
+                          company: company,
                         );
                       }
                     } catch (e) {
                       if (_context!.mounted) {
                         ScaffoldMessenger.of(_context!).showSnackBar(
-                          SnackBar(content: Text('Error generating print preview: $e')),
+                          SnackBar(
+                            content: Text('Error generating print preview: $e'),
+                          ),
                         );
                       }
                     }
@@ -275,9 +339,13 @@ class ProformaDataGridSource extends DataGridSource {
         Alignment alignment = Alignment.centerLeft;
 
         if (dataGridCell.value is DateTime) {
-          value = DateFormat('MMM dd, yyyy').format(dataGridCell.value as DateTime);
+          value = DateFormat(
+            'MMM dd, yyyy',
+          ).format(dataGridCell.value as DateTime);
         } else if (dataGridCell.value is double) {
-          value = NumberFormat.currency(symbol: 'GH₵ ').format(dataGridCell.value);
+          value = NumberFormat.currency(
+            symbol: 'GH₵ ',
+          ).format(dataGridCell.value);
           alignment = Alignment.centerRight;
         } else if (dataGridCell.value is int) {
           value = dataGridCell.value.toString();
@@ -293,7 +361,10 @@ class ProformaDataGridSource extends DataGridSource {
             value,
             overflow: TextOverflow.ellipsis,
             style: dataGridCell.columnName == 'amount'
-                ? const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue)
+                ? const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  )
                 : null,
           ),
         );

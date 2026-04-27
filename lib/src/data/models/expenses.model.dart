@@ -1,4 +1,4 @@
-class Expenses {
+class ExpenseModel {
   final String id;
   final ExpenseType expenseType;
   final String? description;
@@ -10,7 +10,7 @@ class Expenses {
   final String branchName;
   final DateTime expenseDate;
 
-  Expenses({
+  ExpenseModel({
     required this.id,
     required this.expenseType,
     this.description,
@@ -24,7 +24,7 @@ class Expenses {
     required this.expenseDate,
   });
 
-  Expenses copyWith({
+  ExpenseModel copyWith({
     String? id,
     ExpenseType? expenseType,
     String? description,
@@ -37,7 +37,7 @@ class Expenses {
 
     DateTime? expenseDate,
   }) {
-    return Expenses(
+    return ExpenseModel(
       id: id ?? this.id,
       expenseType: expenseType ?? this.expenseType,
       description: description ?? this.description,
@@ -66,18 +66,22 @@ class Expenses {
     };
   }
 
-  factory Expenses.fromMap(Map<String, dynamic> map) {
-    return Expenses(
-      id: map['id'] as String,
-      expenseType: ExpenseTypeExtension.fromString(map['expense_type'] as String),
-      description: map['description'] as String?,
-      amount: (map['amount'] as num).toDouble(),
-      paymentMethod: map['payment_method'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      createdBy: map['created_by'] as String,
-      branchId: map['branch_id'] as String,
-      branchName: map['branch_name'] as String,
-      expenseDate: DateTime.parse(map['expense_date'] as String),
+  factory ExpenseModel.fromMap(Map<String, dynamic> map) {
+    return ExpenseModel(
+      id: map['id']?.toString() ?? '',
+      expenseType: ExpenseTypeExtension.fromString(map['expense_type']?.toString() ?? 'other'),
+      description: map['description']?.toString(),
+      amount: (map['amount'] as num?)?.toDouble() ?? 0.0,
+      paymentMethod: map['payment_method']?.toString() ?? '',
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      createdBy: map['created_by']?.toString() ?? '',
+      branchId: map['branch_id']?.toString() ?? '',
+      branchName: map['branch_name']?.toString() ?? '',
+      expenseDate: map['expense_date'] != null
+          ? DateTime.tryParse(map['expense_date'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 }

@@ -1,11 +1,14 @@
-import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
-import 'package:ashfoam_sadiq/src/data/models/branch.model.dart';
-import 'package:ashfoam_sadiq/src/features/settings/providers/settings_providers.dart';
+import 'package:ashfoam_sadiq/src/data/local/app_database.dart' as db;
+import 'package:ashfoam_sadiq/src/features/auth/providers/auth_provider.dart';
+import 'package:ashfoam_sadiq/src/features/management/providers/management_providers.dart';
+import 'package:ashfoam_sadiq/src/features/sync/providers/sync_providers.dart';
 import 'package:ashfoam_sadiq/src/features/settings/widgets/tax_settings_card.dart';
+import 'package:ashfoam_sadiq/src/features/settings/widgets/company_settings_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:drift/drift.dart' as drift;
+import 'package:uuid/uuid.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -30,16 +33,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     super.dispose();
   }
 
-  void _loadBranchData(Branche branch) {
-    _branchNameController.text = branch.branchName;
-    _addressController.text = branch.branchAddress ?? '';
-    _contactController.text = branch.contact ?? '';
-    _managerController.text = branch.branchManagerName ?? '';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final branchAsync = ref.watch(branchSettingsProvider);
+    final isWide = MediaQuery.of(context).size.width > 900;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -61,128 +57,42 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               style: TextStyle(color: Colors.grey[600]),
             ),
             const SizedBox(height: 32),
-            branchAsync.when(
-              data: (branch) {
-                if (branch != null && !_isLoading) {
-                  _loadBranchData(branch);
-                }
-                final isWide = MediaQuery.of(context).size.width > 900;
-                return Column(
-                  children: [
-                    if (isWide)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(child: _buildBranchCard(branch)),
-                          const SizedBox(width: 24),
-                          Expanded(
-                            child: Column(
-                              children: [
-                                _buildAccountCard(),
-                                const SizedBox(height: 24),
-                                _buildSystemCard(),
-                                const SizedBox(height: 24),
-                                const TaxSettingsCard(),
-                              ],
-                            ),
-                          ),
-                        ],
-                      )
-                    else ...[
-                      _buildBranchCard(branch),
-                      const SizedBox(height: 24),
-                      _buildAccountCard(),
-                      const SizedBox(height: 24),
-                      _buildSystemCard(),
-                      const SizedBox(height: 24),
-                      const TaxSettingsCard(),
+            Column(
+              children: [
+                if (isWide)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          children: [
+                            _buildAccountCard(),
+                            const SizedBox(height: 24),
+                            const CompanySettingsCard(),
+                            const SizedBox(height: 24),
+                            _buildSystemCard(),
+                            const SizedBox(height: 24),
+                            const TaxSettingsCard(),
+                          ],
+                        ),
+                      ),
                     ],
-                  ],
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) =>
-                  Center(child: Text('Error loading settings: $err')),
+                  )
+                else ...[
+                  _buildAccountCard(),
+                  const SizedBox(height: 24),
+                  const CompanySettingsCard(),
+                  const SizedBox(height: 24),
+                  _buildSystemCard(),
+                  const SizedBox(height: 24),
+                  _buildQuickAddMetadataCard(),
+                  const SizedBox(height: 24),
+                  const TaxSettingsCard(),
+                ],
+              ],
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildBranchCard(Branche? branch) {
-    return FCard(
-      title: const Text("Company Profile"),
-      subtitle: const Text(
-        "Information used for receipts and official reports.",
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          _buildField(
-            label: "Branch Name",
-            controller: _branchNameController,
-            hint: "e.g. Kumasi Central Branch",
-            icon: Icons.storefront,
-          ),
-          const SizedBox(height: 16),
-          _buildField(
-            label: "Physical Address",
-            controller: _addressController,
-            hint: "Enter location details",
-            icon: Icons.location_on_outlined,
-          ),
-          const SizedBox(height: 16),
-          _buildField(
-            label: "Contact Number",
-            controller: _contactController,
-            hint: "+233 ...",
-            icon: Icons.phone_outlined,
-          ),
-          const SizedBox(height: 16),
-          _buildField(
-            label: "Branch Manager",
-            controller: _managerController,
-            hint: "Full Name",
-            icon: Icons.person_outline,
-          ),
-          const SizedBox(height: 24),
-          FButton(
-            onPress: () async {
-              if (branch == null) return;
-              setState(() => _isLoading = true);
-              try {
-                final companion = BranchesCompanion(
-                  branchName: drift.Value(_branchNameController.text),
-                  branchAddress: drift.Value(_addressController.text),
-                  contact: drift.Value(_contactController.text),
-                  branchManagerName: drift.Value(_managerController.text),
-                );
-                await ref.read(updateBranchSettingsProvider)(
-                  branch.id,
-                  companion,
-                );
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Profile updated successfully"),
-                    ),
-                  );
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Update failed: $e")));
-                }
-              } finally {
-                setState(() => _isLoading = false);
-              }
-            },
-            child: const Text("Save Changes"),
-          ),
-        ],
       ),
     );
   }
@@ -241,50 +151,258 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FButton(
+              variant: FButtonVariant.destructive,
+              onPress: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Sign Out"),
+                    content: const Text(
+                      "Are you sure you want to sign out? You will need an internet connection to sign back in.",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text("Cancel"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text(
+                          "Sign Out",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm == true) {
+                  ref.read(authNotifierProvider.notifier).signOut();
+                }
+              },
+              child: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.logout, size: 16),
+                  SizedBox(width: 8),
+                  Text("Sign Out"),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildSystemCard() {
+    final syncState = ref.watch(bulkSyncProvider);
+
     return FCard(
-      title: const Text("System & Data"),
-      subtitle: const Text("App versioning and data synchronization."),
+      title: const Text("Bulk Data Synchronization"),
+      subtitle: const Text("Push unsynced local data securely to the cloud."),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Last Synced",
+                  const Text(
+                    "Remote Status",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    "Today at 09:45 AM",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
+                  if (syncState is AsyncLoading)
+                    const Text(
+                      "Syncing...",
+                      style: TextStyle(fontSize: 12, color: Colors.blue),
+                    )
+                  else if (syncState.hasError)
+                    Text(
+                      "Error: ${syncState.error}",
+                      style: const TextStyle(fontSize: 12, color: Colors.red),
+                    )
+                  else
+                    Text(
+                      syncState.value ?? "All clear",
+                      style: const TextStyle(fontSize: 12, color: Colors.green),
+                    ),
                 ],
               ),
               FButton(
                 variant: FButtonVariant.outline,
-                onPress: () {},
-                child: const Text("Force Sync"),
+                onPress: syncState is AsyncLoading
+                    ? null
+                    : () async {
+                        await ref
+                            .read(bulkSyncProvider.notifier)
+                            .uploadAllUnsynced();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Sync operation triggered.'),
+                            ),
+                          );
+                        }
+                      },
+                child: syncState is AsyncLoading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text("Publish to Cloud"),
               ),
             ],
           ),
           const SizedBox(height: 16),
           const Divider(),
           const SizedBox(height: 16),
+          FutureBuilder<Map<String, int>>(
+            future: ref.read(bulkSyncProvider.notifier).getPendingCounts(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Text(
+                  "Calculating pending records...",
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                );
+              }
+              final data = snapshot.data ?? {};
+              final total = data.values.fold(0, (sum, val) => sum + val);
+
+              if (total == 0) {
+                return const Text(
+                  "No pending unsynced records found.",
+                  style: TextStyle(color: Colors.grey, fontSize: 13),
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "$total pending item(s) to publish:",
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...data.entries
+                      .where((e) => e.value > 0)
+                      .map(
+                        (e) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                e.key,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 13,
+                                ),
+                              ),
+                              Text(
+                                e.value.toString(),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuickAddMetadataCard() {
+    final brandController = TextEditingController();
+    final categoryController = TextEditingController();
+
+    return FCard(
+      title: const Text("Product Metadata"),
+      subtitle: const Text("Quickly add new labels for your inventory."),
+      child: Column(
+        children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("App Version", style: TextStyle(color: Colors.grey[600])),
-              const Text(
-                "v1.2.4 (Build 45)",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Expanded(
+                child: FTextField(
+                  control: FTextFieldControl.managed(
+                    controller: brandController,
+                  ),
+                  hint: "New Brand...",
+                ),
+              ),
+              const SizedBox(width: 8),
+              FButton(
+                variant: FButtonVariant.outline,
+                onPress: () async {
+                  final name = brandController.text.trim();
+                  if (name.isEmpty) return;
+                  await ref.read(addBrandProvider)(
+                    db.ProductBrandsCompanion(
+                      id: drift.Value(const Uuid().v4()),
+                      name: drift.Value(name),
+                      createdAt: drift.Value(DateTime.now()),
+                    ),
+                  );
+                  brandController.clear();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Brand added")),
+                    );
+                  }
+                },
+                child: const Icon(Icons.add, size: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: FTextField(
+                  control: FTextFieldControl.managed(
+                    controller: categoryController,
+                  ),
+                  hint: "New Category...",
+                ),
+              ),
+              const SizedBox(width: 8),
+              FButton(
+                variant: FButtonVariant.outline,
+                onPress: () async {
+                  final name = categoryController.text.trim();
+                  if (name.isEmpty) return;
+                  await ref.read(addCategoryProvider)(
+                    db.ProductCategoriesCompanion(
+                      id: drift.Value(const Uuid().v4()),
+                      name: drift.Value(name),
+                      createdAt: drift.Value(DateTime.now()),
+                    ),
+                  );
+                  categoryController.clear();
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Category added")),
+                    );
+                  }
+                },
+                child: const Icon(Icons.add, size: 16),
               ),
             ],
           ),

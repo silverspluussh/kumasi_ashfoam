@@ -1,4 +1,5 @@
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart';
+import 'package:ashfoam_sadiq/src/data/models/tax.model.dart';
 import 'package:ashfoam_sadiq/src/features/settings/providers/tax_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -57,7 +58,7 @@ class TaxSettingsCard extends ConsumerWidget {
     );
   }
 
-  void _showTaxDialog(BuildContext context, WidgetRef ref, [Taxe? tax]) {
+  void _showTaxDialog(BuildContext context, WidgetRef ref, [TaxModel? tax]) {
     final nameController = TextEditingController(text: tax?.name);
     final percentController =
         TextEditingController(text: tax?.valuePercentage.toString());
@@ -117,7 +118,7 @@ class TaxSettingsCard extends ConsumerWidget {
 }
 
 class _TaxListItem extends StatelessWidget {
-  final Taxe tax;
+  final TaxModel tax;
   final WidgetRef ref;
 
   const _TaxListItem({required this.tax, required this.ref});

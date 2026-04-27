@@ -1,3 +1,5 @@
+import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
 import 'package:ashfoam_sadiq/src/features/invoices/providers/invoice_providers.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
 import 'package:ashfoam_sadiq/src/features/summary/providers/summary_providers.dart';
@@ -13,7 +15,8 @@ class SummaryPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final statsAsync = ref.watch(summaryStatsProvider);
-    final trendAsync = ref.watch(weeklySalesTrendProvider);
+    final trendAsync = ref.watch(salesTrendProvider);
+    final timeframe = ref.watch(trendTimeframeProvider);
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -91,7 +94,7 @@ class SummaryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSimpleSalesTable(List<dynamic> sales) {
+  Widget _buildSimpleSalesTable(List<SaleOrderModel> sales) {
     return DataTable(
       columns: const [
         DataColumn(label: Text('Order #')),
@@ -101,7 +104,13 @@ class SummaryPage extends ConsumerWidget {
       rows: sales.map((sale) {
         return DataRow(
           cells: [
-            DataCell(Text(sale.orderNumber.toString().substring(0, 8))),
+            DataCell(
+              Text(
+                sale.orderNumber.length > 8
+                    ? sale.orderNumber.substring(0, 8)
+                    : sale.orderNumber,
+              ),
+            ),
             DataCell(Text(sale.customerName ?? 'Walk-in')),
             DataCell(Text('GH₵ ${sale.totalAmount.toStringAsFixed(2)}')),
           ],
@@ -110,7 +119,7 @@ class SummaryPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildSimpleInvoicesTable(List<dynamic> invoices) {
+  Widget _buildSimpleInvoicesTable(List<InvoiceModel> invoices) {
     return DataTable(
       columns: const [
         DataColumn(label: Text('Invoice ID')),
@@ -120,7 +129,13 @@ class SummaryPage extends ConsumerWidget {
       rows: invoices.map((inv) {
         return DataRow(
           cells: [
-            DataCell(Text(inv.id.toString().substring(0, 8).toUpperCase())),
+            DataCell(
+              Text(
+                inv.id.length > 8
+                    ? inv.id.substring(0, 8).toUpperCase()
+                    : inv.id.toUpperCase(),
+              ),
+            ),
             DataCell(Text(inv.customerName ?? 'Walk-in')),
             DataCell(Text('GH₵ ${inv.balanceDue.toStringAsFixed(2)}')),
           ],
@@ -150,9 +165,9 @@ class SummaryPage extends ConsumerWidget {
           ],
         ),
         FButton(
-          child: const Text('Download Report'),
           onPress: () {},
           prefix: const Icon(Icons.download),
+          child: const Text('Download Report'),
         ),
       ],
     );
@@ -258,7 +273,7 @@ class SummaryPage extends ConsumerWidget {
                   context,
                 ).textTheme.labelSmall?.copyWith(color: Colors.grey),
               ),
-              Icon(icon, color: color.withOpacity(0.7), size: 20),
+              Icon(icon, color: color.withValues(alpha: 0.7), size: 20),
             ],
           ),
           const SizedBox(height: 30),
@@ -285,33 +300,62 @@ class SummaryPage extends ConsumerWidget {
     BuildContext context,
     List<SalesTrendData> trend,
   ) {
-    return FCard(
-      title: Text(
-        'Weekly Sales Trend',
-        style: Theme.of(context).textTheme.titleLarge,
-      ),
-      child: SizedBox(
-        height: 400,
-        child: SfCartesianChart(
-          primaryXAxis: CategoryAxis(),
-          primaryYAxis: NumericAxis(
-            numberFormat: NumberFormat.compactCurrency(symbol: 'GH₵ '),
-          ),
-          tooltipBehavior: TooltipBehavior(enable: true),
-          series: <CartesianSeries<SalesTrendData, String>>[
-            ColumnSeries<SalesTrendData, String>(
-              dataSource: trend,
-              xValueMapper: (SalesTrendData data, _) => data.day,
-              yValueMapper: (SalesTrendData data, _) => data.sales,
-              name: 'Sales',
-              color: Colors.blue,
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(4),
+    return Consumer(
+      builder: (context, ref, _) {
+        final selectedTimeframe = ref.watch(trendTimeframeProvider);
+
+        return FCard(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Sales Trend - ${toBeginningOfSentenceCase(selectedTimeframe.name)}',
+                style: Theme.of(context).textTheme.titleLarge,
               ),
+              Row(
+                children: TrendTimeframe.values.map((timeframe) {
+                  final isSelected = selectedTimeframe == timeframe;
+                  return Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: FButton(
+                      variant: isSelected
+                          ? FButtonVariant.primary
+                          : FButtonVariant.outline,
+                      onPress: () {
+                        ref.read(trendTimeframeProvider.notifier).state =
+                            timeframe;
+                      },
+                      child: Text(toBeginningOfSentenceCase(timeframe.name)!),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            height: 400,
+            child: SfCartesianChart(
+              primaryXAxis: CategoryAxis(),
+              primaryYAxis: NumericAxis(
+                numberFormat: NumberFormat.compactCurrency(symbol: 'GH₵ '),
+              ),
+              tooltipBehavior: TooltipBehavior(enable: true),
+              series: <CartesianSeries<SalesTrendData, String>>[
+                ColumnSeries<SalesTrendData, String>(
+                  dataSource: trend,
+                  xValueMapper: (SalesTrendData data, _) => data.label,
+                  yValueMapper: (SalesTrendData data, _) => data.sales,
+                  name: 'Sales',
+                  color: Colors.blue,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(4),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

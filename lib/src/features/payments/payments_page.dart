@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:ashfoam_sadiq/src/data/models/payments.model.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/providers/excel_providers.dart';
 import 'package:ashfoam_sadiq/src/features/payments/providers/payment_providers.dart';
 import 'package:ashfoam_sadiq/src/features/payments/widgets/add_payment_dialog.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -28,9 +31,46 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
     showDialog(
       context: context,
       barrierDismissible: false,
-
       builder: (context) => const AddPaymentDialog(),
     );
+  }
+
+  Future<void> _exportToExcel() async {
+    try {
+      final payments = ref.read(paymentsListProvider).value ?? [];
+      final excelService = ref.read(excelServiceProvider);
+      final bytes = await excelService.generatePaymentsExport(payments);
+
+      final String? outputFile = await FilePicker.platform.saveFile(
+        dialogTitle: 'Save Payments Report',
+        fileName: 'PaymentsReport.xlsx',
+        type: FileType.custom,
+        allowedExtensions: ['xlsx'],
+      );
+
+      if (outputFile != null) {
+        final file = File(outputFile);
+        await file.writeAsBytes(bytes, flush: true);
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Payments report exported successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting payments: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -118,6 +158,12 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
             ),
             const SizedBox(width: 16),
             FButton(
+              onPress: _exportToExcel,
+              prefix: const Icon(Icons.file_download),
+              child: const Text("Export"),
+            ),
+            const SizedBox(width: 10),
+            FButton(
               onPress: _showAddPaymentDialog,
               prefix: const Icon(Icons.add),
               child: const Text("Add New Payment"),
@@ -167,28 +213,20 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
           child: Text('Date', style: headerStyle),
         ),
       ),
-      GridColumn(
-        columnName: 'createdBy',
-        label: Container(
-          padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.centerLeft,
-          child: Text('Created By', style: headerStyle),
-        ),
-      ),
     ];
   }
 }
 
 class PaymentDataGridSource extends DataGridSource {
-  PaymentDataGridSource({required List<BranchPayment> payments}) {
+  PaymentDataGridSource({required List<BranchPaymentModel> payments}) {
     _payments = payments;
     _buildDataGridRows();
   }
 
-  List<BranchPayment> _payments = [];
+  List<BranchPaymentModel> _payments = [];
   List<DataGridRow> _dataGridRows = [];
 
-  void updatePayments(List<BranchPayment> payments) {
+  void updatePayments(List<BranchPaymentModel> payments) {
     _payments = payments;
     _buildDataGridRows();
     notifyListeners();
@@ -202,10 +240,6 @@ class PaymentDataGridSource extends DataGridSource {
           DataGridCell<String>(columnName: 'branch', value: payment.branchName),
           DataGridCell<double>(columnName: 'amount', value: payment.amount),
           DataGridCell<DateTime>(columnName: 'date', value: payment.createdAt),
-          DataGridCell<String>(
-            columnName: 'createdBy',
-            value: payment.createdBy,
-          ),
         ],
       );
     }).toList();

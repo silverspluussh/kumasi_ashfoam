@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
+import 'dart:developer';
 
 class InventoryModel {
   final String id;
@@ -14,8 +15,6 @@ class InventoryModel {
   final String? density;
   final String? brand;
   final String? brandId;
-  final String? supplier;
-  final String? supplierId;
   final double retailPrice;
   final double? discountPrice;
   final double? discountPercentage;
@@ -26,18 +25,19 @@ class InventoryModel {
   final int isDeleted;
   final DateTime? createdAt;
   final DateTime? updatedAt;
+  final bool isSynced;
+  final DateTime? lastSyncedAt;
 
   InventoryModel({
     required this.id,
     required this.name,
     required this.sku,
-    required this.category,
+    this.category,
     this.subCategory,
     this.size,
     this.thickness,
     this.material,
     this.brand,
-    this.supplier,
     this.density,
     required this.retailPrice,
     this.discountPrice,
@@ -45,13 +45,14 @@ class InventoryModel {
     required this.quantity,
     this.unit,
     this.branchId,
-    required this.isAvailable,
+    this.isAvailable = 1,
     this.brandId,
-    required this.catergoryId,
-    this.supplierId,
-    required this.isDeleted,
+    this.catergoryId,
+    this.isDeleted = 0,
     this.createdAt,
     this.updatedAt,
+    this.isSynced = false,
+    this.lastSyncedAt,
   });
 
   InventoryModel copyWith({
@@ -79,6 +80,8 @@ class InventoryModel {
     int? isDeleted,
     DateTime? createdAt,
     DateTime? updatedAt,
+    bool? isSynced,
+    DateTime? lastSyncedAt,
   }) {
     return InventoryModel(
       id: id ?? this.id,
@@ -93,8 +96,6 @@ class InventoryModel {
       density: density ?? this.density,
       brand: brand ?? this.brand,
       brandId: brandId ?? this.brandId,
-      supplier: supplier ?? this.supplier,
-      supplierId: supplierId ?? this.supplierId,
       retailPrice: retailPrice ?? this.retailPrice,
       discountPrice: discountPrice ?? this.discountPrice,
       discountPercentage: discountPercentage ?? this.discountPercentage,
@@ -105,6 +106,8 @@ class InventoryModel {
       isAvailable: isAvailable ?? this.isAvailable,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      isSynced: isSynced ?? this.isSynced,
+      lastSyncedAt: lastSyncedAt ?? this.lastSyncedAt,
     );
   }
 
@@ -115,57 +118,59 @@ class InventoryModel {
       'sku': sku,
       'category': category,
       'catergory_id': catergoryId,
-      'sub_category': subCategory,
+      'subCategory': subCategory,
       'size': size,
       'thickness': thickness,
       'material': material,
       'density': density,
       'brand': brand,
-      'brand_id': brandId,
-      'supplier': supplier,
-      'supplier_id': supplierId,
-      'retail_price': retailPrice,
-      'discount_price': discountPrice,
-      'discount_percentage': discountPercentage,
+      'brandId': brandId,
+      'retailPrice': retailPrice,
+      'discountPrice': discountPrice,
+      'discountPercentage': discountPercentage,
       'quantity': quantity,
       'unit': unit,
-      'branch_id': branchId,
-      'is_deleted': 0,
-      'is_available': isAvailable,
-      'created_at': createdAt?.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
+      'branchId': branchId,
+      'isDeleted': 0,
+      'isAvailable': isAvailable,
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
+      'isSynced': isSynced,
+      'lastSyncedAt': lastSyncedAt?.toIso8601String(),
     };
   }
 
   factory InventoryModel.fromMap(Map<String, dynamic> map) {
     return InventoryModel(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      sku: map['sku'] as String,
-      category: map['category'] as String?,
-      catergoryId: map['catergory_id'] as String?,
-      subCategory: map['sub_category'] as String?,
-      size: map['size'] as String?,
-      thickness: map['thickness'] as String?,
-      material: map['material'] as String?,
-      density: map['density'] as String?,
-      brand: map['brand'] as String?,
-      brandId: map['brand_id'] as String?,
-      supplier: map['supplier'] as String?,
-      supplierId: map['supplier_id'] as String?,
-      retailPrice: (map['retail_price'] as num).toDouble(),
-      discountPrice: (map['discount_price'] as num?)?.toDouble(),
-      discountPercentage: (map['discount_percentage'] as num?)?.toDouble(),
-      quantity: (map['quantity'] as num).toInt(),
-      unit: map['unit'] as String?,
-      branchId: map['branch_id'] as String?,
-      isAvailable: map['is_available'] as int,
-      isDeleted: map['is_deleted'] as int? ?? 0,
-      createdAt: map['created_at'] != null
-          ? DateTime.parse(map['created_at'] as String)
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      sku: map['sku']?.toString() ?? '',
+      category: map['category']?.toString(),
+      catergoryId: (map['catergoryId'] ?? map['categoryId'])?.toString(),
+      subCategory: map['subCategory']?.toString(),
+      size: map['size']?.toString(),
+      thickness: map['thickness']?.toString(),
+      material: map['material']?.toString(),
+      density: map['density']?.toString(),
+      brand: map['brand']?.toString(),
+      brandId: map['brand_id']?.toString(),
+      retailPrice: (map['retailPrice'] as num?)?.toDouble() ?? 0.0,
+      discountPrice: (map['discountPrice'] as num?)?.toDouble(),
+      discountPercentage: (map['discountPercentage'] as num?)?.toDouble(),
+      quantity: (map['quantity'] as num?)?.toInt() ?? 0,
+      unit: map['unit']?.toString(),
+      branchId: map['branchId']?.toString(),
+      isAvailable: (map['isAvailable'] as int?) ?? 1,
+      isDeleted: (map['isDeleted'] as int?) ?? 0,
+      createdAt: map['createdAt'] != null
+          ? DateTime.tryParse(map['createdAt'].toString())
           : null,
-      updatedAt: map['updated_at'] != null
-          ? DateTime.parse(map['updated_at'] as String)
+      updatedAt: map['updatedAt'] != null
+          ? DateTime.tryParse(map['updatedAt'].toString())
+          : null,
+      isSynced: map['isSynced'] == true || map['isSynced'] == 1,
+      lastSyncedAt: map['lastSyncedAt'] != null
+          ? DateTime.tryParse(map['lastSyncedAt'].toString())
           : null,
     );
   }
@@ -201,9 +206,11 @@ class Brand {
 
   factory Brand.fromMap(Map<String, dynamic> map) {
     return Brand(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
@@ -242,9 +249,11 @@ class ProductCategory {
 
   factory ProductCategory.fromMap(Map<String, dynamic> map) {
     return ProductCategory(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
@@ -292,10 +301,12 @@ class ProductSubCategory {
 
   factory ProductSubCategory.fromMap(Map<String, dynamic> map) {
     return ProductSubCategory(
-      id: map['id'] as String,
-      categoryId: map['category_id'] as String,
-      name: map['name'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
+      id: map['id']?.toString() ?? '',
+      categoryId: map['category_id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 

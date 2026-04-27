@@ -1,84 +1,92 @@
-import 'package:ashfoam_sadiq/src/data/remote/api_client.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductCategoriesRepository {
-  final ApiClient apiClient;
+  final SupabaseClient supabase;
 
-  ProductCategoriesRepository({required this.apiClient});
+  ProductCategoriesRepository({required this.supabase});
 
-  /// Fetch all product categories
+  /// Fetch all product categories directly from Supabase
   Future<List<Map<String, dynamic>>> getCategories({
     int? page,
     int? limit,
     String? search,
   }) async {
-    final response = await apiClient.get(
-      '/products/categories',
-      queryParameters: {
-        if (page != null) 'page': page,
-        if (limit != null) 'limit': limit,
-        if (search != null) 'search': search,
-      },
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    var query = supabase.from('ashfoam_product_categories').select();
+
+    if (search != null && search.isNotEmpty) {
+      query = query.ilike('name', '%$search%');
+    }
+
+    final response = await query;
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get single category
+  /// Get single category directly from Supabase
   Future<Map<String, dynamic>> getCategory(String categoryId) async {
-    final response = await apiClient.get('/products/categories/$categoryId');
-    return response.data['data'] ?? {};
+    final response = await supabase
+        .from('ashfoam_product_categories')
+        .select()
+        .eq('id', categoryId)
+        .maybeSingle();
+    return response ?? {};
   }
 
-  /// Create new category
-  Future<Map<String, dynamic>> createCategory(
-    Map<String, dynamic> data,
-  ) async {
-    final response = await apiClient.post(
-      '/products/categories',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+  /// Create new category directly in Supabase
+  Future<Map<String, dynamic>> createCategory(Map<String, dynamic> data) async {
+    final response = await supabase
+        .from('ashfoam_product_categories')
+        .insert(data)
+        .select()
+        .single();
+    return response;
   }
 
-  /// Update category
+  /// Update category directly in Supabase
   Future<Map<String, dynamic>> updateCategory(
     String categoryId,
     Map<String, dynamic> data,
   ) async {
-    final response = await apiClient.put(
-      '/products/categories/$categoryId',
-      data: data,
-    );
-    return response.data['data'] ?? {};
+    final response = await supabase
+        .from('ashfoam_product_categories')
+        .update(data)
+        .eq('id', categoryId)
+        .select()
+        .single();
+    return response;
   }
 
-  /// Delete category
+  /// Delete category directly in Supabase
   Future<void> deleteCategory(String categoryId) async {
-    await apiClient.delete('/products/categories/$categoryId');
+    await supabase
+        .from('ashfoam_product_categories')
+        .delete()
+        .eq('id', categoryId);
   }
 
-  /// Get category products
+  /// Get category products (Remote only)
   Future<List<Map<String, dynamic>>> getCategoryProducts(
     String categoryId,
   ) async {
-    final response = await apiClient.get(
-      '/products/categories/$categoryId/products',
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    final response = await supabase
+        .from('ashfoam_inventory')
+        .select()
+        .eq('category_id', categoryId);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Get category subcategories
+  /// Get category subcategories (Remote only)
   Future<List<Map<String, dynamic>>> getCategorySubCategories(
     String categoryId,
   ) async {
-    final response = await apiClient.get(
-      '/products/categories/$categoryId/subcategories',
-    );
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    final response = await supabase
+        .from('ashfoam_product_subcategories')
+        .select()
+        .eq('category_id', categoryId);
+    return List<Map<String, dynamic>>.from(response);
   }
 
-  /// Sync categories
+  /// Sync categories (No-op for direct repository)
   Future<List<Map<String, dynamic>>> syncCategories() async {
-    final response = await apiClient.get('/products/categories/sync');
-    return List<Map<String, dynamic>>.from(response.data['data'] ?? []);
+    return getCategories();
   }
 }

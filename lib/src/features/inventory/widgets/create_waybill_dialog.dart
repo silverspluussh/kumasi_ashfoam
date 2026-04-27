@@ -1,6 +1,8 @@
 import 'package:ashfoam_sadiq/src/data/models/profoma.model.dart';
+import 'package:ashfoam_sadiq/src/data/models/tax.model.dart' as model;
 import 'package:ashfoam_sadiq/src/data/models/waybill.model.dart';
-import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart'
+    hide allTaxesProvider;
 import 'package:ashfoam_sadiq/src/features/inventory/providers/proforma_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/waybill_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/widgets/create_proforma_dialog.dart'; // Reuse ProductItemFormDialog
@@ -14,7 +16,8 @@ class CreateWaybillDialog extends ConsumerStatefulWidget {
   const CreateWaybillDialog({super.key});
 
   @override
-  ConsumerState<CreateWaybillDialog> createState() => _CreateWaybillDialogState();
+  ConsumerState<CreateWaybillDialog> createState() =>
+      _CreateWaybillDialogState();
 }
 
 class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
@@ -25,10 +28,11 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
   final _senderNameController = TextEditingController(text: "Kumasi Ashfoam");
   final _destinationController = TextEditingController();
   final _partyNameController = TextEditingController();
-  
+
   DateTime _dispatchDate = DateTime.now();
   final List<ProductDetails> _selectedItems = [];
-  
+  final List<TaxComponent> _selectedTaxes = [];
+
   Profoma? _sourceProforma;
 
   void _importFromProforma(Profoma proforma) async {
@@ -37,6 +41,8 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
       _partyNameController.text = proforma.partyName ?? "";
       _destinationController.text = proforma.partyAddress ?? "";
       _orderNoController.text = proforma.id.substring(0, 8).toUpperCase();
+      _selectedTaxes.clear();
+      _selectedTaxes.addAll(proforma.tax);
     });
 
     // Fetch items for this proforma
@@ -59,28 +65,73 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
     });
   }
 
+  void _addTax(model.TaxModel tax) {
+    if (_selectedTaxes.any((t) => t.tax.id == tax.id)) return;
+    setState(() {
+      _selectedTaxes.add(TaxComponent(tax: tax, taxAmount: 0));
+    });
+  }
+
+  double get _subtotal =>
+      _selectedItems.fold(0, (sum, item) => sum + item.totalAmount);
+
+  double get _totalTax {
+    double total = 0;
+    for (var component in _selectedTaxes) {
+      total += _subtotal * (component.tax.valuePercentage / 100);
+    }
+    return total;
+  }
+
+  double get _grandTotal => _subtotal + _totalTax;
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate() || _selectedItems.isEmpty) {
       return;
     }
 
-    final waybill = WayBill(
+    final waybill = WayBillModel(
       id: const Uuid().v4(),
-      mainContent: _sourceProforma ?? Profoma(
-        id: "MANUAL-${const Uuid().v4().substring(0, 8)}",
-        tax: [],
-        totalQuantity: _selectedItems.fold(0, (sum, item) => sum + item.quantity),
-        totalAmount: _selectedItems.fold(0, (sum, item) => sum + item.totalAmount),
-        isDeleted: 0,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-        partyName: _partyNameController.text,
-        partyAddress: _destinationController.text,
-      ),
+      mainContent:
+          _sourceProforma?.copyWith(
+            tax: _selectedTaxes
+                .map(
+                  (t) => t.copyWith(
+                    taxAmount: _subtotal * (t.tax.valuePercentage / 100),
+                  ),
+                )
+                .toList(),
+            totalAmount: _grandTotal,
+            totalQuantity: _selectedItems.fold<int>(
+              0,
+              (sum, item) => sum + item.quantity,
+            ),
+          ) ??
+          Profoma(
+            id: "MANUAL-${const Uuid().v4().substring(0, 8)}",
+            tax: _selectedTaxes
+                .map(
+                  (t) => t.copyWith(
+                    taxAmount: _subtotal * (t.tax.valuePercentage / 100),
+                  ),
+                )
+                .toList(),
+            totalQuantity: _selectedItems.fold<int>(
+              0,
+              (sum, item) => sum + item.quantity,
+            ),
+            totalAmount: _grandTotal,
+            isDeleted: 0,
+            createdAt: DateTime.now(),
+            updatedAt: DateTime.now(),
+            partyName: _partyNameController.text,
+            partyAddress: _destinationController.text,
+          ),
       orderNumber: _orderNoController.text.isEmpty
           ? "ORD-${DateFormat('yyyyMMdd').format(DateTime.now())}-${const Uuid().v4().substring(0, 4).toUpperCase()}"
           : _orderNoController.text,
-      dispatchDocNumber: "WB-${DateFormat('yyyyMMdd').format(DateTime.now())}-${const Uuid().v4().substring(0, 4).toUpperCase()}",
+      dispatchDocNumber:
+          "WB-${DateFormat('yyyyMMdd').format(DateTime.now())}-${const Uuid().v4().substring(0, 4).toUpperCase()}",
       deliveryNote: _deliveryNoteController.text,
       senderName: _senderNameController.text,
       destination: _destinationController.text,
@@ -99,6 +150,7 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
   @override
   Widget build(BuildContext context) {
     final proformasAsync = ref.watch(proformaListProvider);
+    final taxesAsync = ref.watch(allTaxesProvider);
 
     return FDialog(
       title: const Text("Create Dispatch Waybill"),
@@ -137,33 +189,48 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
                         const Divider(),
                         const Text(
                           "Dispatch Header",
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         FTextFormField(
                           label: const Text("Driver Name"),
                           hint: "Enter driver's name",
-                          validator: (v) => (v?.isEmpty ?? true) ? "Required" : null,
-                          control: FTextFieldControl.managed(controller: _senderNameController),
+                          validator: (v) =>
+                              (v?.isEmpty ?? true) ? "Required" : null,
+                          control: FTextFieldControl.managed(
+                            controller: _senderNameController,
+                          ),
                         ),
                         FTextFormField(
                           label: const Text("Destination Address"),
                           hint: "Warehouse / Client Location",
-                          validator: (v) => (v?.isEmpty ?? true) ? "Required" : null,
-                          control: FTextFieldControl.managed(controller: _destinationController),
+                          validator: (v) =>
+                              (v?.isEmpty ?? true) ? "Required" : null,
+                          control: FTextFieldControl.managed(
+                            controller: _destinationController,
+                          ),
                         ),
                         FTextFormField(
                           label: const Text("Receiver / Party Name"),
                           hint: "Individual or Company Name",
-                          validator: (v) => (v?.isEmpty ?? true) ? "Required" : null,
-                          control: FTextFieldControl.managed(controller: _partyNameController),
+                          validator: (v) =>
+                              (v?.isEmpty ?? true) ? "Required" : null,
+                          control: FTextFieldControl.managed(
+                            controller: _partyNameController,
+                          ),
                         ),
                         _buildDatePicker(),
                         FTextFormField(
-                          label: const Text("Delivery Note"),
                           hint: "Special instructions for delivery...",
-                          control: FTextFieldControl.managed(controller: _deliveryNoteController),
+                          control: FTextFieldControl.managed(
+                            controller: _deliveryNoteController,
+                          ),
                           maxLines: 3,
                         ),
+                        const Divider(),
+                        _buildTaxSection(taxesAsync),
                       ],
                     ),
                   ),
@@ -181,7 +248,10 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
                         children: [
                           const Text(
                             "Dispatched Products",
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
                           ),
                           _buildAddProductButton(),
                         ],
@@ -211,14 +281,23 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
         proformasAsync.when(
           data: (items) => FSelect<Profoma>.searchBuilder(
             hint: 'Select an existing Proforma',
-            format: (s) => "${s.partyName ?? 'Unnamed Client'} (${s.id.substring(0, 8).toUpperCase()})",
-            filter: (query) => query.isEmpty 
-              ? items 
-              : items.where((f) => (f.partyName ?? 'Unnamed Client').toLowerCase().contains(query.toLowerCase())).toList(),
+            format: (s) =>
+                "${s.partyName ?? 'Unnamed Client'} (${s.id.substring(0, 8).toUpperCase()})",
+            filter: (query) => query.isEmpty
+                ? items
+                : items
+                      .where(
+                        (f) => (f.partyName ?? 'Unnamed Client')
+                            .toLowerCase()
+                            .contains(query.toLowerCase()),
+                      )
+                      .toList(),
             contentBuilder: (context, _, filteredItems) => [
               for (final item in filteredItems)
                 FSelectItem.item(
-                  title: Text("${item.partyName ?? 'Unnamed Client'} - GH₵ ${item.totalAmount.toStringAsFixed(2)}"),
+                  title: Text(
+                    "${item.partyName ?? 'Unnamed Client'} - GH₵ ${item.totalAmount.toStringAsFixed(2)}",
+                  ),
                   value: item,
                 ),
             ],
@@ -241,7 +320,10 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Dispatch Date", style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12)),
+        const Text(
+          "Dispatch Date",
+          style: TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
+        ),
         const SizedBox(height: 8),
         InkWell(
           onTap: () async {
@@ -287,7 +369,10 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
   Widget _buildItemsList() {
     if (_selectedItems.isEmpty) {
       return Center(
-        child: Text("No items added yet", style: TextStyle(color: Colors.grey[500])),
+        child: Text(
+          "No items added yet",
+          style: TextStyle(color: Colors.grey[500]),
+        ),
       );
     }
 
@@ -304,13 +389,20 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
                 children: [
                   Expanded(
                     flex: 3,
-                    child: Text(item.productName, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      item.productName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Text("Qty: ${item.quantity}"),
                   const SizedBox(width: 12),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, color: Colors.red, size: 18),
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      color: Colors.red,
+                      size: 18,
+                    ),
                     onPressed: () => _removeItem(index),
                   ),
                 ],
@@ -319,6 +411,65 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTaxSection(AsyncValue<List<model.TaxModel>> taxesAsync) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Text(
+              "Taxes (Optional)",
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+            ),
+            taxesAsync.when(
+              data: (taxes) => PopupMenuButton<model.TaxModel>(
+                onSelected: _addTax,
+                child: const Text(
+                  "+ Add Tax",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                itemBuilder: (context) => taxes
+                    .map(
+                      (t) => PopupMenuItem(
+                        value: t,
+                        child: Text("${t.name} (${t.valuePercentage}%)"),
+                      ),
+                    )
+                    .toList(),
+              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, __) => const SizedBox.shrink(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: _selectedTaxes
+              .map(
+                (t) => Chip(
+                  label: Text(
+                    "${t.tax.name} (${t.tax.valuePercentage}%)",
+                    style: const TextStyle(fontSize: 11),
+                  ),
+                  onDeleted: () {
+                    setState(() => _selectedTaxes.remove(t));
+                  },
+                  deleteIconColor: Colors.red,
+                  backgroundColor: Colors.blue[50],
+                ),
+              )
+              .toList(),
+        ),
+      ],
     );
   }
 }

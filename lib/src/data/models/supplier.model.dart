@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-class Supplier {
+class SupplierModel {
   final String id;
   final String name;
   final String? supplierCode;
@@ -12,7 +12,7 @@ class Supplier {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Supplier({
+  SupplierModel({
     required this.id,
     required this.name,
     this.supplierCode,
@@ -25,7 +25,7 @@ class Supplier {
     required this.updatedAt,
   });
 
-  Supplier copyWith({
+  SupplierModel copyWith({
     String? id,
     String? name,
     String? supplierCode,
@@ -37,7 +37,7 @@ class Supplier {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return Supplier(
+    return SupplierModel(
       id: id ?? this.id,
       name: name ?? this.name,
       supplierCode: supplierCode ?? this.supplierCode,
@@ -66,23 +66,27 @@ class Supplier {
     };
   }
 
-  factory Supplier.fromMap(Map<String, dynamic> map) {
-    return Supplier(
-      id: map['id'] as String,
-      name: map['name'] as String,
-      supplierCode: map['supplier_code'] as String?,
-      contactName: map['contact_name'] as String?,
-      email: map['email'] as String?,
-      phone: map['phone'] as String?,
-      address: map['address'] as String?,
-      isActive: map['is_active'] as int? ?? 1,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
+  factory SupplierModel.fromMap(Map<String, dynamic> map) {
+    return SupplierModel(
+      id: map['id']?.toString() ?? '',
+      name: map['name']?.toString() ?? '',
+      supplierCode: map['supplier_code']?.toString(),
+      contactName: map['contact_name']?.toString(),
+      email: map['email']?.toString(),
+      phone: map['phone']?.toString(),
+      address: map['address']?.toString(),
+      isActive: (map['is_active'] as num?)?.toInt() ?? 1,
+      createdAt: map['created_at'] != null
+          ? DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
+      updatedAt: map['updated_at'] != null
+          ? DateTime.tryParse(map['updated_at'].toString()) ?? DateTime.now()
+          : DateTime.now(),
     );
   }
 
   String toJson() => json.encode(toMap());
 
-  factory Supplier.fromJson(String source) =>
-      Supplier.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory SupplierModel.fromJson(String source) =>
+      SupplierModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

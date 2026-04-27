@@ -1,11 +1,9 @@
-import 'package:ashfoam_sadiq/src/data/local/app_database.dart' hide WayBill;
 import 'package:ashfoam_sadiq/src/data/models/waybill.model.dart';
 import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/waybill_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/services/waybill_print_service.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/widgets/create_waybill_dialog.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/widgets/waybill_details_dialog.dart';
-import 'package:ashfoam_sadiq/src/features/settings/providers/settings_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -54,19 +52,44 @@ class _WaybillPageState extends ConsumerState<WaybillPage> {
                   data: (waybills) {
                     _dataGridSource.updateContext(context);
                     _dataGridSource.updateWaybills(waybills);
-                    return SfDataGridTheme(
-                      data: SfDataGridThemeData(
-                        headerColor: Colors.black,
-                        gridLineColor: Colors.grey[200],
-                      ),
-                      child: SfDataGrid(
-                        source: _dataGridSource,
-                        columnWidthMode: ColumnWidthMode.fill,
-                        allowSorting: true,
-                        gridLinesVisibility: GridLinesVisibility.both,
-                        headerGridLinesVisibility: GridLinesVisibility.both,
-                        columns: _buildColumns(),
-                      ),
+                    return LayoutBuilder(
+                      builder: (context, constraints) {
+                        final height = constraints.maxHeight.isFinite
+                            ? constraints.maxHeight
+                            : MediaQuery.sizeOf(context).height;
+                        return Column(
+                          children: [
+                            SizedBox(
+                              height: height - 190,
+                              child: SfDataGridTheme(
+                                data: SfDataGridThemeData(
+                                  headerColor: Colors.black,
+                                  gridLineColor: Colors.grey[200],
+                                ),
+                                child: SfDataGrid(
+                                  source: _dataGridSource,
+                                  columnWidthMode: ColumnWidthMode.fill,
+                                  allowSorting: true,
+                                  gridLinesVisibility: GridLinesVisibility.both,
+                                  headerGridLinesVisibility:
+                                      GridLinesVisibility.both,
+                                  columns: _buildColumns(),
+                                ),
+                              ),
+                            ),
+                            const Divider(height: 1),
+                            SfDataPager(
+                              delegate: _dataGridSource,
+                              pageCount: waybills.isEmpty
+                                  ? 1
+                                  : (waybills.length /
+                                            _dataGridSource.rowsPerPage)
+                                        .ceilToDouble(),
+                              direction: Axis.horizontal,
+                            ),
+                          ],
+                        );
+                      },
                     );
                   },
                   loading: () =>
@@ -195,23 +218,50 @@ class _WaybillPageState extends ConsumerState<WaybillPage> {
 class WaybillDataGridSource extends DataGridSource {
   BuildContext? _context;
   final WidgetRef ref;
+  final int rowsPerPage = 10;
 
-  WaybillDataGridSource({required List<WayBill> waybills, required this.ref}) {
+  WaybillDataGridSource({
+    required List<WayBillModel> waybills,
+    required this.ref,
+  }) {
     _waybills = waybills;
     _buildDataGridRows();
+    _updatePaginatedRows(0);
   }
 
-  List<WayBill> _waybills = [];
+  List<WayBillModel> _waybills = [];
   List<DataGridRow> _dataGridRows = [];
+  List<DataGridRow> _paginatedRows = [];
 
   void updateContext(BuildContext context) {
     _context = context;
   }
 
-  void updateWaybills(List<WayBill> waybills) {
+  void updateWaybills(List<WayBillModel> waybills) {
     _waybills = waybills;
     _buildDataGridRows();
+    _updatePaginatedRows(0);
     notifyListeners();
+  }
+
+  void _updatePaginatedRows(int pageIndex) {
+    int startIndex = pageIndex * rowsPerPage;
+    int endIndex = startIndex + rowsPerPage;
+    if (startIndex < _dataGridRows.length) {
+      _paginatedRows = _dataGridRows.sublist(
+        startIndex,
+        endIndex > _dataGridRows.length ? _dataGridRows.length : endIndex,
+      );
+    } else {
+      _paginatedRows = [];
+    }
+  }
+
+  @override
+  Future<bool> handlePageChange(int oldPageIndex, int newPageIndex) async {
+    _updatePaginatedRows(newPageIndex);
+    notifyListeners();
+    return true;
   }
 
   void _buildDataGridRows() {
@@ -227,21 +277,21 @@ class WaybillDataGridSource extends DataGridSource {
             columnName: 'date',
             value: dateFormat.format(w.dispatchDate),
           ),
-          DataGridCell<WayBill>(columnName: 'actions', value: w),
+          DataGridCell<WayBillModel>(columnName: 'actions', value: w),
         ],
       );
     }).toList();
   }
 
   @override
-  List<DataGridRow> get rows => _dataGridRows;
+  List<DataGridRow> get rows => _paginatedRows;
 
   @override
   DataGridRowAdapter buildRow(DataGridRow row) {
     return DataGridRowAdapter(
       cells: row.getCells().map<Widget>((dataGridCell) {
         if (dataGridCell.columnName == 'actions') {
-          final waybill = dataGridCell.value as WayBill;
+          final waybill = dataGridCell.value as WayBillModel;
           return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -267,16 +317,13 @@ class WaybillDataGridSource extends DataGridSource {
                       final items = await ref.read(
                         waybillItemsProvider(waybill.id).future,
                       );
-                      final branch = await ref.read(
-                        branchSettingsProvider.future,
-                      );
-
+                      final company = await ref.read(companySettingsProvider.future);
                       if (_context!.mounted) {
                         await WaybillPrintService.showPreview(
                           context: _context!,
                           waybill: waybill,
                           items: items,
-                          branch: branch,
+                          company: company,
                         );
                       }
                     } catch (e) {

@@ -52,7 +52,7 @@ class _AddPaymentDialogState extends ConsumerState<AddPaymentDialog> {
       return;
     }
 
-    final payment = BranchPayment(
+    final payment = BranchPaymentModel(
       id: const Uuid().v4(),
       title: _titleController.text,
       amount: amount,
@@ -69,8 +69,6 @@ class _AddPaymentDialogState extends ConsumerState<AddPaymentDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final branchesAsync = ref.watch(branchesListProvider);
-
     return FDialog(
       direction: Axis.horizontal,
       actions: [

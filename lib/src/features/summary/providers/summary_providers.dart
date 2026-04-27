@@ -5,6 +5,7 @@ import 'package:ashfoam_sadiq/src/features/invoices/providers/invoice_providers.
 import 'package:ashfoam_sadiq/src/features/inventory/providers/proforma_providers.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/waybill_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:intl/intl.dart';
 
 class SummaryStats {
@@ -32,10 +33,16 @@ class SummaryStats {
 }
 
 class SalesTrendData {
-  final String day;
+  final String label;
   final double sales;
-  SalesTrendData(this.day, this.sales);
+  SalesTrendData(this.label, this.sales);
 }
+
+enum TrendTimeframe { daily, weekly, monthly, yearly }
+
+final trendTimeframeProvider = StateProvider<TrendTimeframe>(
+  (ref) => TrendTimeframe.daily,
+);
 
 final summaryStatsProvider = Provider<AsyncValue<SummaryStats>>((ref) {
   final inventoryAsync = ref.watch(inventoryListProvider);
@@ -55,6 +62,7 @@ final summaryStatsProvider = Provider<AsyncValue<SummaryStats>>((ref) {
     return const AsyncValue.loading();
   }
 
+  // Handle all errors safely
   if (inventoryAsync.hasError ||
       salesAsync.hasError ||
       paymentsAsync.hasError ||
@@ -67,17 +75,18 @@ final summaryStatsProvider = Provider<AsyncValue<SummaryStats>>((ref) {
           paymentsAsync.error ??
           invoicesAsync.error ??
           proformasAsync.error ??
-          waybillsAsync.error!,
+          waybillsAsync.error ??
+          'Unknown error in summary stats',
       StackTrace.current,
     );
   }
 
-  final inventory = inventoryAsync.value!;
-  final sales = salesAsync.value!;
-  final payments = paymentsAsync.value!;
-  final invoices = invoicesAsync.value!;
-  final proformas = proformasAsync.value!;
-  final waybills = waybillsAsync.value!;
+  final inventory = inventoryAsync.value ?? [];
+  final sales = salesAsync.value ?? [];
+  final payments = paymentsAsync.value ?? [];
+  final invoices = invoicesAsync.value ?? [];
+  final proformas = proformasAsync.value ?? [];
+  final waybills = waybillsAsync.value ?? [];
 
   final totalSales = sales.fold<double>(
     0,
@@ -108,38 +117,80 @@ final summaryStatsProvider = Provider<AsyncValue<SummaryStats>>((ref) {
   );
 });
 
-final weeklySalesTrendProvider = Provider<AsyncValue<List<SalesTrendData>>>((
-  ref,
-) {
+final salesTrendProvider = Provider<AsyncValue<List<SalesTrendData>>>((ref) {
+  final timeframe = ref.watch(trendTimeframeProvider);
   final salesAsync = ref.watch(saleOrdersProvider);
 
   return salesAsync.whenData((sales) {
     final now = DateTime.now();
-    final last7Days = List.generate(
-      7,
-      (index) => now.subtract(Duration(days: 6 - index)),
-    );
+    final Map<String, double> aggregatedData = {};
+    late List<String> labels;
 
-    final Map<String, double> salesByDay = {};
-    final dateFormat = DateFormat('E');
+    // Helper to get normalized date key
+    String getKey(DateTime dt) {
+      switch (timeframe) {
+        case TrendTimeframe.daily:
+          return DateFormat('EEE').format(dt);
+        case TrendTimeframe.weekly:
+          // Return something like "Wk 14"
+          final weekNum = ((dt.day - 1) / 7).floor() + 1;
+          return 'Wk $weekNum ${DateFormat('MMM').format(dt)}';
+        case TrendTimeframe.monthly:
+          return DateFormat('MMM').format(dt);
+        case TrendTimeframe.yearly:
+          return DateFormat('yyyy').format(dt);
+      }
+    }
 
-    // Initialize all 7 days with 0
-    for (final date in last7Days) {
-      salesByDay[dateFormat.format(date)] = 0;
+    // Initialize periods
+    switch (timeframe) {
+      case TrendTimeframe.daily:
+        labels = List.generate(
+          7,
+          (i) => DateFormat('EEE').format(now.subtract(Duration(days: 6 - i))),
+        );
+        break;
+      case TrendTimeframe.weekly:
+        labels = List.generate(
+          4,
+          (i) => getKey(now.subtract(Duration(days: (3 - i) * 7))),
+        );
+        break;
+      case TrendTimeframe.monthly:
+        labels = List.generate(
+          6,
+          (i) => DateFormat(
+            'MMM',
+          ).format(DateTime(now.year, now.month - (5 - i), 1)),
+        );
+        break;
+      case TrendTimeframe.yearly:
+        labels = List.generate(
+          5,
+          (i) => DateFormat('yyyy').format(DateTime(now.year - (4 - i), 1, 1)),
+        );
+        break;
+    }
+
+    for (final label in labels) {
+      aggregatedData[label] = 0;
     }
 
     // Aggregate real sales
     for (final sale in sales) {
       if (sale.createdAt != null) {
-        final day = dateFormat.format(sale.createdAt!);
-        if (salesByDay.containsKey(day)) {
-          salesByDay[day] = (salesByDay[day] ?? 0) + sale.totalAmount;
+        final key = getKey(sale.createdAt!);
+        if (aggregatedData.containsKey(key)) {
+          aggregatedData[key] = (aggregatedData[key] ?? 0) + sale.totalAmount;
         }
       }
     }
 
-    return salesByDay.entries
-        .map((e) => SalesTrendData(e.key, e.value))
+    return labels
+        .map((l) => SalesTrendData(l, aggregatedData[l] ?? 0))
         .toList();
   });
 });
+
+// For backward compatibility
+final weeklySalesTrendProvider = salesTrendProvider;
