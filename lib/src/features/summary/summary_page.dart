@@ -1,8 +1,10 @@
+import 'package:ashfoam_sadiq/src/core/theme/app_colors.dart';
 import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
 import 'package:ashfoam_sadiq/src/features/invoices/providers/invoice_providers.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
 import 'package:ashfoam_sadiq/src/features/summary/providers/summary_providers.dart';
+import 'package:ashfoam_sadiq/src/utils/date_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -41,7 +43,6 @@ class SummaryPage extends ConsumerWidget {
             error: (err, _) => Center(child: Text('Error loading trend: $err')),
           ),
           const SizedBox(height: 32),
-          const SizedBox(height: 32),
           _buildRecentTransactionsSection(context, ref),
         ],
       ),
@@ -51,7 +52,7 @@ class SummaryPage extends ConsumerWidget {
   Widget _buildRecentTransactionsSection(BuildContext context, WidgetRef ref) {
     final recentInvoicesAsync = ref.watch(invoiceListProvider);
     final recentSalesAsync = ref.watch(saleOrdersProvider);
-
+    final isTabletView = MediaQuery.of(context).size.width < 1280;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -60,36 +61,57 @@ class SummaryPage extends ConsumerWidget {
           style: Theme.of(context).textTheme.headlineSmall,
         ),
         const SizedBox(height: 16),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: FCard(
-                title: const Text('Recent Sales'),
-                child: recentSalesAsync.when(
-                  data: (sales) =>
-                      _buildSimpleSalesTable(sales.take(5).toList()),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Text('Error: $e'),
+        if (isTabletView) ...[
+          FCard(
+            title: const Text('Recent Sales'),
+            child: recentSalesAsync.when(
+              data: (sales) => _buildSimpleSalesTable(sales.take(5).toList()),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('Error: $e'),
+            ),
+          ),
+          const SizedBox(height: 16),
+          FCard(
+            title: const Text('Recent Invoices'),
+            child: recentInvoicesAsync.when(
+              data: (invoices) =>
+                  _buildSimpleInvoicesTable(invoices.take(5).toList()),
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Text('Error: $e'),
+            ),
+          ),
+        ],
+        if (!isTabletView)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: FCard(
+                  title: const Text('Recent Sales'),
+                  child: recentSalesAsync.when(
+                    data: (sales) =>
+                        _buildSimpleSalesTable(sales.take(5).toList()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Text('Error: $e'),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: FCard(
-                title: const Text('Recent Invoices'),
-                child: recentInvoicesAsync.when(
-                  data: (invoices) =>
-                      _buildSimpleInvoicesTable(invoices.take(5).toList()),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (e, _) => Text('Error: $e'),
+              const SizedBox(width: 15),
+              Expanded(
+                child: FCard(
+                  title: const Text('Recent Invoices'),
+                  child: recentInvoicesAsync.when(
+                    data: (invoices) =>
+                        _buildSimpleInvoicesTable(invoices.take(5).toList()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (e, _) => Text('Error: $e'),
+                  ),
                 ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
       ],
     );
   }
@@ -98,6 +120,7 @@ class SummaryPage extends ConsumerWidget {
     return DataTable(
       columns: const [
         DataColumn(label: Text('Order #')),
+        DataColumn(label: Text('Date')),
         DataColumn(label: Text('Customer')),
         DataColumn(label: Text('Amount')),
       ],
@@ -111,6 +134,8 @@ class SummaryPage extends ConsumerWidget {
                     : sale.orderNumber,
               ),
             ),
+            DataCell(Text(sale.createdAt!.mmddyyyy)),
+
             DataCell(Text(sale.customerName ?? 'Walk-in')),
             DataCell(Text('GH₵ ${sale.totalAmount.toStringAsFixed(2)}')),
           ],
@@ -122,8 +147,9 @@ class SummaryPage extends ConsumerWidget {
   Widget _buildSimpleInvoicesTable(List<InvoiceModel> invoices) {
     return DataTable(
       columns: const [
-        DataColumn(label: Text('Invoice ID')),
+        DataColumn(label: Text('ID')),
         DataColumn(label: Text('Customer')),
+        DataColumn(label: Text('Amount Paid')),
         DataColumn(label: Text('Balance')),
       ],
       rows: invoices.map((inv) {
@@ -137,6 +163,8 @@ class SummaryPage extends ConsumerWidget {
               ),
             ),
             DataCell(Text(inv.customerName ?? 'Walk-in')),
+            DataCell(Text('GH₵ ${inv.paidAmount.toStringAsFixed(2)}')),
+
             DataCell(Text('GH₵ ${inv.balanceDue.toStringAsFixed(2)}')),
           ],
         );
@@ -164,23 +192,19 @@ class SummaryPage extends ConsumerWidget {
             ),
           ],
         ),
-        FButton(
-          onPress: () {},
-          prefix: const Icon(Icons.download),
-          child: const Text('Download Report'),
-        ),
       ],
     );
   }
 
   Widget _buildSummaryCards(BuildContext context, SummaryStats stats) {
     final currencyFormat = NumberFormat.currency(symbol: 'GH₵ ');
+    final isTabletView = MediaQuery.of(context).size.width < 1280;
 
     return GridView.count(
-      crossAxisCount: 4,
-      crossAxisSpacing: 20,
-      mainAxisSpacing: 20,
-      childAspectRatio: 1.8,
+      crossAxisCount: isTabletView ? 2 : 3,
+      crossAxisSpacing: 15,
+      mainAxisSpacing: 15,
+      childAspectRatio: 2,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: [
@@ -191,6 +215,8 @@ class SummaryPage extends ConsumerWidget {
           subtitle: 'Items in stock',
           icon: Icons.inventory_2_outlined,
           color: Colors.blue,
+          backgroundColor: AppColors.yellow12,
+          textColor: Colors.black,
         ),
         _buildStatCard(
           context,
@@ -199,6 +225,8 @@ class SummaryPage extends ConsumerWidget {
           subtitle: 'Gross revenue',
           icon: Icons.shopping_cart_outlined,
           color: Colors.green,
+          backgroundColor: AppColors.green12,
+          textColor: Colors.black,
         ),
         _buildStatCard(
           context,
@@ -207,15 +235,10 @@ class SummaryPage extends ConsumerWidget {
           subtitle: 'Actual collected',
           icon: Icons.payments_outlined,
           color: Colors.amber,
+          backgroundColor: AppColors.green13,
+          textColor: Colors.white,
         ),
-        _buildStatCard(
-          context,
-          title: 'Invoices Total',
-          value: currencyFormat.format(stats.invoiceTotal),
-          subtitle: '${stats.totalInvoices} invoices generated',
-          icon: Icons.description_outlined,
-          color: Colors.purple,
-        ),
+
         _buildStatCard(
           context,
           title: 'Total Proformas',
@@ -223,6 +246,8 @@ class SummaryPage extends ConsumerWidget {
           subtitle: 'Pending quotes',
           icon: Icons.request_quote_outlined,
           color: Colors.indigo,
+          backgroundColor: AppColors.green15,
+          textColor: Colors.white,
         ),
         _buildStatCard(
           context,
@@ -231,22 +256,19 @@ class SummaryPage extends ConsumerWidget {
           subtitle: 'Dispatched orders',
           icon: Icons.local_shipping_outlined,
           color: Colors.orange,
+          backgroundColor: AppColors.red34,
+          textColor: Colors.white,
         ),
-        _buildStatCard(
-          context,
-          title: 'Total Outstanding',
-          value: currencyFormat.format(stats.totalOutstanding),
-          subtitle: 'Awaiting payment',
-          icon: Icons.warning_amber_outlined,
-          color: Colors.red,
-        ),
+
         _buildStatCard(
           context,
           title: 'Low Stock Items',
           value: stats.lowStockCount.toString(),
           subtitle: 'Requires attention',
           icon: Icons.inventory_outlined,
-          color: stats.lowStockCount > 0 ? Colors.red : Colors.green,
+          color: stats.lowStockCount > 0 ? Colors.white : Colors.black,
+          backgroundColor: AppColors.red34,
+          textColor: Colors.white,
         ),
       ],
     );
@@ -259,8 +281,16 @@ class SummaryPage extends ConsumerWidget {
     required String subtitle,
     required IconData icon,
     required Color color,
+    Color? backgroundColor,
+    Color? textColor,
   }) {
     return FCard(
+      style: FCardStyleDelta.delta(
+        decoration: DecorationDelta.boxDelta(
+          border: Border.all(color: Colors.transparent),
+          color: backgroundColor ?? Colors.white,
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -269,9 +299,9 @@ class SummaryPage extends ConsumerWidget {
             children: [
               Text(
                 title,
-                style: Theme.of(
-                  context,
-                ).textTheme.labelSmall?.copyWith(color: Colors.grey),
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: textColor ?? Colors.black,
+                ),
               ),
               Icon(icon, color: color.withValues(alpha: 0.7), size: 20),
             ],
@@ -281,7 +311,10 @@ class SummaryPage extends ConsumerWidget {
             fit: BoxFit.scaleDown,
             child: Text(
               value,
-              style: Theme.of(context).textTheme.headlineSmall,
+              style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                fontWeight: FontWeight.w600,
+                color: textColor ?? Colors.black,
+              ),
             ),
           ),
           const SizedBox(height: 4),
@@ -289,7 +322,7 @@ class SummaryPage extends ConsumerWidget {
             subtitle,
             style: Theme.of(
               context,
-            ).textTheme.labelSmall?.copyWith(color: Colors.grey),
+            ).textTheme.labelSmall?.copyWith(color: textColor ?? Colors.black),
           ),
         ],
       ),
@@ -346,7 +379,7 @@ class SummaryPage extends ConsumerWidget {
                   xValueMapper: (SalesTrendData data, _) => data.label,
                   yValueMapper: (SalesTrendData data, _) => data.sales,
                   name: 'Sales',
-                  color: Colors.blue,
+                  color: AppColors.red34,
                   borderRadius: const BorderRadius.vertical(
                     top: Radius.circular(4),
                   ),

@@ -25,8 +25,6 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
       await _supabase.auth.signInWithPassword(email: email, password: password);
       state = const AsyncValue.data(null);
     } catch (e, stack) {
-      print(e);
-
       state = AsyncValue.error(e, stack);
     }
   }

@@ -20,7 +20,8 @@ import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/stock_adjustment.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/payments.model.dart'
     as payment_model;
-import 'package:drift/drift.dart' show Value, Variable;
+import 'package:drift/drift.dart'
+    show Value, Variable, OrderingMode, OrderingTerm;
 import 'package:uuid/uuid.dart';
 
 class DatabaseService {
@@ -34,10 +35,13 @@ class DatabaseService {
   db.AppDatabase get database => _database;
 
   // Inventory
-  Future<List<InventoryModel>> getInventoryItems() => _database
-      .select(_database.inventoryItems)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<InventoryModel>> getInventoryItems() =>
+      (_database.select(_database.inventoryItems)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.quantity, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addInventoryItem(db.InventoryItemsCompanion item) =>
       _database.into(_database.inventoryItems).insert(item);
@@ -60,15 +64,15 @@ class DatabaseService {
     required String createdBy,
   }) async {
     await _database.transaction(() async {
-      final existing = await (_database.select(_database.inventoryItems)
-            ..where((tbl) => tbl.id.equals(productId)))
-          .getSingleOrNull();
+      final existing = await (_database.select(
+        _database.inventoryItems,
+      )..where((tbl) => tbl.id.equals(productId))).getSingleOrNull();
 
       if (existing != null) {
         // 1. Update quantity
-        await (_database.update(_database.inventoryItems)
-              ..where((tbl) => tbl.id.equals(productId)))
-            .write(
+        await (_database.update(
+          _database.inventoryItems,
+        )..where((tbl) => tbl.id.equals(productId))).write(
           db.InventoryItemsCompanion(
             quantity: Value(existing.quantity + quantityChange),
             updatedAt: Value(DateTime.now()),
@@ -97,42 +101,49 @@ class DatabaseService {
   Future<List<AdjustmentLog>> getStockAdjustmentLogs() => _database
       .customSelect('SELECT * FROM stock_adjustments ORDER BY created_at DESC')
       .get()
-      .then((rows) => rows.map((row) {
-            final createdAtVal = row.data['created_at'];
-            int milliseconds = 0;
-            if (createdAtVal is num) {
-              milliseconds = createdAtVal.toInt() * 1000;
-            } else if (createdAtVal is String) {
-              milliseconds = (int.tryParse(createdAtVal) ?? 0) * 1000;
-            }
+      .then(
+        (rows) => rows.map((row) {
+          final createdAtVal = row.data['created_at'];
+          int milliseconds = 0;
+          if (createdAtVal is num) {
+            milliseconds = createdAtVal.toInt() * 1000;
+          } else if (createdAtVal is String) {
+            milliseconds = (int.tryParse(createdAtVal) ?? 0) * 1000;
+          }
 
-            return AdjustmentLog(
-              id: row.data['id'] as String,
-              productId: row.data['product_id'] as String,
-              productName: row.data['product_name'] as String,
-              quantityChange: (row.data['quantity_change'] as num).toInt(),
-              type: row.data['type'] as String,
-              reason: row.data['reason'] as String?,
-              referenceId: row.data['reference_id'] as String?,
-              createdAt: DateTime.fromMillisecondsSinceEpoch(milliseconds),
-              createdBy: row.data['created_by'] as String,
-            );
-          }).toList());
+          return AdjustmentLog(
+            id: row.data['id'] as String,
+            productId: row.data['product_id'] as String,
+            productName: row.data['product_name'] as String,
+            quantityChange: (row.data['quantity_change'] as num).toInt(),
+            type: row.data['type'] as String,
+            reason: row.data['reason'] as String?,
+            referenceId: row.data['reference_id'] as String?,
+            createdAt: DateTime.fromMillisecondsSinceEpoch(milliseconds),
+            createdBy: row.data['created_by'] as String,
+          );
+        }).toList(),
+      );
 
   // Suppliers
-  Future<List<SupplierModel>> getSuppliers() => _database
-      .select(_database.suppliers)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<SupplierModel>> getSuppliers() =>
+      (_database.select(_database.suppliers)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addSupplier(db.SuppliersCompanion supplier) =>
       _database.into(_database.suppliers).insert(supplier);
 
   // Invoices
-  Future<List<InvoiceModel>> getInvoices() => _database
-      .select(_database.invoices)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<InvoiceModel>> getInvoices() =>
+      (_database.select(_database.invoices)..orderBy([
+            (t) => OrderingTerm(expression: t.dueDate, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addInvoice(db.InvoicesCompanion invoice) =>
       _database.into(_database.invoices).insert(invoice);
@@ -145,10 +156,13 @@ class DatabaseService {
   }
 
   // Sales Orders
-  Future<List<SaleOrderModel>> getSalesOrders() => _database
-      .select(_database.saleOrders)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<SaleOrderModel>> getSalesOrders() =>
+      (_database.select(_database.saleOrders)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addSalesOrder(db.SaleOrdersCompanion order) =>
       _database.into(_database.saleOrders).insert(order);
@@ -181,19 +195,27 @@ class DatabaseService {
       _database.into(_database.saleOrderItems).insert(item);
 
   // Customers
-  Future<List<CustomerModel>> getCustomers() => _database
-      .select(_database.customers)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<CustomerModel>> getCustomers() =>
+      (_database.select(_database.customers)..orderBy([
+            (t) => OrderingTerm(
+              expression: t.lastOrderDate,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addCustomer(db.CustomersCompanion customer) =>
       _database.into(_database.customers).insert(customer);
 
   // Return Orders
-  Future<List<ReturnOrderModel>> getReturnOrders() => _database
-      .select(_database.returnOrders)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<ReturnOrderModel>> getReturnOrders() =>
+      (_database.select(_database.returnOrders)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addReturnOrder(db.ReturnOrdersCompanion order) =>
       _database.into(_database.returnOrders).insert(order);
@@ -213,10 +235,13 @@ class DatabaseService {
       .then((rows) => rows.map((e) => e.toModel()).toList());
 
   // Credit Notes
-  Future<List<CreditNoteModel>> getCreditNotes() => _database
-      .select(_database.creditNotes)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<CreditNoteModel>> getCreditNotes() =>
+      (_database.select(_database.creditNotes)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addCreditNote(db.CreditNotesCompanion note) =>
       _database.into(_database.creditNotes).insert(note);
@@ -236,13 +261,17 @@ class DatabaseService {
       .then((rows) => rows.map((e) => e.toModel()).toList());
 
   // Stock Reports
-  Future<List<StockReportSummary>> getStockReports() => _database
-      .select(_database.stockReports)
-      .get()
-      .then(
-        (rows) =>
-            rows.map((e) => StockReportSummary.fromMap(e.toJson())).toList(),
-      );
+  Future<List<StockReportSummary>> getStockReports() =>
+      (_database.select(_database.stockReports)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then(
+            (rows) => rows
+                .map((e) => StockReportSummary.fromMap(e.toJson()))
+                .toList(),
+          );
 
   Future<int> deleteStockReport(String id) async {
     return (_database.delete(
@@ -251,41 +280,58 @@ class DatabaseService {
   }
 
   // Employees
-  Future<List<EmployeeModel>> getEmployees() => _database
-      .select(_database.employees)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<EmployeeModel>> getEmployees() =>
+      (_database.select(_database.employees)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addEmployee(db.EmployeesCompanion employee) =>
       _database.into(_database.employees).insert(employee);
 
   // Expenses
-  Future<List<ExpenseModel>> getExpenses() => _database
-      .select(_database.expenses)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<ExpenseModel>> getExpenses() =>
+      (_database.select(_database.expenses)..orderBy([
+            (t) => OrderingTerm(
+              expression: t.expenseDate,
+              mode: OrderingMode.desc,
+            ),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addExpense(db.ExpensesCompanion expense) =>
       _database.into(_database.expenses).insert(expense);
 
   // Receipts, Proformas, Waybills
-  Future<List<ReceiptModel>> getReceipts() => _database
-      .select(_database.receipts)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<ReceiptModel>> getReceipts() =>
+      (_database.select(_database.receipts)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
-  Future<List<proforma_model.Profoma>> getProformas() => _database
-      .select(_database.proformas)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<proforma_model.Profoma>> getProformas() =>
+      (_database.select(_database.proformas)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addProforma(db.ProformasCompanion proforma) =>
       _database.into(_database.proformas).insert(proforma);
 
-  Future<List<WayBillModel>> getWayBills() => _database
-      .select(_database.wayBills)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<WayBillModel>> getWayBills() =>
+      (_database.select(_database.wayBills)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<void> createWaybill(
     db.WayBillsCompanion waybill,
@@ -332,20 +378,29 @@ class DatabaseService {
   }
 
   // Brands, Categories, Subcategories
-  Future<List<Brand>> getBrands() => _database
-      .select(_database.productBrands)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<Brand>> getBrands() =>
+      (_database.select(_database.productBrands)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
-  Future<List<ProductCategory>> getCategories() => _database
-      .select(_database.productCategories)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<ProductCategory>> getCategories() =>
+      (_database.select(_database.productCategories)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
-  Future<List<ProductSubCategory>> getSubCategories() => _database
-      .select(_database.productSubCategories)
-      .get()
-      .then((rows) => rows.map((e) => e.toModel()).toList());
+  Future<List<ProductSubCategory>> getSubCategories() =>
+      (_database.select(_database.productSubCategories)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
+          .get()
+          .then((rows) => rows.map((e) => e.toModel()).toList());
 
   Future<int> addBrand(db.ProductBrandsCompanion brand) =>
       _database.into(_database.productBrands).insert(brand);
@@ -353,14 +408,47 @@ class DatabaseService {
   Future<int> addCategory(db.ProductCategoriesCompanion category) =>
       _database.into(_database.productCategories).insert(category);
 
+  Future<bool> updateBrand(String id, db.ProductBrandsCompanion brand) async {
+    return await (_database.update(
+          _database.productBrands,
+        )..where((tbl) => tbl.id.equals(id))).write(brand) >
+        0;
+  }
+
+  Future<int> deleteBrand(String id) async {
+    return (_database.delete(
+      _database.productBrands,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
+  Future<bool> updateCategory(
+    String id,
+    db.ProductCategoriesCompanion category,
+  ) async {
+    return await (_database.update(
+          _database.productCategories,
+        )..where((tbl) => tbl.id.equals(id))).write(category) >
+        0;
+  }
+
+  Future<int> deleteCategory(String id) async {
+    return (_database.delete(
+      _database.productCategories,
+    )..where((tbl) => tbl.id.equals(id))).go();
+  }
+
   // Company Settings
   Future<CompanyModel?> getCompanySettings() => _database
       .select(_database.companySettings)
       .getSingleOrNull()
       .then((row) => row?.toModel());
 
-  Future<void> updateCompanySettings(db.CompanySettingsCompanion settings) async {
-    final existing = await _database.select(_database.companySettings).getSingleOrNull();
+  Future<void> updateCompanySettings(
+    db.CompanySettingsCompanion settings,
+  ) async {
+    final existing = await _database
+        .select(_database.companySettings)
+        .getSingleOrNull();
     if (existing != null) {
       await (_database.update(_database.companySettings)
             ..where((tbl) => tbl.id.equals(existing.id)))
@@ -372,8 +460,10 @@ class DatabaseService {
 
   // Branch Payments
   Future<List<payment_model.BranchPaymentModel>> getBranchPayments() =>
-      _database
-          .select(_database.branchPayments)
+      (_database.select(_database.branchPayments)..orderBy([
+            (t) =>
+                OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc),
+          ]))
           .get()
           .then((rows) => rows.map((e) => e.toModel()).toList());
 

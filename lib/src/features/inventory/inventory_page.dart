@@ -6,12 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
-import 'package:syncfusion_flutter_datagrid_export/export.dart';
 import 'package:ashfoam_sadiq/src/features/inventory/providers/excel_providers.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:toastification/toastification.dart';
+import 'package:printing/printing.dart';
+import 'dart:typed_data';
 
 class InventoryView extends ConsumerStatefulWidget {
   const InventoryView({super.key});
@@ -36,6 +37,14 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
       final excelService = ref.read(excelServiceProvider);
       final bytes = await excelService.generateInventoryExport(items);
 
+      if (Platform.isAndroid || Platform.isIOS) {
+        await Printing.sharePdf(
+          bytes: Uint8List.fromList(bytes),
+          filename: 'InventoryReport.xlsx',
+        );
+        return;
+      }
+
       final String? outputFile = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Inventory Report',
         fileName: 'InventoryReport.xlsx',
@@ -48,21 +57,19 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
         await file.writeAsBytes(bytes, flush: true);
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Report exported successfully'),
-              backgroundColor: Colors.green,
-            ),
+          toastification.show(
+            type: ToastificationType.success,
+            title: const Text('Report exported successfully'),
+            autoCloseDuration: const Duration(seconds: 2),
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error exporting inventory: $e'),
-            backgroundColor: Colors.red,
-          ),
+        toastification.show(
+          type: ToastificationType.error,
+          title: Text('Error exporting inventory: $e'),
+          autoCloseDuration: const Duration(seconds: 2),
         );
       }
     }
@@ -72,6 +79,14 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
     try {
       final excelService = ref.read(excelServiceProvider);
       final bytes = await excelService.generateTemplate();
+
+      if (Platform.isAndroid || Platform.isIOS) {
+        await Printing.sharePdf(
+          bytes: Uint8List.fromList(bytes),
+          filename: 'ProductTemplate.xlsx',
+        );
+        return;
+      }
 
       final String? outputFile = await FilePicker.platform.saveFile(
         dialogTitle: 'Save Product Template',
@@ -89,20 +104,18 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
       await file.writeAsBytes(bytes, flush: true);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Template saved successfully'),
-            backgroundColor: Colors.green,
-          ),
+        toastification.show(
+          type: ToastificationType.success,
+          title: const Text('Template saved successfully'),
+          autoCloseDuration: const Duration(seconds: 2),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error downloading template: $e'),
-            backgroundColor: Colors.red,
-          ),
+        toastification.show(
+          type: ToastificationType.error,
+          title: Text('Error downloading template: $e'),
+          autoCloseDuration: const Duration(seconds: 2),
         );
       }
     }
@@ -146,11 +159,10 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
 
       if (companions.isEmpty) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No valid products found in Excel'),
-              backgroundColor: Colors.orange,
-            ),
+          toastification.show(
+            type: ToastificationType.error,
+            title: const Text('No valid products found in Excel'),
+            autoCloseDuration: const Duration(seconds: 2),
           );
         }
         return;
@@ -168,20 +180,18 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Successfully imported $successCount products'),
-            backgroundColor: Colors.green,
-          ),
+        toastification.show(
+          type: ToastificationType.success,
+          title: Text('Successfully imported $successCount products'),
+          autoCloseDuration: const Duration(seconds: 2),
         );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error importing Excel: $e'),
-            backgroundColor: Colors.red,
-          ),
+        toastification.show(
+          type: ToastificationType.error,
+          title: Text('Error importing Excel: $e'),
+          autoCloseDuration: const Duration(seconds: 2),
         );
       }
     }
@@ -190,8 +200,43 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
   @override
   Widget build(BuildContext context) {
     final filteredInventoryAsync = ref.watch(filteredInventoryProvider);
-
+    final istablet = MediaQuery.of(context).size.width < 1280;
     return Scaffold(
+      floatingActionButton: istablet
+          ? Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FloatingActionButton.extended(
+                  onPressed: () => showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const AddProductDialog(),
+                  ),
+
+                  label: Text("Add New"),
+                  icon: Icon(Icons.add),
+                ),
+                const SizedBox(width: 15),
+                FloatingActionButton.extended(
+                  onPressed: _exportToExcel,
+                  label: Text("Export"),
+                  icon: Icon(Icons.file_download),
+                ),
+                const SizedBox(width: 15),
+                FloatingActionButton.extended(
+                  onPressed: _importExcel,
+                  label: Text("Import"),
+                  icon: Icon(Icons.file_upload),
+                ),
+                const SizedBox(width: 15),
+                FloatingActionButton.extended(
+                  onPressed: _downloadTemplate,
+                  label: Text("Template"),
+                  icon: Icon(Icons.file_download),
+                ),
+              ],
+            )
+          : null,
       body: Container(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -202,34 +247,31 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
 
             // Table Content
             Expanded(
-              child: FCard(
-                child: filteredInventoryAsync.when(
-                  data: (items) {
-                    _dataGridSource.updateItems(items);
-                    return SfDataGridTheme(
-                      data: SfDataGridThemeData(
-                        headerColor: Colors.black,
-                        headerHoverColor: Colors.grey[900],
-                        gridLineColor: Colors.grey[300],
-                        rowHoverColor: Colors.grey[100],
-                        selectionColor: Colors.blue.withValues(alpha: 0.1),
-                      ),
-                      child: SfDataGrid(
-                        key: _key,
-                        source: _dataGridSource,
-                        columnWidthMode: ColumnWidthMode.fill,
-                        allowFiltering: true,
-                        allowSorting: true,
-                        gridLinesVisibility: GridLinesVisibility.both,
-                        headerGridLinesVisibility: GridLinesVisibility.both,
-                        columns: _buildColumns(),
-                      ),
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: $err')),
-                ),
+              child: filteredInventoryAsync.when(
+                data: (items) {
+                  _dataGridSource.updateItems(items);
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(
+                      headerColor: Colors.red,
+                      headerHoverColor: Colors.red[900],
+                      gridLineColor: Colors.grey[300],
+                      rowHoverColor: Colors.yellow[100],
+                      selectionColor: Colors.red.withValues(alpha: 0.1),
+                    ),
+                    child: SfDataGrid(
+                      key: _key,
+                      source: _dataGridSource,
+                      columnWidthMode: ColumnWidthMode.fill,
+                      allowFiltering: false,
+                      allowSorting: false,
+                      gridLinesVisibility: GridLinesVisibility.both,
+                      headerGridLinesVisibility: GridLinesVisibility.both,
+                      columns: _buildColumns(),
+                    ),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ],
@@ -239,6 +281,8 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final istablet = MediaQuery.of(context).size.width < 1280;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -253,19 +297,20 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
               ),
             ),
             Text(
-              "Live stock levels across all categories",
+              "View all Stocks",
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
+        const SizedBox(width: 10),
         Row(
           children: [
             SizedBox(
-              width: 300,
+              width: 200,
               child: FTextField(
-                hint: 'Search by Product or SKU...',
+                hint: 'Search...',
                 prefixBuilder: (context, style, variants) => const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10),
                   child: Icon(Icons.search, size: 20),
@@ -278,37 +323,39 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
                 ),
               ),
             ),
-            const SizedBox(width: 15),
-            FButton(
-              onPress: () => showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => const AddProductDialog(),
+            const SizedBox(width: 10),
+            if (!istablet) ...[
+              FButton(
+                onPress: () => showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const AddProductDialog(),
+                ),
+                prefix: const Icon(Icons.add),
+                child: const Text("Add"),
               ),
-              prefix: const Icon(Icons.add),
-              child: const Text("Add Product"),
-            ),
-            const SizedBox(width: 10),
+              const SizedBox(width: 10),
 
-            FButton(
-              onPress: _exportToExcel,
-              prefix: const Icon(Icons.file_download),
-              child: const Text("Export"),
-            ),
-            const SizedBox(width: 10),
-            FButton(
-              onPress: _downloadTemplate,
-              variant: FButtonVariant.outline,
-              prefix: const Icon(Icons.description),
-              child: const Text("Get Sample"),
-            ),
-            const SizedBox(width: 10),
-            FButton(
-              onPress: _importExcel,
-              variant: FButtonVariant.outline,
-              prefix: const Icon(Icons.upload_file),
-              child: const Text("Import"),
-            ),
+              FButton(
+                onPress: _exportToExcel,
+                prefix: const Icon(Icons.file_download),
+                child: const Text("Export"),
+              ),
+              const SizedBox(width: 10),
+              FButton(
+                onPress: _downloadTemplate,
+                variant: FButtonVariant.outline,
+                prefix: const Icon(Icons.description),
+                child: const Text("Sample"),
+              ),
+              const SizedBox(width: 10),
+              FButton(
+                onPress: _importExcel,
+                variant: FButtonVariant.outline,
+                prefix: const Icon(Icons.upload_file),
+                child: const Text("Import"),
+              ),
+            ],
           ],
         ),
       ],
@@ -318,7 +365,8 @@ class _InventoryViewState extends ConsumerState<InventoryView> {
   List<GridColumn> _buildColumns() {
     final headerStyle = const TextStyle(
       color: Colors.white,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
+      fontSize: 14,
     );
 
     return [
@@ -454,7 +502,7 @@ class InventoryDataGridSource extends DataGridSource {
                 style: TextStyle(
                   color: color,
                   fontSize: 12,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w400,
                 ),
               ),
             ),
@@ -471,6 +519,7 @@ class InventoryDataGridSource extends DataGridSource {
           child: Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12),
           ),
         );
       }).toList(),

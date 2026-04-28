@@ -10,10 +10,12 @@ class BrandCategoryManagementPage extends ConsumerStatefulWidget {
   const BrandCategoryManagementPage({super.key});
 
   @override
-  ConsumerState<BrandCategoryManagementPage> createState() => _BrandCategoryManagementPageState();
+  ConsumerState<BrandCategoryManagementPage> createState() =>
+      _BrandCategoryManagementPageState();
 }
 
-class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManagementPage> {
+class _BrandCategoryManagementPageState
+    extends ConsumerState<BrandCategoryManagementPage> {
   final _brandController = TextEditingController();
   final _categoryController = TextEditingController();
 
@@ -37,7 +39,9 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
     await ref.read(addBrandProvider)(companion);
     _brandController.clear();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Brand added locally")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Brand added locally")));
     }
   }
 
@@ -54,7 +58,9 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
     await ref.read(addCategoryProvider)(companion);
     _categoryController.clear();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Category added locally")));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Category added locally")));
     }
   }
 
@@ -73,9 +79,9 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
             Text(
               "Brands & Categories",
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             Text(
               "Manage labels used for grouping your inventory products.",
@@ -99,9 +105,23 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
                       _buildListCard(
                         title: "Existing Brands",
                         itemsAsync: brandsAsync,
-                        onDelete: (id) {
-                          // TODO: Implement delete if needed
-                        },
+                        onEdit: (brand) => _showEditDialog(
+                          title: "Edit Brand",
+                          initialValue: brand.name,
+                          onConfirm: (newName) {
+                            final companion = db.ProductBrandsCompanion(
+                              name: drift.Value(newName),
+                            );
+                            ref.read(updateBrandProvider)(brand.id, companion);
+                          },
+                        ),
+                        onDelete: (brand) => _confirmDelete(
+                          title: "Delete Brand",
+                          message:
+                              "Are you sure you want to delete the brand '${brand.name}'?",
+                          onConfirm: () =>
+                              ref.read(deleteBrandProvider)(brand.id),
+                        ),
                       ),
                     ],
                   ),
@@ -121,9 +141,26 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
                       _buildListCard(
                         title: "Existing Categories",
                         itemsAsync: categoriesAsync,
-                        onDelete: (id) {
-                          // TODO: Implement delete if needed
-                        },
+                        onEdit: (category) => _showEditDialog(
+                          title: "Edit Category",
+                          initialValue: category.name,
+                          onConfirm: (newName) {
+                            final companion = db.ProductCategoriesCompanion(
+                              name: drift.Value(newName),
+                            );
+                            ref.read(updateCategoryProvider)(
+                              category.id,
+                              companion,
+                            );
+                          },
+                        ),
+                        onDelete: (category) => _confirmDelete(
+                          title: "Delete Category",
+                          message:
+                              "Are you sure you want to delete the category '${category.name}'?",
+                          onConfirm: () =>
+                              ref.read(deleteCategoryProvider)(category.id),
+                        ),
                       ),
                     ],
                   ),
@@ -136,6 +173,72 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
     );
   }
 
+  void _showEditDialog({
+    required String title,
+    required String initialValue,
+    required Function(String) onConfirm,
+  }) {
+    final controller = TextEditingController(text: initialValue);
+    showDialog(
+      context: context,
+      builder: (context) => FDialog(
+        direction: Axis.horizontal,
+        title: Text(title),
+        body: FTextField(
+          control: FTextFieldControl.managed(controller: controller),
+          hint: "Enter new name",
+        ),
+        actions: [
+          FButton(
+            variant: FButtonVariant.outline,
+            onPress: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          FButton(
+            onPress: () {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                onConfirm(newName);
+                Navigator.pop(context);
+              }
+            },
+            child: const Text("Update"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete({
+    required String title,
+    required String message,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (context) => FDialog(
+        direction: Axis.horizontal,
+
+        title: Text(title),
+        body: Text(message),
+        actions: [
+          FButton(
+            variant: FButtonVariant.outline,
+            onPress: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          FButton(
+            onPress: () {
+              onConfirm();
+              Navigator.pop(context);
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildAddCard({
     required String title,
     required TextEditingController controller,
@@ -143,7 +246,10 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
     required VoidCallback onPress,
   }) {
     return FCard(
-      title: Text(title),
+      title: Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: Text(title),
+      ),
       child: Column(
         children: [
           FTextField(
@@ -166,7 +272,8 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
   Widget _buildListCard({
     required String title,
     required AsyncValue<List<dynamic>> itemsAsync,
-    required Function(String) onDelete,
+    required Function(dynamic) onEdit,
+    required Function(dynamic) onDelete,
   }) {
     return FCard(
       title: Text(title),
@@ -188,8 +295,25 @@ class _BrandCategoryManagementPageState extends ConsumerState<BrandCategoryManag
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 title: Text(item.name),
-                subtitle: Text("ID: ${item.id.substring(0, 8)}...", style: const TextStyle(fontSize: 10)),
-                // No delete for now to keep it safe, but UI is ready
+
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FButton.icon(
+                      child: const Icon(FIcons.pen, size: 16),
+                      onPress: () => onEdit(item),
+                    ),
+                    const SizedBox(width: 8),
+                    FButton.icon(
+                      child: const Icon(
+                        FIcons.trash,
+                        size: 16,
+                        color: Colors.red,
+                      ),
+                      onPress: () => onDelete(item),
+                    ),
+                  ],
+                ),
               );
             },
           );

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 class BranchPaymentModel {
   final String id;
   final String branchId;
@@ -55,17 +57,24 @@ class BranchPaymentModel {
   }
 
   factory BranchPaymentModel.fromMap(Map<String, dynamic> map) {
+    log(map.toString());
     return BranchPaymentModel(
       id: map['id'] as String? ?? '',
       branchId: map['branch_id'] as String? ?? map['branchId'] as String? ?? '',
-      branchName: map['branch_name'] as String? ?? map['branchName'] as String? ?? 'Unknown Branch',
+      branchName:
+          map['branch_name'] as String? ??
+          map['branchName'] as String? ??
+          'Unknown Branch',
       amount: (map['amount'] as num? ?? 0).toDouble(),
       note: map['note'] as String?,
       title: map['title'] as String? ?? 'Payment',
-      createdAt: map['created_at'] != null
-          ? (DateTime.tryParse(map['created_at'].toString()) ?? DateTime.now())
+      createdAt: map['createdAt'] != null
+          ? DateTime.fromMillisecondsSinceEpoch(map['createdAt'])
           : DateTime.now(),
-      createdBy: map['created_by'] as String? ?? map['createdBy'] as String? ?? 'system',
+      createdBy:
+          map['created_by'] as String? ??
+          map['createdBy'] as String? ??
+          'system',
     );
   }
 }

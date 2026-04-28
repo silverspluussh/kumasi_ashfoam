@@ -18,8 +18,14 @@ class ReceiptService {
     SaleOrderModel order,
     List<SaleOrderItem> items, {
     CompanyModel? company,
+    double paperWidth = 50,
   }) async {
-    final pdf = await _generateReceipt(order, items, company: company);
+    final pdf = await _generateReceipt(
+      order,
+      items,
+      company: company,
+      paperWidth: paperWidth,
+    );
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf,
       name: 'Receipt_${order.orderNumber}.pdf',
@@ -32,53 +38,72 @@ class ReceiptService {
     List<SaleOrderItem> items, {
     CompanyModel? company,
   }) async {
+    double selectedWidth = 80;
+
     await showDialog(
       context: context,
-      builder: (context) => Dialog(
-        child: Container(
-          width: 500,
-          height: 800,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return Dialog(
+            child: Container(
+              width: 500,
+              height: 800,
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 children: [
-                  Text(
-                    'Receipt Preview - ${order.orderNumber}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Receipt Preview',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          const Text('Width: '),
+                          const SizedBox(width: 10),
+                          DropdownButton<double>(
+                            value: selectedWidth,
+                            items: const [
+                              DropdownMenuItem(value: 80, child: Text('80mm')),
+                              DropdownMenuItem(value: 50, child: Text('50mm')),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() => selectedWidth = value);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
+                  const Divider(),
+                  Expanded(
+                    child: PdfPreview(
+                      build: (format) => _generateReceipt(
+                        order,
+                        items,
+                        company: company,
+                        paperWidth: selectedWidth,
+                      ),
+                      allowPrinting: true,
+                      allowSharing: true,
+                      canChangePageFormat: false,
+                    ),
                   ),
                 ],
               ),
-              const Divider(),
-              Expanded(
-                child: PdfPreview(
-                  build: (format) =>
-                      _generateReceipt(order, items, company: company),
-                  allowSharing: true,
-                  allowPrinting: true,
-                  canChangePageFormat: false,
-                  initialPageFormat: const PdfPageFormat(
-                    226,
-                    double.infinity,
-                    marginLeft: 10,
-                    marginRight: 10,
-                    marginTop: 20,
-                    marginBottom: 20,
-                  ),
-                  pdfFileName: 'Receipt_${order.orderNumber}.pdf',
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -87,19 +112,22 @@ class ReceiptService {
     SaleOrderModel order,
     List<SaleOrderItem> items, {
     CompanyModel? company,
+    double paperWidth = 80,
   }) async {
     final allTaxes = await DatabaseService.instance.getTaxes();
     final pdf = pw.Document();
 
-    // Use a thermal printer friendly format (approx 80mm)
-    // 1 inch = 72 points. 80mm = 3.15 inches = 226 points.
-    const PdfPageFormat format = PdfPageFormat(
-      226,
+    // Thermal paper sizes in points
+    // 80mm = 226.77pt, 50mm = 141.73pt
+    final double widthPoints = (paperWidth * 72) / 25.4;
+
+    final PdfPageFormat format = PdfPageFormat(
+      widthPoints,
       double.infinity,
-      marginLeft: 10,
-      marginRight: 10,
-      marginTop: 20,
-      marginBottom: 20,
+      marginLeft: 5,
+      marginRight: 5,
+      marginTop: 10,
+      marginBottom: 10,
     );
 
     pdf.addPage(
@@ -123,6 +151,7 @@ class ReceiptService {
                       _dateFormat.format(order.createdAt ?? DateTime.now()),
                     ),
                     _receiptRow('Customer:', order.customerName ?? 'Walk-in'),
+                    _receiptRow('User:', order.createdBy ?? 'Walk-in'),
                   ],
                 ),
               ),
@@ -134,10 +163,10 @@ class ReceiptService {
                   pw.Expanded(
                     flex: 3,
                     child: pw.Text(
-                      'Item',
+                      'Description',
                       style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: 8,
+                        fontSize: 7,
                       ),
                     ),
                   ),
@@ -147,7 +176,7 @@ class ReceiptService {
                       'Qty',
                       style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: 8,
+                        fontSize: 7,
                       ),
                       textAlign: pw.TextAlign.center,
                     ),
@@ -155,10 +184,10 @@ class ReceiptService {
                   pw.Expanded(
                     flex: 2,
                     child: pw.Text(
-                      'Price',
+                      'Rate',
                       style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: 8,
+                        fontSize: 7,
                       ),
                       textAlign: pw.TextAlign.right,
                     ),
@@ -169,7 +198,7 @@ class ReceiptService {
                       'Total',
                       style: pw.TextStyle(
                         fontWeight: pw.FontWeight.bold,
-                        fontSize: 8,
+                        fontSize: 7,
                       ),
                       textAlign: pw.TextAlign.right,
                     ),
@@ -188,14 +217,14 @@ class ReceiptService {
                         flex: 3,
                         child: pw.Text(
                           item.productName,
-                          style: const pw.TextStyle(fontSize: 7),
+                          style: const pw.TextStyle(fontSize: 6),
                         ),
                       ),
                       pw.Expanded(
                         flex: 1,
                         child: pw.Text(
                           item.quantity.toString(),
-                          style: const pw.TextStyle(fontSize: 7),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.center,
                         ),
                       ),
@@ -203,7 +232,7 @@ class ReceiptService {
                         flex: 2,
                         child: pw.Text(
                           item.unitPrice.toStringAsFixed(2),
-                          style: const pw.TextStyle(fontSize: 7),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.right,
                         ),
                       ),
@@ -211,7 +240,7 @@ class ReceiptService {
                         flex: 2,
                         child: pw.Text(
                           item.totalPrice.toStringAsFixed(2),
-                          style: const pw.TextStyle(fontSize: 7),
+                          style: const pw.TextStyle(fontSize: 6),
                           textAlign: pw.TextAlign.right,
                         ),
                       ),
@@ -245,14 +274,14 @@ class ReceiptService {
                         'TOTAL',
                         style: pw.TextStyle(
                           fontWeight: pw.FontWeight.bold,
-                          fontSize: 10,
+                          fontSize: 9,
                         ),
                       ),
                       pw.Text(
                         _currencyFormat.format(order.totalAmount),
                         style: pw.TextStyle(
                           fontWeight: pw.FontWeight.bold,
-                          fontSize: 10,
+                          fontSize: 9,
                         ),
                       ),
                     ],
@@ -262,12 +291,12 @@ class ReceiptService {
 
               pw.SizedBox(height: 20),
               pw.Text(
-                'THANK YOU FOR YOUR BUSINESS!',
-                style: const pw.TextStyle(fontSize: 8),
+                'Items bought are not returnable',
+                style: const pw.TextStyle(fontSize: 7),
               ),
               pw.Text(
-                'Please visit again.',
-                style: const pw.TextStyle(fontSize: 7),
+                'Please verify before leaving',
+                style: const pw.TextStyle(fontSize: 6),
               ),
             ],
           );
@@ -284,10 +313,10 @@ class ReceiptService {
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
         children: [
-          pw.Text(label, style: const pw.TextStyle(fontSize: 8)),
+          pw.Text(label, style: const pw.TextStyle(fontSize: 7)),
           pw.Text(
             value,
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 8),
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 7),
           ),
         ],
       ),

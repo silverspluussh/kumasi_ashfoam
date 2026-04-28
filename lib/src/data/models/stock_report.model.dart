@@ -21,18 +21,14 @@ class StockReportSummary {
   });
 
   factory StockReportSummary.fromMap(Map<String, dynamic> map) {
+    log(map["createdAt"].runtimeType.toString());
     return StockReportSummary(
       id: map['id']?.toString() ?? '',
       branchId:
           map['branchId']?.toString() ?? map['branch_id']?.toString() ?? '',
       branchName:
           map['branchName']?.toString() ?? map['branch_name']?.toString() ?? '',
-      createdAt: map['createdAt'] != null
-          ? DateTime.tryParse(map['createdAt'].toString()) ?? DateTime.now()
-          : (map['created_at'] != null
-                ? DateTime.tryParse(map['created_at'].toString()) ??
-                      DateTime.now()
-                : DateTime.now()),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
       createdBy:
           map['createdBy']?.toString() ?? map['created_by']?.toString() ?? '',
       currentStock: () {

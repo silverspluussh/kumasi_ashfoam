@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
-import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart' hide saleOrderItemsProvider;
+import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart'
+    hide saleOrderItemsProvider;
 import 'package:ashfoam_sadiq/src/features/pos/providers/receipt_service.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
 import 'package:ashfoam_sadiq/src/features/sales/widgets/order_details_dialog.dart';
+import 'package:ashfoam_sadiq/src/utils/date_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -100,31 +102,6 @@ class _SaleOrdersPageState extends ConsumerState<SaleOrdersPage> {
             ),
             const SizedBox(height: 24),
 
-            // Search Area
-            Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: FTextField(
-                      hint: 'Search by Order # or Customer...',
-                      prefixBuilder: (context, style, variants) =>
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Icon(Icons.search, size: 20),
-                          ),
-                      control: FTextFieldControl.managed(
-                        onChange: (v) {
-                          ref.read(salesSearchQueryProvider.notifier).state =
-                              v.text;
-                        },
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
             // Table Area
             Expanded(
               child: filteredOrdersAsync.when(
@@ -136,18 +113,17 @@ class _SaleOrdersPageState extends ConsumerState<SaleOrdersPage> {
                       Expanded(
                         child: SfDataGridTheme(
                           data: SfDataGridThemeData(
-                            headerColor: Colors.black,
-                            headerHoverColor: Colors.grey[900],
+                            headerColor: Colors.red,
+                            headerHoverColor: Colors.red[900],
                             gridLineColor: Colors.grey[300],
-                            rowHoverColor: Colors.grey[100],
-                            selectionColor: Colors.blue.withValues(alpha: 0.1),
+                            rowHoverColor: Colors.yellow[100],
+                            selectionColor: Colors.red.withValues(alpha: 0.1),
                           ),
                           child: SfDataGrid(
                             key: _key,
                             source: _dataGridSource,
                             columnWidthMode: ColumnWidthMode.fill,
-                            allowFiltering: true,
-                            allowSorting: true,
+
                             gridLinesVisibility: GridLinesVisibility.both,
                             headerGridLinesVisibility: GridLinesVisibility.both,
                             columns: _buildColumns(),
@@ -163,8 +139,8 @@ class _SaleOrdersPageState extends ConsumerState<SaleOrdersPage> {
                         height: 60,
                         child: SfDataPager(
                           delegate: _dataGridSource,
-                          pageCount: orders.isEmpty 
-                              ? 1 
+                          pageCount: orders.isEmpty
+                              ? 1
                               : (orders.length / rowsPerPage).ceilToDouble(),
                           direction: Axis.horizontal,
                         ),
@@ -198,6 +174,14 @@ class _SaleOrdersPageState extends ConsumerState<SaleOrdersPage> {
         ),
       ),
       GridColumn(
+        columnName: 'totalItems',
+        label: Container(
+          padding: const EdgeInsets.all(8.0),
+          alignment: Alignment.centerLeft,
+          child: Text('Total Items', style: headerStyle),
+        ),
+      ),
+      GridColumn(
         columnName: 'date',
         label: Container(
           padding: const EdgeInsets.all(8.0),
@@ -213,14 +197,7 @@ class _SaleOrdersPageState extends ConsumerState<SaleOrdersPage> {
           child: Text('Customer', style: headerStyle),
         ),
       ),
-      GridColumn(
-        columnName: 'branch',
-        label: Container(
-          padding: const EdgeInsets.all(8.0),
-          alignment: Alignment.centerLeft,
-          child: Text('Branch', style: headerStyle),
-        ),
-      ),
+
       GridColumn(
         columnName: 'amount',
         label: Container(
@@ -281,26 +258,25 @@ class SaleOrderDataGridSource extends DataGridSource {
 
   void _buildDataGridRows() {
     final currencyFormat = NumberFormat.currency(symbol: 'GH¢ ');
-    final dateFormat = DateFormat('dd/MM/yyyy HH:mm');
 
     _dataGridRows = _paginatedOrders.map<DataGridRow>((order) {
       return DataGridRow(
         cells: [
           DataGridCell<String>(columnName: 'orderNo', value: order.orderNumber),
           DataGridCell<String>(
+            columnName: 'totalItems',
+            value: order.totalQuantity.toString(),
+          ),
+
+          DataGridCell<String>(
             columnName: 'date',
-            value: order.createdAt != null
-                ? dateFormat.format(order.createdAt!)
-                : '-',
+            value: order.createdAt != null ? order.createdAt?.fullDate : '-',
           ),
           DataGridCell<String>(
             columnName: 'customer',
             value: order.customerName ?? 'Walk-in',
           ),
-          DataGridCell<String>(
-            columnName: 'branch',
-            value: order.branchName ?? 'Head Office',
-          ),
+
           DataGridCell<String>(
             columnName: 'amount',
             value: currencyFormat.format(order.totalAmount),
@@ -349,9 +325,16 @@ class SaleOrderDataGridSource extends DataGridSource {
                   final items = await container.read(
                     saleOrderItemsProvider(order.id).future,
                   );
-                  final company = await container.read(companySettingsProvider.future);
+                  final company = await container.read(
+                    companySettingsProvider.future,
+                  );
                   if (context.mounted) {
-                    ReceiptService.showPreview(context, order, items, company: company);
+                    ReceiptService.showPreview(
+                      context,
+                      order,
+                      items,
+                      company: company,
+                    );
                   }
                 },
               ),
@@ -366,7 +349,10 @@ class SaleOrderDataGridSource extends DataGridSource {
           padding: const EdgeInsets.all(10.0),
           child: isStatus
               ? _buildStatusChip(dataGridCell.value.toString())
-              : Text(dataGridCell.value.toString()),
+              : Text(
+                  dataGridCell.value.toString(),
+                  style: TextStyle(fontSize: 12),
+                ),
         );
       }).toList(),
     );

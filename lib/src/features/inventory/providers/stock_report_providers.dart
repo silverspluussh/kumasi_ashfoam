@@ -3,6 +3,7 @@ import 'package:ashfoam_sadiq/src/data/models/stock_report.model.dart';
 import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Provider to fetch all stock reports from local database
 final stockReportsListProvider = FutureProvider<List<StockReportSummary>>((
@@ -57,10 +58,17 @@ final filteredStockReportsProvider =
 final generateStockReportProvider = Provider((ref) {
   final dbService = ref.read(databaseServiceProvider);
   return ({required int month, required int year}) async {
+    final user = Supabase.instance.client.auth.currentUser;
+
+    final employeeName = user == null
+        ? 'User'
+        : await ref
+              .read(employeesRepositoryProvider)
+              .fetchFirstNameByAuthId(user.id);
     await dbService.generateMonthlyStockReport(
       month: month,
       year: year,
-      createdBy: 'Local Admin',
+      createdBy: employeeName ?? 'User',
     );
     // Invalidate the list to trigger a refresh
     ref.invalidate(stockReportsListProvider);

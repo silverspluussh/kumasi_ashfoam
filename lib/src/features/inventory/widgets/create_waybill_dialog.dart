@@ -25,7 +25,7 @@ class _CreateWaybillDialogState extends ConsumerState<CreateWaybillDialog> {
   final _orderNoController = TextEditingController();
   final _dispatchDocController = TextEditingController();
   final _deliveryNoteController = TextEditingController();
-  final _senderNameController = TextEditingController(text: "Kumasi Ashfoam");
+  final _senderNameController = TextEditingController();
   final _destinationController = TextEditingController();
   final _partyNameController = TextEditingController();
 

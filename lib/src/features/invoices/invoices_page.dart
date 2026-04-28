@@ -1,4 +1,5 @@
-import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart' show InvoiceModel, InvoiceStatus;
+import 'package:ashfoam_sadiq/src/data/models/invoice.model.dart'
+    show InvoiceModel, InvoiceStatus;
 import 'package:ashfoam_sadiq/src/features/invoices/providers/invoice_providers.dart';
 import 'package:ashfoam_sadiq/src/features/invoices/widgets/invoice_details_dialog.dart';
 import 'package:flutter/material.dart';
@@ -36,28 +37,29 @@ class _InvoicesViewState extends ConsumerState<InvoicesView> {
             _buildHeader(context),
             const SizedBox(height: 20),
             Expanded(
-              child: FCard(
-                child: invoicesAsync.when(
-                  data: (invoices) {
-                    _dataGridSource.updateInvoices(invoices);
-                    return SfDataGridTheme(
-                      data: SfDataGridThemeData(
-                        headerColor: Colors.black,
-                        gridLineColor: Colors.grey[200],
-                      ),
-                      child: SfDataGrid(
-                        source: _dataGridSource,
-                        columnWidthMode: ColumnWidthMode.fill,
-                        allowSorting: true,
-                        gridLinesVisibility: GridLinesVisibility.both,
-                        headerGridLinesVisibility: GridLinesVisibility.both,
-                        columns: _buildColumns(),
-                      ),
-                    );
-                  },
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: $err')),
-                ),
+              child: invoicesAsync.when(
+                data: (invoices) {
+                  _dataGridSource.updateInvoices(invoices);
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(
+                      headerColor: Colors.red,
+                      headerHoverColor: Colors.red[900],
+                      gridLineColor: Colors.grey[300],
+                      rowHoverColor: Colors.yellow[100],
+                      selectionColor: Colors.red.withValues(alpha: 0.1),
+                    ),
+                    child: SfDataGrid(
+                      source: _dataGridSource,
+                      columnWidthMode: ColumnWidthMode.fill,
+                      allowSorting: false,
+                      gridLinesVisibility: GridLinesVisibility.both,
+                      headerGridLinesVisibility: GridLinesVisibility.both,
+                      columns: _buildColumns(),
+                    ),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ],
@@ -76,15 +78,15 @@ class _InvoicesViewState extends ConsumerState<InvoicesView> {
             Text(
               "Invoices",
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             Text(
               "Track billing and payment status for all records",
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
@@ -100,7 +102,8 @@ class _InvoicesViewState extends ConsumerState<InvoicesView> {
                 ),
                 control: FTextFieldControl.managed(
                   onChange: (v) {
-                    ref.read(invoiceSearchQueryProvider.notifier).state = v.text;
+                    ref.read(invoiceSearchQueryProvider.notifier).state =
+                        v.text;
                   },
                 ),
               ),
@@ -172,7 +175,10 @@ class _InvoicesViewState extends ConsumerState<InvoicesView> {
 
 class InvoiceDataGridSource extends DataGridSource {
   final WidgetRef ref;
-  InvoiceDataGridSource({required List<InvoiceModel> invoices, required this.ref}) {
+  InvoiceDataGridSource({
+    required List<InvoiceModel> invoices,
+    required this.ref,
+  }) {
     _invoices = invoices;
     _buildDataGridRows();
   }
@@ -190,7 +196,10 @@ class InvoiceDataGridSource extends DataGridSource {
     _dataGridRows = _invoices.map<DataGridRow>((i) {
       return DataGridRow(
         cells: [
-          DataGridCell<String>(columnName: 'customer', value: i.customerName ?? 'Walk-in Client'),
+          DataGridCell<String>(
+            columnName: 'customer',
+            value: i.customerName ?? 'Walk-in Client',
+          ),
           DataGridCell<double>(columnName: 'total', value: i.totalAmount),
           DataGridCell<double>(columnName: 'balance', value: i.balanceDue),
           DataGridCell<DateTime>(columnName: 'dueDate', value: i.dueDate),
@@ -213,9 +222,13 @@ class InvoiceDataGridSource extends DataGridSource {
         Widget? customWidget;
 
         if (dataGridCell.value is DateTime) {
-          value = DateFormat('MMM dd, yyyy').format(dataGridCell.value as DateTime);
+          value = DateFormat(
+            'MMM dd, yyyy',
+          ).format(dataGridCell.value as DateTime);
         } else if (dataGridCell.value is double) {
-          value = NumberFormat.currency(symbol: 'GH₵ ').format(dataGridCell.value);
+          value = NumberFormat.currency(
+            symbol: 'GH₵ ',
+          ).format(dataGridCell.value);
           alignment = Alignment.centerRight;
         } else if (dataGridCell.value is InvoiceStatus) {
           final status = dataGridCell.value as InvoiceStatus;
@@ -231,12 +244,18 @@ class InvoiceDataGridSource extends DataGridSource {
         return Container(
           alignment: alignment,
           padding: const EdgeInsets.all(12.0),
-          child: customWidget ??
+          child:
+              customWidget ??
               Text(
                 value,
                 overflow: TextOverflow.ellipsis,
-                style: dataGridCell.columnName == 'balance' && (row.getCells()[2].value as double) > 0
-                    ? const TextStyle(fontWeight: FontWeight.bold, color: Colors.red)
+                style:
+                    dataGridCell.columnName == 'balance' &&
+                        (row.getCells()[2].value as double) > 0
+                    ? const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red,
+                      )
                     : null,
               ),
         );

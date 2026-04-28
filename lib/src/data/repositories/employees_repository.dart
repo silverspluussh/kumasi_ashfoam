@@ -38,4 +38,15 @@ class EmployeesRepository {
         
     return List<Map<String, dynamic>>.from(response);
   }
+
+  /// Fetch employee's first name by their auth ID
+  Future<String?> fetchFirstNameByAuthId(String authId) async {
+    final response = await supabase
+        .from('ashfoam_employees')
+        .select('first_name')
+        .eq('id', authId)
+        .maybeSingle();
+        
+    return response?['first_name'] as String?;
+  }
 }

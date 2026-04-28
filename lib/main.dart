@@ -29,7 +29,7 @@ class MainApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sessionAsync = ref.watch(authStateProvider);
 
-    final theme = FThemes.blue.light.desktop.copyWith(
+    final theme = FThemes.yellow.light.desktop.copyWith(
       cardStyle: FCardStyleDelta.delta(
         decoration: DecorationDelta.boxDelta(
           border: Border.all(width: 1, color: Colors.grey),
@@ -39,6 +39,7 @@ class MainApp extends ConsumerWidget {
 
     return ToastificationWrapper(
       child: MaterialApp(
+        title: 'Ashfoam CRM',
         supportedLocales: FLocalizations.supportedLocales,
         localizationsDelegates: const [
           ...FLocalizations.localizationsDelegates,

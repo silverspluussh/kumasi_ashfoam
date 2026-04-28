@@ -3,6 +3,7 @@ import 'package:ashfoam_sadiq/src/data/local/app_database.dart'
 import 'package:ashfoam_sadiq/src/data/providers/database_providers.dart'
     hide saleOrdersProvider;
 import 'package:ashfoam_sadiq/src/features/inventory/providers/inventory_providers.dart';
+import 'package:ashfoam_sadiq/src/features/inventory/providers/proforma_providers.dart';
 import 'package:ashfoam_sadiq/src/features/sales/providers/sales_providers.dart';
 import 'package:drift/drift.dart' hide Column;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +11,7 @@ import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:uuid/uuid.dart';
+import 'package:ashfoam_sadiq/src/features/auth/providers/auth_provider.dart';
 import 'package:ashfoam_sadiq/src/features/pos/models/pos_state.dart';
 
 /// Provider for inventory products (fetched once)
@@ -89,7 +91,7 @@ class CartNotifier extends Notifier<List<SaleOrderItem>> {
       discountAmount:
           (currentItem.rate * currentItem.quantity) *
           (currentItem.discountPercentage / 100),
-      taxAmount: currentItem.subtotal * 0.15, // Simple VAT calculation for item
+      taxAmount: _calculateItemTax(currentItem.subtotal),
     );
 
     // Check if item already exists in cart, then update or add
@@ -123,12 +125,27 @@ class CartNotifier extends Notifier<List<SaleOrderItem>> {
   double get subtotal => state.fold(0.0, (sum, item) => sum + item.totalPrice);
   double get totalDiscount =>
       state.fold(0.0, (sum, item) => sum + item.discountAmount);
-  int get totalQuantity => state.fold(0, (sum, item) => sum + item.quantity);
+  double get totalQuantity => state.fold(0, (sum, item) => sum + item.quantity);
+
+  double _calculateItemTax(double subtotal) {
+    final taxesAsync = ref.read(allTaxesProvider);
+    final taxes = taxesAsync.value ?? [];
+    if (taxes.isEmpty) return 0.0;
+
+    final totalTaxPercentage = taxes.fold(
+      0.0,
+      (sum, tax) => sum + tax.valuePercentage,
+    );
+    final baseAmount = subtotal / (1 + totalTaxPercentage / 100);
+    return subtotal - baseAmount;
+  }
 }
 
 /// Provider for cart summary totals
 final cartSummaryProvider = Provider((ref) {
   final items = ref.watch(cartProvider);
+  final taxesAsync = ref.watch(allTaxesProvider);
+
   final subtotal = items.fold(0.0, (sum, item) => sum + (item.totalPrice));
   final totalDiscount = items.fold(
     0.0,
@@ -136,15 +153,38 @@ final cartSummaryProvider = Provider((ref) {
   );
   final totalQuantity = items.fold(0, (sum, item) => sum + item.quantity);
 
-  final vatAmount = subtotal * 0.15;
-  final grandTotal = subtotal + vatAmount;
+  final taxes = taxesAsync.value ?? [];
+  final totalTaxPercentage = taxes.fold(
+    0.0,
+    (sum, tax) => sum + tax.valuePercentage,
+  );
+
+  // Tax included formula: Base = Total / (1 + Rate)
+  final baseAmount = subtotal / (1 + totalTaxPercentage / 100);
+
+  final taxDetails = taxes.map((tax) {
+    return {
+      'name': tax.name,
+      'percentage': tax.valuePercentage,
+      'amount': baseAmount * (tax.valuePercentage / 100),
+    };
+  }).toList();
+
+  final totalTaxAmount = taxDetails.fold(
+    0.0,
+    (sum, tax) => sum + (tax['amount'] as double),
+  );
+
+  // Since taxes are already included in the selling price, grandTotal is subtotal
+  final grandTotal = subtotal;
 
   return {
     'subtotal': subtotal,
     'totalDiscount': totalDiscount,
     'totalQuantity': totalQuantity,
-    'vatAmount': vatAmount,
+    'vatAmount': totalTaxAmount, // For backward compatibility
     'grandTotal': grandTotal,
+    'taxes': taxDetails,
   };
 });
 
@@ -165,6 +205,7 @@ class CreatePOSOrderNotifier extends Notifier<AsyncValue<void>> {
     required String customerPhone,
     required String paymentMethod,
     required String channel,
+    String? createdByManual,
     bool createInvoice = false,
   }) async {
     state = const AsyncValue.loading();
@@ -184,6 +225,21 @@ class CreatePOSOrderNotifier extends Notifier<AsyncValue<void>> {
           'ORD-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}';
       final now = DateTime.now();
 
+      String createdBy = 'User';
+      if (createdByManual != null && createdByManual.trim().isNotEmpty) {
+        createdBy = createdByManual.trim();
+      } else {
+        final user = ref.read(userProvider);
+        if (user != null) {
+          final employeeName = await ref
+              .read(employeesRepositoryProvider)
+              .fetchFirstNameByAuthId(user.id);
+          if (employeeName != null) {
+            createdBy = employeeName;
+          }
+        }
+      }
+
       // 1. Create Sale Order Companion
       final orderCompanion = SaleOrdersCompanion(
         id: Value(orderId),
@@ -195,7 +251,7 @@ class CreatePOSOrderNotifier extends Notifier<AsyncValue<void>> {
         totalQuantity: Value(summary['totalQuantity'] as int),
         taxAmount: Value(summary['vatAmount'] as double),
         status: const Value('Paid'),
-        createdBy: const Value('User'),
+        createdBy: Value(createdBy),
         lastSyncedAt: Value(now),
         createdAt: Value(now),
       );

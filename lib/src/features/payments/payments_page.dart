@@ -85,29 +85,29 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
             _buildHeader(context),
             const SizedBox(height: 20),
             Expanded(
-              child: FCard(
-                child: paymentsAsync.when(
-                  data: (payments) {
-                    _dataGridSource.updatePayments(payments);
-                    return SfDataGridTheme(
-                      data: SfDataGridThemeData(
-                        headerColor: Colors.black,
-                        gridLineColor: Colors.grey[200],
-                      ),
-                      child: SfDataGrid(
-                        source: _dataGridSource,
-                        columnWidthMode: ColumnWidthMode.fill,
-                        allowSorting: true,
-                        gridLinesVisibility: GridLinesVisibility.both,
-                        headerGridLinesVisibility: GridLinesVisibility.both,
-                        columns: _buildColumns(),
-                      ),
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: $err')),
-                ),
+              child: paymentsAsync.when(
+                data: (payments) {
+                  _dataGridSource.updatePayments(payments);
+                  return SfDataGridTheme(
+                    data: SfDataGridThemeData(
+                      headerColor: Colors.red,
+                      headerHoverColor: Colors.red[900],
+                      gridLineColor: Colors.grey[300],
+                      rowHoverColor: Colors.yellow[100],
+                      selectionColor: Colors.red.withValues(alpha: 0.1),
+                    ),
+                    child: SfDataGrid(
+                      source: _dataGridSource,
+                      columnWidthMode: ColumnWidthMode.fill,
+                      allowSorting: false,
+                      gridLinesVisibility: GridLinesVisibility.both,
+                      headerGridLinesVisibility: GridLinesVisibility.both,
+                      columns: _buildColumns(),
+                    ),
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ],
@@ -131,17 +131,18 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
               ),
             ),
             Text(
-              "Manage and track branch-level payments",
+              "Manage payments",
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
+        SizedBox(width: 10),
         Row(
           children: [
             SizedBox(
-              width: 300,
+              width: 150,
               child: FTextField(
                 hint: "Search payments or branches...",
                 prefixBuilder: (context, style, variants) => const Padding(
@@ -166,7 +167,7 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
             FButton(
               onPress: _showAddPaymentDialog,
               prefix: const Icon(Icons.add),
-              child: const Text("Add New Payment"),
+              child: const Text("Add New"),
             ),
           ],
         ),
@@ -177,7 +178,8 @@ class _PaymentsPageState extends ConsumerState<PaymentsPage> {
   List<GridColumn> _buildColumns() {
     final headerStyle = const TextStyle(
       color: Colors.white,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
+      fontSize: 14,
     );
 
     return [
@@ -276,10 +278,15 @@ class PaymentDataGridSource extends DataGridSource {
             overflow: TextOverflow.ellipsis,
             style: dataGridCell.columnName == 'amount'
                 ? const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
                     color: Colors.green,
                   )
-                : null,
+                : const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                  ),
           ),
         );
       }).toList(),

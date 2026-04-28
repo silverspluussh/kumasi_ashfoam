@@ -47,55 +47,57 @@ class _WaybillPageState extends ConsumerState<WaybillPage> {
             _buildHeader(context),
             const SizedBox(height: 20),
             Expanded(
-              child: FCard(
-                child: waybillsAsync.when(
-                  data: (waybills) {
-                    _dataGridSource.updateContext(context);
-                    _dataGridSource.updateWaybills(waybills);
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        final height = constraints.maxHeight.isFinite
-                            ? constraints.maxHeight
-                            : MediaQuery.sizeOf(context).height;
-                        return Column(
-                          children: [
-                            SizedBox(
-                              height: height - 190,
-                              child: SfDataGridTheme(
-                                data: SfDataGridThemeData(
-                                  headerColor: Colors.black,
-                                  gridLineColor: Colors.grey[200],
-                                ),
-                                child: SfDataGrid(
-                                  source: _dataGridSource,
-                                  columnWidthMode: ColumnWidthMode.fill,
-                                  allowSorting: true,
-                                  gridLinesVisibility: GridLinesVisibility.both,
-                                  headerGridLinesVisibility:
-                                      GridLinesVisibility.both,
-                                  columns: _buildColumns(),
+              child: waybillsAsync.when(
+                data: (waybills) {
+                  _dataGridSource.updateContext(context);
+                  _dataGridSource.updateWaybills(waybills);
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final height = constraints.maxHeight.isFinite
+                          ? constraints.maxHeight
+                          : MediaQuery.sizeOf(context).height;
+                      return Column(
+                        children: [
+                          SizedBox(
+                            height: height - 190,
+                            child: SfDataGridTheme(
+                              data: SfDataGridThemeData(
+                                headerColor: Colors.red,
+                                headerHoverColor: Colors.red[900],
+                                gridLineColor: Colors.grey[300],
+                                rowHoverColor: Colors.yellow[100],
+                                selectionColor: Colors.red.withValues(
+                                  alpha: 0.1,
                                 ),
                               ),
+                              child: SfDataGrid(
+                                source: _dataGridSource,
+                                columnWidthMode: ColumnWidthMode.fill,
+                                allowSorting: false,
+                                gridLinesVisibility: GridLinesVisibility.both,
+                                headerGridLinesVisibility:
+                                    GridLinesVisibility.both,
+                                columns: _buildColumns(),
+                              ),
                             ),
-                            const Divider(height: 1),
-                            SfDataPager(
-                              delegate: _dataGridSource,
-                              pageCount: waybills.isEmpty
-                                  ? 1
-                                  : (waybills.length /
-                                            _dataGridSource.rowsPerPage)
-                                        .ceilToDouble(),
-                              direction: Axis.horizontal,
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: $err')),
-                ),
+                          ),
+                          const Divider(height: 1),
+                          SfDataPager(
+                            delegate: _dataGridSource,
+                            pageCount: waybills.isEmpty
+                                ? 1
+                                : (waybills.length /
+                                          _dataGridSource.rowsPerPage)
+                                      .ceilToDouble(),
+                            direction: Axis.horizontal,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ],
@@ -119,17 +121,18 @@ class _WaybillPageState extends ConsumerState<WaybillPage> {
               ),
             ),
             Text(
-              "Track and manage product dispatches and delivery notes",
+              "Manage and dispatch products to clients",
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
+        const SizedBox(width: 10),
         Row(
           children: [
             SizedBox(
-              width: 300,
+              width: 150,
               child: FTextField(
                 hint: "Search by Order # or Client...",
                 prefixBuilder: (context, style, variants) => const Padding(
@@ -160,6 +163,7 @@ class _WaybillPageState extends ConsumerState<WaybillPage> {
     final headerStyle = const TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
+      fontSize: 14,
     );
 
     return [
@@ -317,7 +321,9 @@ class WaybillDataGridSource extends DataGridSource {
                       final items = await ref.read(
                         waybillItemsProvider(waybill.id).future,
                       );
-                      final company = await ref.read(companySettingsProvider.future);
+                      final company = await ref.read(
+                        companySettingsProvider.future,
+                      );
                       if (_context!.mounted) {
                         await WaybillPrintService.showPreview(
                           context: _context!,
@@ -348,6 +354,11 @@ class WaybillDataGridSource extends DataGridSource {
           child: Text(
             dataGridCell.value.toString(),
             overflow: TextOverflow.ellipsis,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.normal,
+              color: Colors.black,
+            ),
           ),
         );
       }).toList(),

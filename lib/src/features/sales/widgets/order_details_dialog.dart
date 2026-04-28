@@ -20,7 +20,7 @@ class OrderDetailsDialog extends ConsumerWidget {
     final currencyFormat = NumberFormat.currency(symbol: 'GH¢ ');
 
     return FDialog(
-      direction: Axis.vertical,
+      direction: Axis.horizontal,
       title: Text('Order Details - ${order.orderNumber}'),
       body: SizedBox(
         width: 600,
@@ -29,18 +29,15 @@ class OrderDetailsDialog extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Metadata Section
-            FCard(
-              child: Column(
-                children: [
-                  _buildDetailRow('Customer', order.customerName ?? 'Walk-in'),
-                  _buildDetailRow(
-                    'Date',
-                    dateFormat.format(order.createdAt ?? DateTime.now()),
-                  ),
-                ],
-              ),
+            _buildDetailRow('Customer', order.customerName ?? 'Walk-in'),
+            _buildDetailRow(
+              'Date Created',
+              dateFormat.format(order.createdAt ?? DateTime.now()),
             ),
+            _buildDetailRow('Order Number', order.orderNumber.toString()),
+            _buildDetailRow('Total Quantity', order.totalQuantity.toString()),
             const SizedBox(height: 10),
+            Divider(),
 
             const Text(
               'Order Items',
@@ -72,14 +69,20 @@ class OrderDetailsDialog extends ConsumerWidget {
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               'Product',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                             ),
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               'Qty',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                               textAlign: TextAlign.center,
                             ),
                           ),
@@ -87,7 +90,10 @@ class OrderDetailsDialog extends ConsumerWidget {
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               'Rate',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                               textAlign: TextAlign.right,
                             ),
                           ),
@@ -95,7 +101,10 @@ class OrderDetailsDialog extends ConsumerWidget {
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               'Total',
-                              style: TextStyle(fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
                               textAlign: TextAlign.right,
                             ),
                           ),
@@ -113,6 +122,10 @@ class OrderDetailsDialog extends ConsumerWidget {
                               child: Text(
                                 item.quantity.toString(),
                                 textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                             Padding(
@@ -120,6 +133,10 @@ class OrderDetailsDialog extends ConsumerWidget {
                               child: Text(
                                 currencyFormat.format(item.unitPrice),
                                 textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                             Padding(
@@ -127,6 +144,10 @@ class OrderDetailsDialog extends ConsumerWidget {
                               child: Text(
                                 currencyFormat.format(item.totalPrice),
                                 textAlign: TextAlign.right,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ],
@@ -152,8 +173,9 @@ class OrderDetailsDialog extends ConsumerWidget {
                     Text(
                       'Total Amount: ${currencyFormat.format(order.totalAmount)}',
                       style: const TextStyle(
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w500,
                         fontSize: 18,
+                        color: Colors.black,
                       ),
                     ),
                   ],
@@ -197,13 +219,17 @@ class OrderDetailsDialog extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+          Text(label, style: TextStyle(color: Colors.black, fontSize: 12)),
           if (isStatus)
             _buildStatusChip(value)
           else
             Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+                fontSize: 14,
+              ),
             ),
         ],
       ),

@@ -1,5 +1,4 @@
 import 'package:ashfoam_sadiq/src/data/models/company.model.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class PdfHelper {
@@ -55,7 +54,7 @@ class PdfHelper {
         children: [
           pw.Text(
             'KUMASI ASHFOAM',
-            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14),
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12),
           ),
           pw.SizedBox(height: 2),
           pw.Text(
@@ -71,34 +70,39 @@ class PdfHelper {
       children: [
         pw.Text(
           company.name,
-          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14),
+          style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
           textAlign: pw.TextAlign.center,
         ),
         if (company.postalAddress != null && company.postalAddress!.isNotEmpty)
           pw.Text(
             company.postalAddress!,
-            style: const pw.TextStyle(fontSize: 8),
+            style: const pw.TextStyle(fontSize: 7),
             textAlign: pw.TextAlign.center,
           ),
         if (company.commercialAddress != null &&
             company.commercialAddress!.isNotEmpty)
           pw.Text(
             company.commercialAddress!,
-            style: const pw.TextStyle(fontSize: 8),
+            style: const pw.TextStyle(fontSize: 7),
             textAlign: pw.TextAlign.center,
           ),
         if (company.phonePrimary != null && company.phonePrimary!.isNotEmpty)
           pw.Text(
             'Tel: ${company.phonePrimary}',
-            style: const pw.TextStyle(fontSize: 8),
+            style: const pw.TextStyle(fontSize: 7),
             textAlign: pw.TextAlign.center,
           ),
         if (company.email != null && company.email!.isNotEmpty)
           pw.Text(
             'Email: ${company.email}',
-            style: const pw.TextStyle(fontSize: 8),
+            style: const pw.TextStyle(fontSize: 7),
             textAlign: pw.TextAlign.center,
           ),
+        pw.Text(
+          'VAT INVOICE (VAT Reg Num: C0002718510)',
+          style: const pw.TextStyle(fontSize: 7),
+          textAlign: pw.TextAlign.center,
+        ),
       ],
     );
   }

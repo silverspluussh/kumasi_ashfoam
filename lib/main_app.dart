@@ -11,6 +11,7 @@ import 'package:ashfoam_sadiq/src/features/sales/sale_orders_page.dart';
 import 'package:ashfoam_sadiq/src/features/settings/settings_page.dart';
 import 'package:ashfoam_sadiq/src/features/summary/summary_page.dart';
 import 'package:ashfoam_sadiq/src/features/auth/providers/auth_provider.dart';
+import 'package:ashfoam_sadiq/src/core/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:forui/forui.dart';
@@ -28,27 +29,81 @@ ValueNotifier<int> selectedIndex = ValueNotifier(0);
 class _StarterAppState extends ConsumerState<StarterApp> {
   @override
   Widget build(BuildContext context) {
+    final isTabletView = MediaQuery.of(context).size.width < 1280;
+    final fstyle = FSidebarItemStyleDelta.delta(
+      backgroundColor: FVariants.from(
+        // base (default if no variants match)
+        Colors.transparent,
+        variants: {},
+      ),
+    );
     return FScaffold(
       scaffoldStyle: FScaffoldStyleDelta.delta(
         backgroundColor: Colors.grey.shade50,
       ),
       sidebar: ValueListenableBuilder(
-        valueListenable: isExpanded,
+        valueListenable: isTabletView ? ValueNotifier(false) : isExpanded,
         builder: (context, value, child) {
+          if (isTabletView) {
+            isExpanded.value = false;
+          } else {
+            isExpanded.value = true;
+          }
           return Container(
-            constraints: BoxConstraints(maxWidth: isExpanded.value ? 230 : 80),
+            constraints: BoxConstraints(maxWidth: isExpanded.value ? 230 : 90),
             child: FSidebar(
               style: FSidebarStyleDelta.delta(
                 headerPadding: EdgeInsetsGeometryDelta.value(
-                  EdgeInsetsGeometry.fromLTRB(0, 16, 0, 0),
+                  const EdgeInsets.fromLTRB(0, 16, 0, 0),
                 ),
-                decoration: DecorationDelta.boxDelta(
-                  color: Colors.amber.withValues(alpha: 0.01),
-                ),
+                decoration: DecorationDelta.boxDelta(color: AppColors.yellow13),
               ),
 
-              header: FHeader(
-                title: isExpanded.value ? Text("ASHFOAM") : SizedBox.shrink(),
+              header: FHeader(title: Image.asset("assets/ashfoam_logo.png")),
+              footer: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 15,
+                  vertical: 0,
+                ),
+                child: FSidebarItem(
+                  style: fstyle,
+                  icon: const Icon(Icons.logout),
+                  label: isExpanded.value ? const Text("Logout") : null,
+                  onPress: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => FDialog(
+                        direction: Axis.horizontal,
+                        title: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: const Text("Logout"),
+                        ),
+                        body: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 0,
+                          ),
+                          child: const Text("Are you sure you want to logout?"),
+                        ),
+
+                        actions: [
+                          FButton(
+                            variant: FButtonVariant.outline,
+                            onPress: () => Navigator.pop(context),
+                            child: const Text("Cancel"),
+                          ),
+                          FButton(
+                            onPress: () {
+                              Navigator.pop(context);
+                              ref.read(authNotifierProvider.notifier).signOut();
+                            },
+                            child: const Text("Logout"),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
               children: [
                 FSidebarGroup(
@@ -74,16 +129,22 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                         label: "Sale Orders",
                         chren: [
                           FSidebarItem(
+                            style: fstyle,
                             icon: Icon(FIcons.list),
-                            label: isExpanded.value ? Text("POS Sales") : null,
+                            label: isExpanded.value
+                                ? const Text("POS Sales")
+                                : null,
                             onPress: () {
                               selectedIndex.value = 2;
                               // Handle navigation to Home
                             },
                           ),
                           FSidebarItem(
+                            style: fstyle,
                             icon: Icon(FIcons.fileCheck),
-                            label: isExpanded.value ? Text("Invoices") : null,
+                            label: isExpanded.value
+                                ? const Text("Invoices")
+                                : null,
                             onPress: () {
                               selectedIndex.value = 3;
                               // Handle navigation to Home
@@ -98,8 +159,11 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
+                          style: fstyle,
                           icon: Icon(FIcons.list),
-                          label: isExpanded.value ? Text("POS Sales") : null,
+                          label: isExpanded.value
+                              ? const Text("POS Sales")
+                              : null,
                           onPress: () {
                             selectedIndex.value = 2;
                             // Handle navigation to Home
@@ -109,8 +173,11 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
+                          style: fstyle,
                           icon: Icon(FIcons.fileCheck),
-                          label: isExpanded.value ? Text("Invoices") : null,
+                          label: isExpanded.value
+                              ? const Text("Invoices")
+                              : null,
                           onPress: () {
                             // Handle navigation to Home
                             selectedIndex.value = 3;
@@ -128,17 +195,21 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                         },
                         chren: [
                           FSidebarItem(
+                            style: fstyle,
                             icon: Icon(FIcons.boxes),
-                            label: isExpanded.value ? Text("Products") : null,
+                            label: isExpanded.value
+                                ? const Text("Products")
+                                : null,
                             onPress: () {
                               selectedIndex.value = 4;
                               // Handle navigation to Home
                             },
                           ),
                           FSidebarItem(
-                            icon: Icon(FIcons.warehouse),
+                            style: fstyle,
+                            icon: Icon(FIcons.chartBarBig),
                             label: isExpanded.value
-                                ? Text("Stock Reports")
+                                ? const Text("Stock Reports")
                                 : null,
                             onPress: () {
                               // Handle navigation to Home
@@ -146,7 +217,8 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                             },
                           ),
                           FSidebarItem(
-                            icon: const Icon(Icons.tune),
+                            style: fstyle,
+                            icon: Icon(Icons.tune),
                             label: isExpanded.value
                                 ? const Text("Stock Adjustment")
                                 : null,
@@ -160,8 +232,11 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
+                          style: fstyle,
                           icon: Icon(FIcons.boxes),
-                          label: isExpanded.value ? Text("Products") : null,
+                          label: isExpanded.value
+                              ? const Text("Products")
+                              : null,
                           onPress: () {
                             // Handle navigation to Home
                             selectedIndex.value = 4;
@@ -171,9 +246,10 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
-                          icon: Icon(FIcons.warehouse),
+                          style: fstyle,
+                          icon: Icon(FIcons.chartBarBig),
                           label: isExpanded.value
-                              ? Text("Stock Reports")
+                              ? const Text("Stock Reports")
                               : null,
                           onPress: () {
                             // Handle navigation to Home
@@ -184,6 +260,7 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
+                          style: fstyle,
                           icon: const Icon(Icons.tune),
                           label: isExpanded.value
                               ? const Text("Stock Adjustment")
@@ -197,7 +274,7 @@ class _StarterAppState extends ConsumerState<StarterApp> {
 
                     if (isExpanded.value)
                       _sidebarItem(
-                        icon: FIcons.currency,
+                        icon: Icons.payment,
                         label: "Payments",
                         action: () {
                           // Handle navigation to Home
@@ -208,8 +285,12 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       Padding(
                         padding: const EdgeInsets.all(10.0),
                         child: FSidebarItem(
-                          icon: Icon(FIcons.currency),
-                          label: isExpanded.value ? Text("All Payments") : null,
+                          style: fstyle,
+                          icon: Icon(Icons.payment),
+
+                          label: isExpanded.value
+                              ? const Text("All Payments")
+                              : null,
                           onPress: () {
                             // Handle navigation to Home
                             selectedIndex.value = 7;
@@ -219,7 +300,7 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                     ],
 
                     _sidebarItem(
-                      icon: FIcons.receipt,
+                      icon: FIcons.fileBraces,
                       label: "Profomas",
                       action: () {
                         selectedIndex.value = 9;
@@ -234,35 +315,61 @@ class _StarterAppState extends ConsumerState<StarterApp> {
                       },
                     ),
 
-                    _sidebarItem(
-                      icon: FIcons.settings,
-                      label: "Settings",
-                      action: () {
-                        selectedIndex.value = 10;
-                        // Handle navigation to Settings
-                      },
-                      chren: isExpanded.value
-                          ? [
-                              FSidebarItem(
-                                icon: Icon(FIcons.list),
-                                label: const Text("Brands & Categories"),
-                                onPress: () {
-                                  selectedIndex.value = 12;
-                                },
-                              ),
-                            ]
-                          : [],
-                    ),
+                    if (isExpanded.value == false) ...[
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          style: fstyle,
+                          icon: Icon(FIcons.settings),
+                          label: isExpanded.value
+                              ? const Text("Settings")
+                              : null,
+                          onPress: () {
+                            // Handle navigation to Home
+                            selectedIndex.value = 10;
+                          },
+                        ),
+                      ),
+                      //brands and categories
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: FSidebarItem(
+                          style: fstyle,
+                          icon: Icon(FIcons.list),
+                          label: isExpanded.value
+                              ? const Text("Brands & Categories")
+                              : null,
+                          onPress: () {
+                            // Handle navigation to Home
+                            selectedIndex.value = 12;
+                          },
+                        ),
+                      ),
+                    ],
+                    if (isExpanded.value)
+                      _sidebarItem(
+                        icon: FIcons.settings,
+                        label: "Settings",
+                        action: () {
+                          selectedIndex.value = 10;
+                          // Handle navigation to Settings
+                        },
+                        chren: isExpanded.value
+                            ? [
+                                FSidebarItem(
+                                  style: fstyle,
+                                  icon: Icon(FIcons.list),
+                                  label: const Text("Brands & Categories"),
+                                  onPress: () {
+                                    selectedIndex.value = 12;
+                                  },
+                                ),
+                              ]
+                            : [],
+                      ),
                   ],
                 ),
               ],
-              footer: FSidebarItem(
-                icon: const Icon(Icons.logout, color: Colors.red),
-                label: isExpanded.value ? const Text("Logout", style: TextStyle(color: Colors.red)) : null,
-                onPress: () {
-                  ref.read(authNotifierProvider.notifier).signOut();
-                },
-              ),
             ),
           );
         },
@@ -313,6 +420,13 @@ class _StarterAppState extends ConsumerState<StarterApp> {
   }) => Padding(
     padding: const EdgeInsets.all(10.0),
     child: FSidebarItem(
+      style: FSidebarItemStyleDelta.delta(
+        backgroundColor: FVariants.from(
+          // base (default if no variants match)
+          Colors.transparent,
+          variants: {},
+        ),
+      ),
       icon: Icon(icon),
       label: isExpanded.value ? Text(label) : null,
       onPress: action,

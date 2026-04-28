@@ -167,7 +167,7 @@ class _CompanySettingsCardState extends ConsumerState<CompanySettingsCard> {
 
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
       child: Row(
         children: [
           Icon(icon, size: 16, color: Colors.grey[600]),

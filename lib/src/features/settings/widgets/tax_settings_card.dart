@@ -15,7 +15,9 @@ class TaxSettingsCard extends ConsumerWidget {
 
     return FCard(
       title: const Text("Tax Management"),
-      subtitle: const Text("Configure tax rates used for invoices and receipts."),
+      subtitle: const Text(
+        "Configure tax rates used for invoices and receipts.",
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -28,11 +30,16 @@ class TaxSettingsCard extends ConsumerWidget {
                     padding: const EdgeInsets.all(24.0),
                     child: Column(
                       children: [
-                        Icon(Icons.receipt_long_outlined,
-                            size: 48, color: Colors.grey[300]),
+                        Icon(
+                          Icons.receipt_long_outlined,
+                          size: 48,
+                          color: Colors.grey[300],
+                        ),
                         const SizedBox(height: 12),
-                        const Text("No taxes configured",
-                            style: TextStyle(color: Colors.grey)),
+                        const Text(
+                          "No taxes configured",
+                          style: TextStyle(color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
@@ -60,8 +67,9 @@ class TaxSettingsCard extends ConsumerWidget {
 
   void _showTaxDialog(BuildContext context, WidgetRef ref, [TaxModel? tax]) {
     final nameController = TextEditingController(text: tax?.name);
-    final percentController =
-        TextEditingController(text: tax?.valuePercentage.toString());
+    final percentController = TextEditingController(
+      text: tax?.valuePercentage.toString(),
+    );
 
     showDialog(
       context: context,
@@ -80,7 +88,9 @@ class TaxSettingsCard extends ConsumerWidget {
               control: FTextFieldControl.managed(controller: percentController),
               label: const Text("Percentage (%)"),
               hint: "e.g. 15.0",
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
             ),
           ],
         ),
@@ -147,15 +157,16 @@ class _TaxListItem extends StatelessWidget {
             ],
           ),
           Row(
+            spacing: 10,
             children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined, size: 20),
-                onPressed: () =>
+              FButton.icon(
+                child: const Icon(FIcons.pen, size: 20),
+                onPress: () =>
                     const TaxSettingsCard()._showTaxDialog(context, ref, tax),
               ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                onPressed: () => _showDeleteConfirm(context),
+              FButton.icon(
+                child: const Icon(FIcons.trash, size: 20, color: Colors.red),
+                onPress: () => _showDeleteConfirm(context),
               ),
             ],
           ),

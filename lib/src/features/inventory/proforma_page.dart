@@ -47,56 +47,58 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
             _buildHeader(context),
             const SizedBox(height: 20),
             Expanded(
-              child: FCard(
-                child: proformasAsync.when(
-                  data: (proformas) {
-                    _dataGridSource.updateContext(context);
-                    _dataGridSource.updateProformas(proformas);
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        final height = constraints.maxHeight.isFinite
-                            ? constraints.maxHeight
-                            : MediaQuery.sizeOf(context).height;
-                        ;
-                        return Column(
-                          children: [
-                            SizedBox(
-                              height: height - 190,
-                              child: SfDataGridTheme(
-                                data: SfDataGridThemeData(
-                                  headerColor: Colors.black,
-                                  gridLineColor: Colors.grey[200],
-                                ),
-                                child: SfDataGrid(
-                                  source: _dataGridSource,
-                                  columnWidthMode: ColumnWidthMode.fill,
-                                  allowSorting: true,
-                                  gridLinesVisibility: GridLinesVisibility.both,
-                                  headerGridLinesVisibility:
-                                      GridLinesVisibility.both,
-                                  columns: _buildColumns(),
+              child: proformasAsync.when(
+                data: (proformas) {
+                  _dataGridSource.updateContext(context);
+                  _dataGridSource.updateProformas(proformas);
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final height = constraints.maxHeight.isFinite
+                          ? constraints.maxHeight
+                          : MediaQuery.sizeOf(context).height;
+                      ;
+                      return Column(
+                        children: [
+                          SizedBox(
+                            height: height - 190,
+                            child: SfDataGridTheme(
+                              data: SfDataGridThemeData(
+                                headerColor: Colors.red,
+                                headerHoverColor: Colors.red[900],
+                                gridLineColor: Colors.grey[300],
+                                rowHoverColor: Colors.yellow[100],
+                                selectionColor: Colors.red.withValues(
+                                  alpha: 0.1,
                                 ),
                               ),
+                              child: SfDataGrid(
+                                source: _dataGridSource,
+                                columnWidthMode: ColumnWidthMode.fill,
+
+                                gridLinesVisibility: GridLinesVisibility.both,
+                                headerGridLinesVisibility:
+                                    GridLinesVisibility.both,
+                                columns: _buildColumns(),
+                              ),
                             ),
-                            const Divider(height: 1),
-                            SfDataPager(
-                              delegate: _dataGridSource,
-                              pageCount: proformas.isEmpty
-                                  ? 1
-                                  : (proformas.length /
-                                            _dataGridSource.rowsPerPage)
-                                        .ceilToDouble(),
-                              direction: Axis.horizontal,
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (err, stack) => Center(child: Text('Error: $err')),
-                ),
+                          ),
+                          const Divider(height: 1),
+                          SfDataPager(
+                            delegate: _dataGridSource,
+                            pageCount: proformas.isEmpty
+                                ? 1
+                                : (proformas.length /
+                                          _dataGridSource.rowsPerPage)
+                                      .ceilToDouble(),
+                            direction: Axis.horizontal,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (err, stack) => Center(child: Text('Error: $err')),
               ),
             ),
           ],
@@ -113,24 +115,25 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Proforma Invoices",
+              "Profoma Invoices",
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
             ),
             Text(
-              "Manage and issue proforma invoices to clients",
+              "Manage and issue profoma invoices.",
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
+        const SizedBox(width: 10),
         Row(
           children: [
             SizedBox(
-              width: 300,
+              width: 150,
               child: FTextField(
                 hint: "Search by client name...",
                 prefixBuilder: (context, style, variants) => const Padding(
@@ -145,11 +148,11 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
                 ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 10),
             FButton(
               onPress: _showCreateProformaDialog,
               prefix: const Icon(Icons.add),
-              child: const Text("Create Proforma"),
+              child: const Text("Create New"),
             ),
           ],
         ),
@@ -160,7 +163,8 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
   List<GridColumn> _buildColumns() {
     final headerStyle = const TextStyle(
       color: Colors.white,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w600,
+      fontSize: 14,
     );
 
     return [
@@ -169,7 +173,7 @@ class _ProformaPageState extends ConsumerState<ProformaPage> {
         label: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
-          child: Text('Client Name', style: headerStyle),
+          child: Text('Client', style: headerStyle),
         ),
       ),
       GridColumn(
@@ -309,7 +313,9 @@ class ProformaDataGridSource extends DataGridSource {
                       final items = await ref.read(
                         proformaItemsProvider(proforma.id).future,
                       );
-                      final company = await ref.read(companySettingsProvider.future);
+                      final company = await ref.read(
+                        companySettingsProvider.future,
+                      );
 
                       if (_context!.mounted) {
                         await ProformaPrintService.showPreview(
@@ -364,8 +370,13 @@ class ProformaDataGridSource extends DataGridSource {
                 ? const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
+                    fontSize: 12,
                   )
-                : null,
+                : const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
+                  ),
           ),
         );
       }).toList(),

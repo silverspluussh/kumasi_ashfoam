@@ -8,6 +8,7 @@ import 'package:forui/forui.dart';
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:toastification/toastification.dart';
 
 class StockReportsView extends ConsumerStatefulWidget {
   const StockReportsView({super.key});
@@ -53,14 +54,18 @@ class _StockReportsViewState extends ConsumerState<StockReportsView> {
                 await ref.read(deleteStockReportProvider)(report.id);
                 if (mounted) {
                   Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Report deleted successfully")),
+                  toastification.show(
+                    type: ToastificationType.success,
+                    title: Text("Report deleted successfully"),
+                    autoCloseDuration: const Duration(seconds: 2),
                   );
                 }
               } catch (e) {
                 if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Error deleting report: $e")),
+                  toastification.show(
+                    type: ToastificationType.error,
+                    title: Text("Error deleting report: $e"),
+                    autoCloseDuration: const Duration(seconds: 2),
                   );
                 }
               }
@@ -97,14 +102,16 @@ class _StockReportsViewState extends ConsumerState<StockReportsView> {
                     _dataGridSource.updateReports(reports);
                     return SfDataGridTheme(
                       data: SfDataGridThemeData(
-                        headerColor: Colors.black,
-                        headerHoverColor: Colors.grey[900],
+                        headerColor: Colors.red,
+                        headerHoverColor: Colors.red[900],
                         gridLineColor: Colors.grey[300],
+                        rowHoverColor: Colors.yellow[100],
+                        selectionColor: Colors.red.withValues(alpha: 0.1),
                       ),
                       child: SfDataGrid(
                         source: _dataGridSource,
                         columnWidthMode: ColumnWidthMode.fill,
-                        allowSorting: true,
+                        allowSorting: false,
                         gridLinesVisibility: GridLinesVisibility.both,
                         headerGridLinesVisibility: GridLinesVisibility.both,
                         columns: _buildColumns(),
@@ -138,20 +145,21 @@ class _StockReportsViewState extends ConsumerState<StockReportsView> {
               ),
             ),
             Text(
-              "Monthly snapshots of inventory levels",
+              "Monthly inventory levels",
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
             ),
           ],
         ),
+        const SizedBox(width: 10),
         Row(
           children: [
             _MonthlyFilterBar(),
             const SizedBox(width: 12),
             FButton(
               onPress: () => _showGenerateDialog(),
-              child: const Text("New Report"),
+              child: const Text("Generate New"),
             ),
           ],
         ),
@@ -170,6 +178,7 @@ class _StockReportsViewState extends ConsumerState<StockReportsView> {
     final headerStyle = const TextStyle(
       color: Colors.white,
       fontWeight: FontWeight.bold,
+      fontSize: 14,
     );
 
     return [
@@ -178,17 +187,18 @@ class _StockReportsViewState extends ConsumerState<StockReportsView> {
         label: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
-          child: Text('Report Month', style: headerStyle),
+          child: Text('Generated On', style: headerStyle),
         ),
       ),
       GridColumn(
-        columnName: 'branch',
+        columnName: 'month',
         label: Container(
           padding: const EdgeInsets.all(8.0),
           alignment: Alignment.centerLeft,
-          child: Text('Branch', style: headerStyle),
+          child: Text('Report Month', style: headerStyle),
         ),
       ),
+
       GridColumn(
         columnName: 'createdBy',
         label: Container(
@@ -303,11 +313,12 @@ class StockReportDataGridSource extends DataGridSource {
       return DataGridRow(
         cells: [
           DataGridCell<DateTime>(columnName: 'date', value: report.createdAt),
-          DataGridCell<String>(columnName: 'branch', value: report.branchName),
+          DataGridCell<DateTime>(columnName: 'month', value: report.createdAt),
           DataGridCell<String>(
             columnName: 'createdBy',
             value: report.createdBy,
           ),
+
           DataGridCell<StockReportSummary>(
             columnName: 'actions',
             value: report,
@@ -356,9 +367,11 @@ class StockReportDataGridSource extends DataGridSource {
         }
 
         String value = '';
-        if (dataGridCell.value is DateTime) {
+        if (dataGridCell.columnName == 'month') {
+          value = DateFormat('MMMM').format(dataGridCell.value as DateTime);
+        } else if (dataGridCell.columnName == 'date') {
           value = DateFormat(
-            'MMMM yyyy',
+            'dd MMMM yyyy h:mm a',
           ).format(dataGridCell.value as DateTime);
         } else {
           value = dataGridCell.value.toString();
@@ -367,7 +380,11 @@ class StockReportDataGridSource extends DataGridSource {
         return Container(
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.all(10.0),
-          child: Text(value, overflow: TextOverflow.ellipsis),
+          child: Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 12),
+          ),
         );
       }).toList(),
     );
@@ -382,12 +399,18 @@ class _StockReportDetailsModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Calculate totals
-    final totalQtySold =
-        report.currentStock.fold<int>(0, (sum, item) => sum + item.quantitySold);
-    final totalSalesVal =
-        report.currentStock.fold<double>(0, (sum, item) => sum + item.totalSales);
-    final totalCurrentStock =
-        report.currentStock.fold<int>(0, (sum, item) => sum + item.quantity);
+    final totalQtySold = report.currentStock.fold<int>(
+      0,
+      (sum, item) => sum + item.quantitySold,
+    );
+    final totalSalesVal = report.currentStock.fold<double>(
+      0,
+      (sum, item) => sum + item.totalSales,
+    );
+    final totalCurrentStock = report.currentStock.fold<int>(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
 
     return Dialog(
       child: Container(
@@ -409,7 +432,7 @@ class _StockReportDetailsModal extends StatelessWidget {
                           ?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     Text(
-                      "${DateFormat('MMMM yyyy').format(report.createdAt)} - ${report.branchName}",
+                      "${DateFormat('dd MMMM yyyy').format(report.createdAt)} - ${report.branchName}",
                       style: Theme.of(
                         context,
                       ).textTheme.bodyMedium?.copyWith(color: Colors.grey[600]),
@@ -456,9 +479,9 @@ class _StockReportDetailsModal extends StatelessWidget {
             const SizedBox(height: 24),
             Text(
               "Product Breakdown",
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
 
@@ -473,27 +496,37 @@ class _StockReportDetailsModal extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 3,
-                    child: Text("Product",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "Product",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Expanded(
-                    child: Text("SKU",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "SKU",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Expanded(
-                    child: Text("Current",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "Current",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Expanded(
-                    child: Text("Sold",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "Sold",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                   Expanded(
-                    child: Text("Total Sales",
-                        textAlign: TextAlign.right,
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                    child: Text(
+                      "Total Sales",
+                      textAlign: TextAlign.right,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               ),
@@ -507,37 +540,50 @@ class _StockReportDetailsModal extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final prod = report.currentStock[index];
                   return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: Row(
                       children: [
                         Expanded(
                           flex: 3,
-                          child: Text(prod.name,
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w500)),
-                        ),
-                        Expanded(
-                          child: Text(prod.sku,
-                              style: TextStyle(
-                                  color: Colors.grey[600], fontSize: 13)),
-                        ),
-                        Expanded(
-                          child: Text("${prod.quantity}",
-                              textAlign: TextAlign.center),
-                        ),
-                        Expanded(
-                          child: Text("${prod.quantitySold}",
-                              textAlign: TextAlign.center),
+                          child: Text(
+                            prod.name,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
                         ),
                         Expanded(
                           child: Text(
-                            NumberFormat.currency(symbol: 'GH¢ ')
-                                .format(prod.totalSales),
+                            prod.sku,
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            "${prod.quantity}",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            "${prod.quantitySold}",
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            NumberFormat.currency(
+                              symbol: 'GH¢ ',
+                            ).format(prod.totalSales),
                             textAlign: TextAlign.right,
                             style: const TextStyle(
-                                color: Colors.green,
-                                fontWeight: FontWeight.bold),
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                       ],
@@ -552,8 +598,13 @@ class _StockReportDetailsModal extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard(BuildContext context, String title, String value,
-      IconData icon, Color color) {
+  Widget _buildSummaryCard(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),

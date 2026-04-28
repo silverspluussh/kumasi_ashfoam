@@ -110,138 +110,144 @@ class _AddProductDialogState extends ConsumerState<AddProductDialog> {
   @override
   Widget build(BuildContext context) {
     return FDialog(
-      direction: Axis.vertical,
-      title: const Text('Add New Product'),
-      
-      body: SizedBox(
-        width: 500,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              spacing: 16,
-              children: [
-                _buildField(
-                  label: 'Product Name*',
-                  controller: _nameController,
-                  hint: 'Enter product name',
-                  validator: (v) => v!.isEmpty ? 'Required' : null,
-                ),
-                Row(
-                  spacing: 16,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Expanded(
-                      child: ref
-                          .watch(categoryListProvider)
-                          .when(
-                            data: (categories) =>
-                                FSelect<ProductCategory>.searchBuilder(
-                                  label: const Text('Category'),
-                                  hint: 'Select category',
-                                  format: (c) => c.name,
-                                  filter: (query) => categories
-                                      .where(
-                                        (c) => c.name.toLowerCase().contains(
-                                          query.toLowerCase(),
+      direction: Axis.horizontal,
+      title: Padding(
+        padding: const EdgeInsets.only(bottom: 15),
+        child: const Text('Add New Product'),
+      ),
+
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SizedBox(
+          width: 600,
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 16,
+                children: [
+                  _buildField(
+                    label: 'Product Name*',
+                    controller: _nameController,
+                    hint: 'Enter product name',
+                    validator: (v) => v!.isEmpty ? 'Required' : null,
+                  ),
+                  Row(
+                    spacing: 16,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: ref
+                            .watch(categoryListProvider)
+                            .when(
+                              data: (categories) =>
+                                  FSelect<ProductCategory>.searchBuilder(
+                                    label: const Text('Category'),
+                                    hint: 'Select category',
+                                    format: (c) => c.name,
+                                    filter: (query) => categories
+                                        .where(
+                                          (c) => c.name.toLowerCase().contains(
+                                            query.toLowerCase(),
+                                          ),
+                                        )
+                                        .toList(),
+                                    contentBuilder: (context, _, filtered) => [
+                                      for (final c in filtered)
+                                        FSelectItem.item(
+                                          title: Text(c.name),
+                                          value: c,
                                         ),
-                                      )
-                                      .toList(),
-                                  contentBuilder: (context, _, filtered) => [
-                                    for (final c in filtered)
-                                      FSelectItem.item(
-                                        title: Text(c.name),
-                                        value: c,
+                                    ],
+                                    control: FSelectControl.lifted(
+                                      value: _selectedCategory,
+                                      onChange: (value) => setState(
+                                        () => _selectedCategory = value,
                                       ),
-                                  ],
-                                  control: FSelectControl.lifted(
-                                    value: _selectedCategory,
-                                    onChange: (value) => setState(
-                                      () => _selectedCategory = value,
                                     ),
                                   ),
-                                ),
-                            loading: () => const LinearProgressIndicator(),
-                            error: (e, s) => Text('Error: $e'),
-                          ),
-                    ),
-                    Expanded(
-                      child: _buildField(
-                        label: 'Unit (e.g. Pieces, Sets)',
-                        hint: 'e.g. Pieces',
-                        controller: _unitController,
+                              loading: () => const LinearProgressIndicator(),
+                              error: (e, s) => Text('Error: $e'),
+                            ),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 16,
-                  children: [
-                    Expanded(
-                      child: _buildField(
-                        label: 'Retail Price (GH₵)*',
-                        controller: _priceController,
-                        keyboardType: TextInputType.number,
-                        hint: 'GH₵ 0.0',
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                      Expanded(
+                        child: _buildField(
+                          label: 'Unit (e.g. Pieces, Sets)',
+                          hint: 'e.g. Pieces',
+                          controller: _unitController,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _buildField(
-                        label: 'Initial Quantity*',
-                        hint: 'e.g. 5',
-                        controller: _quantityController,
-                        keyboardType: TextInputType.number,
-                        validator: (v) => v!.isEmpty ? 'Required' : null,
+                    ],
+                  ),
+                  Row(
+                    spacing: 16,
+                    children: [
+                      Expanded(
+                        child: _buildField(
+                          label: 'Retail Price (GH₵)*',
+                          controller: _priceController,
+                          keyboardType: TextInputType.number,
+                          hint: 'GH₵ 0.0',
+                          validator: (v) => v!.isEmpty ? 'Required' : null,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const Divider(),
-                const Text(
-                  'Technical Specifications (Optional)',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                ),
-                Row(
-                  spacing: 16,
-                  children: [
-                    Expanded(
-                      child: _buildField(
-                        label: 'Material',
-                        hint: 'e.g. Damask, Polyester',
-                        controller: _materialController,
+                      Expanded(
+                        child: _buildField(
+                          label: 'Initial Quantity*',
+                          hint: 'e.g. 5',
+                          controller: _quantityController,
+                          keyboardType: TextInputType.number,
+                          validator: (v) => v!.isEmpty ? 'Required' : null,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _buildField(
-                        label: 'Size',
-                        hint: 'e.g. L/S, M/S, S/S, K/S, Q/S',
-                        controller: _sizeController,
+                    ],
+                  ),
+                  const Divider(),
+                  const Text(
+                    'Technical Specifications (Optional)',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  ),
+                  Row(
+                    spacing: 16,
+                    children: [
+                      Expanded(
+                        child: _buildField(
+                          label: 'Material',
+                          hint: 'e.g. Damask, Polyester',
+                          controller: _materialController,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 16,
-                  children: [
-                    Expanded(
-                      child: _buildField(
-                        label: 'Thickness',
-                        hint: 'e.g. 9", 6", 4", 3", 2"',
-                        controller: _thicknessController,
+                      Expanded(
+                        child: _buildField(
+                          label: 'Size',
+                          hint: 'e.g. L/S, M/S, S/S, K/S, Q/S',
+                          controller: _sizeController,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _buildField(
-                        label: 'Density',
-                        hint: 'e.g. HD1, HD2, HD3',
-                        controller: _densityController,
+                    ],
+                  ),
+                  Row(
+                    spacing: 16,
+                    children: [
+                      Expanded(
+                        child: _buildField(
+                          label: 'Thickness',
+                          hint: 'e.g. 9", 6", 4", 3", 2"',
+                          controller: _thicknessController,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      Expanded(
+                        child: _buildField(
+                          label: 'Density',
+                          hint: 'e.g. HD1, HD2, HD3',
+                          controller: _densityController,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

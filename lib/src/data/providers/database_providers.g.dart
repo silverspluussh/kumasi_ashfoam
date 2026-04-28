@@ -51,6 +51,54 @@ final class DatabaseServiceProvider
 
 String _$databaseServiceHash() => r'59eee919c01b00fdf56c694367d3db2529a4e2fd';
 
+@ProviderFor(employeesRepository)
+final employeesRepositoryProvider = EmployeesRepositoryProvider._();
+
+final class EmployeesRepositoryProvider
+    extends
+        $FunctionalProvider<
+          EmployeesRepository,
+          EmployeesRepository,
+          EmployeesRepository
+        >
+    with $Provider<EmployeesRepository> {
+  EmployeesRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'employeesRepositoryProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$employeesRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<EmployeesRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  EmployeesRepository create(Ref ref) {
+    return employeesRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EmployeesRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EmployeesRepository>(value),
+    );
+  }
+}
+
+String _$employeesRepositoryHash() =>
+    r'829282c47a89a939cb1c7b8aab0d111c268d25f6';
+
 @ProviderFor(inventoryItems)
 final inventoryItemsProvider = InventoryItemsProvider._();
 

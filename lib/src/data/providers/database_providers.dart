@@ -1,5 +1,7 @@
 import 'package:ashfoam_sadiq/src/data/local/app_database.dart' as db;
 import 'package:ashfoam_sadiq/src/data/local/database_service.dart';
+import 'package:ashfoam_sadiq/src/data/repositories/employees_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:ashfoam_sadiq/src/data/models/sales.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/inventory.model.dart';
 import 'package:ashfoam_sadiq/src/data/models/customer.model.dart';
@@ -21,6 +23,11 @@ part 'database_providers.g.dart';
 @riverpod
 DatabaseService databaseService(Ref ref) {
   return DatabaseService.instance;
+}
+
+@riverpod
+EmployeesRepository employeesRepository(Ref ref) {
+  return EmployeesRepository(supabase: Supabase.instance.client);
 }
 
 @riverpod
