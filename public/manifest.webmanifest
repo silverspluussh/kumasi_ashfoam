@@ -1,0 +1,31 @@
+{
+  "name": "Ashfoam Kumasi POS",
+  "short_name": "Ashfoam",
+  "description": "Ashanti Foam Factory Ltd — offline-first point of sale",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0F0F0F",
+  "icons": [
+    {
+      "src": "/AppIcon64.png",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/AppIcon256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/AppIcon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
