@@ -75,7 +75,6 @@ export default function InventoryPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const dataVersion = useDataVersion();
-  const loadedOnce = useRef(false);
   const load = useCallback(async () => {
     try {
       if (online) {
@@ -104,9 +103,6 @@ export default function InventoryPage() {
   }, [online]);
 
   useEffect(() => {
-    const first = !loadedOnce.current;
-    loadedOnce.current = true;
-    if (first) setLoading(true);
     void load();
   }, [load, dataVersion]);
 

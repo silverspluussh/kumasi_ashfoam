@@ -3,7 +3,7 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,6 @@ export default function CatalogPage() {
   const [deleting, setDeleting] = useState<Deleting | null>(null);
 
   const dataVersion = useDataVersion();
-  const loadedOnce = useRef(false);
   const load = useCallback(async () => {
     try {
       if (online) {
@@ -86,9 +85,6 @@ export default function CatalogPage() {
   }, [online]);
 
   useEffect(() => {
-    const first = !loadedOnce.current;
-    loadedOnce.current = true;
-    if (first) setLoading(true);
     void load();
   }, [load, dataVersion]);
 

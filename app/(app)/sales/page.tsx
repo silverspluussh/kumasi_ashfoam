@@ -3,7 +3,7 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
@@ -45,7 +45,6 @@ export default function SalesPage() {
   const [receipt, setReceipt] = useState<ReceiptDocData | null>(null);
 
   const dataVersion = useDataVersion();
-  const loadedOnce = useRef(false);
   const load = async () => {
     try {
       if (online) {
@@ -63,9 +62,6 @@ export default function SalesPage() {
   };
 
   useEffect(() => {
-    const first = !loadedOnce.current;
-    loadedOnce.current = true;
-    if (first) setLoading(true);
     void load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [online, dataVersion]);

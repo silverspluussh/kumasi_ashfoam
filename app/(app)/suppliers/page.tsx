@@ -3,7 +3,7 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Mail, MapPin, Pencil, Phone, Trash2, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,7 +56,6 @@ export default function SuppliersPage() {
   const [deleting, setDeleting] = useState<SupplierRow | null>(null);
 
   const dataVersion = useDataVersion();
-  const loadedOnce = useRef(false);
   const load = useCallback(async () => {
     try {
       setRows(await listSuppliers(online));
@@ -69,9 +68,6 @@ export default function SuppliersPage() {
   }, [online]);
 
   useEffect(() => {
-    const first = !loadedOnce.current;
-    loadedOnce.current = true;
-    if (first) setLoading(true);
     void load();
   }, [load, dataVersion]);
 

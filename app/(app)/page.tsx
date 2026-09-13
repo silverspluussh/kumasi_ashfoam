@@ -3,7 +3,7 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
@@ -53,9 +53,7 @@ export default function SummaryPage() {
   const [timeframe, setTimeframe] = useState<TrendTimeframe>("daily");
 
   const dataVersion = useDataVersion();
-  const loadedOnce = useRef(false);
   const load = useCallback(async () => {
-    setError(null);
     try {
       if (online) {
         try {
@@ -83,6 +81,7 @@ export default function SummaryPage() {
       setPayments(pay);
       setProformas(prof);
       setWaybills(way);
+      setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -91,9 +90,6 @@ export default function SummaryPage() {
   }, [online]);
 
   useEffect(() => {
-    const first = !loadedOnce.current;
-    loadedOnce.current = true;
-    if (first) setLoading(true);
     void load();
   }, [load, dataVersion]);
 

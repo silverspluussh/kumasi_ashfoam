@@ -3,7 +3,7 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CloudOff, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
@@ -48,9 +48,7 @@ export default function SupplierPaymentsPage() {
   const [deleting, setDeleting] = useState<SupplierPaymentRow | null>(null);
 
   const dataVersion = useDataVersion();
-  const loadedOnce = useRef(false);
   const load = useCallback(async () => {
-    setError(null);
     try {
       const [sups, pays] = await Promise.all([
         listSuppliers(online).catch(() => [] as SupplierRow[]),
@@ -58,6 +56,7 @@ export default function SupplierPaymentsPage() {
       ]);
       setSuppliers(sups);
       setRows(pays);
+      setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
       setRows([]);
@@ -67,9 +66,6 @@ export default function SupplierPaymentsPage() {
   }, [online]);
 
   useEffect(() => {
-    const first = !loadedOnce.current;
-    loadedOnce.current = true;
-    if (first) setLoading(true);
     void load();
   }, [load, dataVersion]);
 
