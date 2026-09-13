@@ -6,4 +6,7 @@ import { defineCloudflareConfig } from "@opennextjs/cloudflare";
  * (Dexie + Supabase + client PDF/Excel), so edge caching of ISR/SSG is not
  * needed. Revisit if server components start caching per-branch data.
  */
-export default defineCloudflareConfig({});
+export default {
+  ...defineCloudflareConfig({}),
+  buildCommand: "npx next build",
+};
