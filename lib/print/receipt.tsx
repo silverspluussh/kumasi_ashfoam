@@ -50,23 +50,23 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 2,
   },
-  kvLabel: { fontSize: 8 },
-  kvValue: { fontSize: 8, textAlign: "right" },
-  kvValueBold: { fontSize: 9, fontWeight: "bold", textAlign: "right" },
+  kvLabel: { fontSize: 9 },
+  kvValue: { fontSize: 9, textAlign: "right" },
+  kvValueBold: { fontSize: 10, fontWeight: "bold", textAlign: "right" },
   divider: { borderBottomWidth: 0.8, borderColor: "#000", marginVertical: 6 },
   dividerHeavy: { borderBottomWidth: 1.2, borderColor: "#000", marginVertical: 6 },
   head: { flexDirection: "row" },
-  h0: { flex: 3, fontSize: 8, fontWeight: "bold" },
-  h1: { flex: 1, fontSize: 8, fontWeight: "bold", textAlign: "center" },
-  h2: { flex: 2, fontSize: 8, fontWeight: "bold", textAlign: "right" },
-  h3: { flex: 2, fontSize: 8, fontWeight: "bold", textAlign: "right" },
-  itemName: { fontSize: 9 },
-  itemCell: { fontSize: 8 },
-  totalLabel: { fontSize: 8, fontWeight: "bold" },
-  totalQty: { fontSize: 8, textAlign: "center" },
-  totalAmt: { fontSize: 10, fontWeight: "bold", textAlign: "right" },
-  foot1: { fontSize: 9, fontWeight: "bold", textAlign: "center" },
-  foot2: { fontSize: 8, textAlign: "center" },
+  h0: { flex: 3, fontSize: 9, fontWeight: "bold" },
+  h1: { flex: 1, fontSize: 9, fontWeight: "bold", textAlign: "center" },
+  h2: { flex: 2, fontSize: 9, fontWeight: "bold", textAlign: "right" },
+  h3: { flex: 2, fontSize: 9, fontWeight: "bold", textAlign: "right" },
+  itemName: { fontSize: 10 },
+  itemCell: { fontSize: 9 },
+  totalLabel: { fontSize: 9, fontWeight: "bold" },
+  totalQty: { fontSize: 9, textAlign: "center" },
+  totalAmt: { fontSize: 11, fontWeight: "bold", textAlign: "right" },
+  foot1: { fontSize: 10, fontWeight: "bold", textAlign: "center" },
+  foot2: { fontSize: 9, textAlign: "center" },
 });
 
 /** Deterministic height estimate so the roll page fits content. */
@@ -227,7 +227,7 @@ export function ReceiptHtml({ doc, id }: { doc: ReceiptDocData; id?: string }) {
     display: "flex",
     justifyContent: "space-between",
     padding: "2pt 0",
-    fontSize: "8pt",
+    fontSize: "9pt",
   };
   return (
     <div
@@ -241,14 +241,14 @@ export function ReceiptHtml({ doc, id }: { doc: ReceiptDocData; id?: string }) {
       }}
     >
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: "13pt", fontWeight: "bold" }}>{CompanyInfo.name}</div>
+        <div style={{ fontSize: "14pt", fontWeight: "bold" }}>{CompanyInfo.name}</div>
         {[CompanyInfo.postalAddress, CompanyInfo.commercialAddress,
           `Tel : ${CompanyInfo.phonePrimary}/${CompanyInfo.phoneSecondary}`,
           `Fax : ${CompanyInfo.faxId}`, `Email : ${CompanyInfo.email}`].map((l) => (
-          <div key={l} style={{ fontSize: "8pt" }}>{l}</div>
+          <div key={l} style={{ fontSize: "9pt" }}>{l}</div>
         ))}
         <div style={{ height: "4pt" }} />
-        <div style={{ fontSize: "7pt", fontWeight: "bold" }}>
+        <div style={{ fontSize: "8pt", fontWeight: "bold" }}>
           VAT INVOICE (VAT Reg Num: {CompanyInfo.vatReg})
         </div>
       </div>
@@ -284,7 +284,7 @@ export function ReceiptHtml({ doc, id }: { doc: ReceiptDocData; id?: string }) {
         <span style={{ textAlign: "right" }}>Ahodwo Kumasi</span>
       </div>
       <hr style={{ border: "none", borderTop: "0.8pt solid #000", margin: "6pt 0" }} />
-      <div style={{ display: "flex", fontSize: "8pt", fontWeight: "bold" }}>
+      <div style={{ display: "flex", fontSize: "9pt", fontWeight: "bold" }}>
         <span style={{ flex: 3 }}>Description</span>
         <span style={{ flex: 1, textAlign: "center" }}>Qty</span>
         <span style={{ flex: 2, textAlign: "right" }}>Price</span>
@@ -294,15 +294,15 @@ export function ReceiptHtml({ doc, id }: { doc: ReceiptDocData; id?: string }) {
       {doc.items.map((it, i) => (
         <div key={i} style={{ padding: "3pt 0", breakInside: "avoid" }}>
           <div style={{ display: "flex", alignItems: "flex-start" }}>
-            <span style={{ flex: 3, fontSize: "9pt" }}>{it.productName}</span>
-            <span style={{ flex: 1, fontSize: "8pt", textAlign: "center" }}>{it.quantity}</span>
-            <span style={{ flex: 2, fontSize: "8pt", textAlign: "right" }}>{it.unitPrice.toFixed(2)}</span>
-            <span style={{ flex: 2, fontSize: "8pt", textAlign: "right" }}>
+            <span style={{ flex: 3, fontSize: "10pt" }}>{it.productName}</span>
+            <span style={{ flex: 1, fontSize: "9pt", textAlign: "center" }}>{it.quantity}</span>
+            <span style={{ flex: 2, fontSize: "9pt", textAlign: "right" }}>{it.unitPrice.toFixed(2)}</span>
+            <span style={{ flex: 2, fontSize: "9pt", textAlign: "right" }}>
               {(it.totalPrice + it.discountAmount).toFixed(2)}
             </span>
           </div>
           {it.discountAmount > 0 && (
-            <div style={{ display: "flex", fontSize: "8pt", paddingBottom: "2pt" }}>
+            <div style={{ display: "flex", fontSize: "9pt", paddingBottom: "2pt" }}>
               <span style={{ flex: 6 }}>Discount</span>
               <span style={{ flex: 2, textAlign: "right" }}>
                 (-){it.discountAmount.toFixed(2)}
@@ -320,9 +320,9 @@ export function ReceiptHtml({ doc, id }: { doc: ReceiptDocData; id?: string }) {
       ))}
       <hr style={{ border: "none", borderTop: "0.8pt solid #000", margin: "6pt 0" }} />
       <div style={{ display: "flex", alignItems: "center" }}>
-        <span style={{ flex: 3, fontSize: "8pt", fontWeight: "bold" }}>Total</span>
-        <span style={{ flex: 1, fontSize: "8pt", textAlign: "center" }}>{doc.totalQuantity}</span>
-        <span style={{ flex: 4, fontSize: "10pt", fontWeight: "bold", textAlign: "right" }}>
+        <span style={{ flex: 3, fontSize: "9pt", fontWeight: "bold" }}>Total</span>
+        <span style={{ flex: 1, fontSize: "9pt", textAlign: "center" }}>{doc.totalQuantity}</span>
+        <span style={{ flex: 4, fontSize: "11pt", fontWeight: "bold", textAlign: "right" }}>
           {receiptAmount(doc.totalAmount)}
         </span>
       </div>
@@ -332,14 +332,14 @@ export function ReceiptHtml({ doc, id }: { doc: ReceiptDocData; id?: string }) {
       <div style={row}><span>Balance:</span><span>{balance.toFixed(2)}</span></div>
       <hr style={{ border: "none", borderTop: "0.8pt solid #000", margin: "4pt 0" }} />
       <div style={{ ...row, fontWeight: "bold" }}>
-        <span>Total Paid:</span><span style={{ fontSize: "9pt" }}>{doc.totalAmount.toFixed(2)}</span>
+        <span>Total Paid:</span><span style={{ fontSize: "10pt" }}>{doc.totalAmount.toFixed(2)}</span>
       </div>
       <hr style={{ border: "none", borderTop: "1.2pt solid #000", margin: "4pt 0" }} />
       <div style={{ height: "5pt" }} />
-      <div style={{ textAlign: "center", fontSize: "9pt", fontWeight: "bold" }}>
+      <div style={{ textAlign: "center", fontSize: "10pt", fontWeight: "bold" }}>
         GOODS ONCE SOLD ARE NOT RETURNABLE
       </div>
-      <div style={{ textAlign: "center", fontSize: "8pt" }}>Please verify before leaving</div>
+      <div style={{ textAlign: "center", fontSize: "9pt" }}>Please verify before leaving</div>
     </div>
   );
 }

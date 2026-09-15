@@ -7,17 +7,17 @@ import { CompanyInfo } from "@/lib/company";
  */
 const styles = StyleSheet.create({
   col: { flexDirection: "column" },
-  nameA4: { fontSize: 12, fontWeight: "bold" },
-  lineA4: { fontSize: 9 },
+  nameA4: { fontSize: 12, fontWeight: "bold", textAlign: "center" },
+  lineA4: { fontSize: 9, textAlign: "center" },
   vatA4: { fontSize: 6, textAlign: "center" },
-  nameR: { fontSize: 13, fontWeight: "bold", textAlign: "center" },
-  lineR: { fontSize: 8, textAlign: "center" },
-  vatR: { fontSize: 7, fontWeight: "bold", textAlign: "center" },
+  nameR: { fontSize: 14, fontWeight: "bold", textAlign: "center" },
+  lineR: { fontSize: 9, textAlign: "center" },
+  vatR: { fontSize: 8, fontWeight: "bold", textAlign: "center" },
 });
 
 export function CompanyHeaderA4() {
   return (
-    <View style={styles.col}>
+    <View style={{ ...styles.col, alignItems: "center" }}>
       <Text style={styles.nameA4}>{CompanyInfo.name}</Text>
       <Text style={styles.lineA4}>{CompanyInfo.postalAddress}</Text>
       <Text style={styles.lineA4}>{CompanyInfo.commercialAddress}</Text>

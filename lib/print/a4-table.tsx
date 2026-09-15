@@ -18,7 +18,11 @@ export interface A4TaxRow {
 const s = StyleSheet.create({
   table: { borderWidth: 0.5, borderColor: "#000" },
   row: { flexDirection: "row" },
-  headerRow: { flexDirection: "row", borderWidth: 0.5, borderColor: "#000" },
+  headerRow: {
+    flexDirection: "row",
+    borderBottomWidth: 0.5,
+    borderColor: "#000",
+  },
   c0: { width: 30, padding: 5, borderRightWidth: 0.5, borderColor: "#000" },
   c1: { flex: 5, padding: 5, borderRightWidth: 0.5, borderColor: "#000" },
   c2: { width: 60, padding: 5, borderRightWidth: 0.5, borderColor: "#000" },
@@ -38,8 +42,28 @@ const s = StyleSheet.create({
   taxPct: { fontSize: 8, fontWeight: "bold", textAlign: "center" },
   center: { textAlign: "center" },
   right: { textAlign: "right" },
-  totalRow: { flexDirection: "row", borderWidth: 0.5, borderColor: "#000" },
+  totalRow: {
+    flexDirection: "row",
+    borderTopWidth: 0.5,
+    borderColor: "#000",
+  },
+  /* Spacer row: preserves vertical column dividers across empty space */
+  spacerRow: { flexDirection: "row" },
 });
+
+/**
+ * Spacer cell: renders an empty cell with the given height and optional
+ * right border so that vertical column lines stay continuous.
+ */
+function SpacerCell({
+  style,
+  height,
+}: {
+  style: Styles[string];
+  height: number;
+}) {
+  return <View style={[style, { height, padding: 0 }]} />;
+}
 
 /**
  * Shared A4 items table (proforma + waybill are identical after the
@@ -65,7 +89,7 @@ export function A4ItemsTable({
     ["Sl\nNo.", s.c0, s.center],
     ["Description of Goods", s.c1, {}],
     ["Quantity", s.c2, s.center],
-    ["Price", s.c3, s.center],
+    ["Price", s.c3, s.right],
     ["per", s.c4, s.center],
     ["Disc. %", s.c5, s.center],
     ["Amount", s.c6, s.center],
@@ -108,35 +132,55 @@ export function A4ItemsTable({
           </View>
         </View>
       ))}
-      <View style={{ height: spacerHeight }} />
+      {/* Spacer: structured row with column dividers to keep vertical lines continuous */}
+      <View style={s.spacerRow}>
+        <SpacerCell style={s.c0} height={spacerHeight} />
+        <SpacerCell style={s.c1} height={spacerHeight} />
+        <SpacerCell style={s.c2} height={spacerHeight} />
+        <SpacerCell style={s.c3} height={spacerHeight} />
+        <SpacerCell style={s.c4} height={spacerHeight} />
+        <SpacerCell style={s.c5} height={spacerHeight} />
+        <SpacerCell style={s.c6} height={spacerHeight} />
+      </View>
       {taxes.map((t, i) => (
         <View key={i} style={s.row}>
-          <View style={s.c0}>
+          <View style={[s.c0, { paddingVertical: 1 }]}>
             <Text> </Text>
           </View>
-          <View style={s.c1}>
+          <View style={[s.c1, { paddingVertical: 1 }]}>
             <Text style={s.taxName}>{t.name}</Text>
           </View>
-          <View style={s.c2}>
+          <View style={[s.c2, { paddingVertical: 1 }]}>
             <Text> </Text>
           </View>
-          <View style={s.c3}>
+          <View style={[s.c3, { paddingVertical: 1 }]}>
+            <Text style={[s.tdBold, s.right]}>
+              {t.valuePercentage.toFixed(2)}
+            </Text>
+          </View>
+          <View style={[s.c4, { paddingVertical: 1 }]}>
+            <Text style={s.td}>%</Text>
+          </View>
+          <View style={[s.c5, { paddingVertical: 1 }]}>
             <Text> </Text>
           </View>
-          <View style={s.c4}>
-            <Text> </Text>
-          </View>
-          <View style={s.c5}>
-            <Text style={s.taxPct}>{t.valuePercentage.toFixed(2)} %</Text>
-          </View>
-          <View style={s.c6}>
+          <View style={[s.c6, { paddingVertical: 1 }]}>
             <Text style={[s.tdBold, s.right]}>
               {(t.taxAmount ?? 0).toFixed(2)}
             </Text>
           </View>
         </View>
       ))}
-      <View style={{ height: 100 }} />
+      {/* Bottom spacer: structured row with column dividers */}
+      <View style={s.spacerRow}>
+        <SpacerCell style={s.c0} height={100} />
+        <SpacerCell style={s.c1} height={100} />
+        <SpacerCell style={s.c2} height={100} />
+        <SpacerCell style={s.c3} height={100} />
+        <SpacerCell style={s.c4} height={100} />
+        <SpacerCell style={s.c5} height={100} />
+        <SpacerCell style={s.c6} height={100} />
+      </View>
       <View style={s.totalRow}>
         <View style={s.c0}>
           <Text> </Text>
