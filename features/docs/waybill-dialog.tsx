@@ -316,7 +316,9 @@ export function WaybillDialog({
         </div>
 
         {error && (
-          <p className="text-[13px] font-medium text-red-600">{error}</p>
+          <div className="rounded-md bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700 shadow-sm">
+            {error}
+          </div>
         )}
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={onClose}>

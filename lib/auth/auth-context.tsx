@@ -18,7 +18,10 @@ import { fetchEmployeeByAuthId } from "@/lib/supabase/queries/org";
 import {
   clearOfflineSession,
   getOfflineSession,
+  getSessionExpiresAt,
+  isSessionExpired,
   setOfflineSession,
+  SESSION_EXPIRY_SECONDS,
   type OfflineSession,
 } from "./session";
 
@@ -33,6 +36,10 @@ interface AuthState {
   branchId: string | null;
   branchName: string | null;
   email: string | null;
+  /** Session expiration timestamp in ms, if active. */
+  expiresAt: number | null;
+  /** Session expiry duration constant in seconds (604800). */
+  expirySeconds: number;
   /** True when running on cached credentials without a live session. */
   offlineLimited: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
@@ -176,6 +183,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [supabase]);
 
+  // Periodic session expiration checker (604,800s / 7-day limit)
+  useEffect(() => {
+    const checkExpiration = () => {
+      if (isSessionExpired()) {
+        signOut();
+      }
+    };
+    checkExpiration();
+    const interval = setInterval(checkExpiration, 30_000);
+    window.addEventListener("focus", checkExpiration);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", checkExpiration);
+    };
+  }, [signOut]);
+
   const value = useMemo<AuthState>(() => {
     const role = liveRole ?? offline?.role ?? "manager";
     return {
@@ -187,6 +210,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       branchId: liveBranch?.id ?? offline?.branchId ?? null,
       branchName: liveBranch?.name ?? offline?.branchName ?? null,
       email: liveEmail ?? offline?.email ?? session?.user?.email ?? null,
+      expiresAt: offline?.expiresAt ?? getSessionExpiresAt(),
+      expirySeconds: SESSION_EXPIRY_SECONDS,
       offlineLimited: !session && !!offline,
       signIn,
       signOut,

@@ -14,9 +14,13 @@ export async function saveRemoteFirst(opts: {
     try {
       await opts.remote();
     } catch (e) {
-      const first =
+      const raw =
         e instanceof Error ? e.message.split("\n")[0] : String(e);
-      throw new Error(`Remote ${opts.remoteLabel} failed — not saved locally. ${first}`);
+      // Log full technical details for debugging
+      console.error(`[saveRemoteFirst] ${opts.remoteLabel}:`, raw);
+      throw new Error(
+        `Could not save ${opts.remoteLabel} — please check your internet connection and try again.`,
+      );
     }
     await opts.applyLocal(true);
   } else {

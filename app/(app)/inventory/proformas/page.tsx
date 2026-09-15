@@ -66,6 +66,13 @@ export default function ProformasPage() {
   const [dialog, setDialog] = useState<DialogState>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-dismiss errors after 5 seconds
+  useEffect(() => {
+    if (!error) return;
+    const t = setTimeout(() => setError(null), 5000);
+    return () => clearTimeout(t);
+  }, [error]);
   const [detailItems, setDetailItems] = useState<ProformaItemRow[]>([]);
   const [preview, setPreview] = useState<{
     doc: ProformaDocData;
@@ -250,7 +257,9 @@ export default function ProformasPage() {
       </div>
 
       {error && (
-        <p className="text-[13px] font-medium text-red-600">{error}</p>
+        <div className="rounded-md bg-red-50 px-4 py-3 text-[13px] font-medium text-red-700 shadow-sm">
+          {error}
+        </div>
       )}
 
       <DataTable

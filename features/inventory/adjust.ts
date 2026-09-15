@@ -41,9 +41,10 @@ export async function adjustStock(
       if (error) throw new Error(error.message);
       remoteOk = Array.isArray(data) && data.length > 0;
     } catch (e) {
-      const first = e instanceof Error ? e.message.split("\n")[0] : String(e);
+      const raw = e instanceof Error ? e.message.split("\n")[0] : String(e);
+      console.error("[adjustInventoryStock] remote sync:", raw);
       throw new Error(
-        `Remote stock sync failed — adjustment not saved locally. ${first}`,
+        "Could not save stock adjustment — please check your internet connection and try again.",
       );
     }
   }
