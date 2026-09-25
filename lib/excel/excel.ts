@@ -235,3 +235,26 @@ export function downloadSalesExport(rows: SaleExportRow[]) {
   XLSX.utils.book_append_sheet(wb, ws, "SaleOrders");
   download(wb, "SaleOrders.xlsx");
 }
+
+export interface ExpenseExportRow {
+  title: string;
+  category: string;
+  amount: number;
+  date: string;
+  description: string | null;
+}
+
+/** ExpensesReport.xlsx (Ashfoam expenses export). */
+export function downloadExpensesExport(rows: ExpenseExportRow[]) {
+  const data = rows.map((r) => ({
+    Title: r.title ?? "",
+    Category: r.category ?? "",
+    Amount: r.amount ?? 0,
+    Date: r.date ?? "",
+    Description: r.description ?? "",
+  }));
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Expenses");
+  download(wb, "ExpensesReport.xlsx");
+}

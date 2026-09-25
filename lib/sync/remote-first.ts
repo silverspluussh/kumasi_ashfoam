@@ -22,7 +22,7 @@ import {
   fetchWaybillItems,
   fetchWaybills,
 } from "@/lib/supabase/queries/docs";
-import { fetchBranchPayments } from "@/lib/supabase/queries/money";
+import { fetchBranchPayments, fetchExpenses } from "@/lib/supabase/queries/money";
 import { fetchStockReports } from "@/lib/supabase/queries/logistics";
 
 /**
@@ -107,6 +107,8 @@ export const remoteFirst = {
     }),
   warmBranchPayments: (c: SupabaseClient) =>
     tryWarm(async () => warm("branchPayments", await fetchBranchPayments(c, { limit: 500 }))),
+  warmExpenses: (c: SupabaseClient) =>
+    tryWarm(async () => warm("expenses", await fetchExpenses(c, { limit: 1000 }))),
   warmInvoices: (c: SupabaseClient) =>
     tryWarm(async () => {
       const invs = await fetchInvoices(c, { limit: 500 });

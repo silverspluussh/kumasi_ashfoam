@@ -5,7 +5,7 @@ import type {
   PaymentRow,
   ReceiptRow,
 } from "@/lib/db/types";
-import { fetchRows, upsertRows, type FetchOpts } from "./_table";
+import { deleteRemote, fetchRows, upsertRows, type FetchOpts } from "./_table";
 
 /* ashfoam_receipts */
 export const fetchReceipts = (c: SupabaseClient, o?: FetchOpts) =>
@@ -56,3 +56,5 @@ export const bulkUploadExpenses = (
   c: SupabaseClient,
   rows: Record<string, unknown>[],
 ) => upsertRows(c, "ashfoam_expenses", rows);
+export const deleteExpense = (c: SupabaseClient, id: string) =>
+  deleteRemote(c, "ashfoam_expenses", id);

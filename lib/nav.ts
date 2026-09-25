@@ -7,6 +7,7 @@ import {
   Settings2,
   ShoppingCart,
   SlidersHorizontal,
+  Receipt,
   Truck,
   Users,
   Wallet,
@@ -54,6 +55,7 @@ export const NAV_SECTIONS: NavSection[] = [
     title: "Money",
     items: [
       { label: "Payments", href: "/payments", flutterIndex: 7, icon: Wallet, onlineOnly: true },
+      { label: "Expenses", href: "/expenses", flutterIndex: -1, icon: Receipt, onlineOnly: false },
     ],
   },
   {
