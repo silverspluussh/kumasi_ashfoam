@@ -77,6 +77,7 @@ export function A4ItemsTable({
   totalQty,
   totalAmount,
   totalLabel,
+  hideTaxAmounts = false,
 }: {
   items: A4DocItem[];
   taxes: A4TaxRow[];
@@ -84,6 +85,7 @@ export function A4ItemsTable({
   totalQty: number;
   totalAmount: number;
   totalLabel: string;
+  hideTaxAmounts?: boolean;
 }) {
   const headers: [string, Styles[string], Styles[string]][] = [
     ["Sl\nNo.", s.c0, s.center],
@@ -165,9 +167,13 @@ export function A4ItemsTable({
             <Text> </Text>
           </View>
           <View style={[s.c6, { paddingVertical: 1 }]}>
-            <Text style={[s.tdBold, s.right]}>
-              {(t.taxAmount ?? 0).toFixed(2)}
-            </Text>
+            {hideTaxAmounts ? (
+              <Text> </Text>
+            ) : (
+              <Text style={[s.tdBold, s.right]}>
+                {(t.taxAmount ?? 0).toFixed(2)}
+              </Text>
+            )}
           </View>
         </View>
       ))}

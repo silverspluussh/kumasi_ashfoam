@@ -29,6 +29,7 @@ const s = StyleSheet.create({
   partyName: { fontSize: 10, fontWeight: "bold" },
   partyAddr: { fontSize: 10, textDecoration: "underline" },
   footerLabel: { fontSize: 9, fontStyle: "italic" },
+  disclaimer: { fontSize: 9, fontStyle: "italic", fontWeight: "bold" },
   words: { fontSize: 10, fontWeight: "bold" },
   tinRow: { flexDirection: "row" },
   tin: { fontSize: 10 },
@@ -96,9 +97,14 @@ export function ProformaDoc({
           totalQty={doc.totalQuantity}
           totalAmount={doc.totalAmount}
           totalLabel="Grand Total"
+          hideTaxAmounts={true}
         />
 
-        <View style={{ height: 5 }} />
+        <View style={{ height: 6 }} />
+        <Text style={s.disclaimer}>
+          Total value of the proforma is tax inclusive.
+        </Text>
+        <View style={{ height: 6 }} />
         <Text style={s.footerLabel}>Amount Chargeable (in words)</Text>
         <Text style={s.words}>{numberToWords(doc.totalAmount)}</Text>
         <View style={{ height: 10 }} />

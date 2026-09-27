@@ -39,6 +39,7 @@ const s = StyleSheet.create({
   boxTitle: { fontSize: 8, fontWeight: "bold" },
   boxLine: { fontSize: 8 },
   footerLabel: { fontSize: 9, fontStyle: "italic" },
+  disclaimer: { fontSize: 9, fontStyle: "italic", fontWeight: "bold" },
   words: { fontSize: 10, fontWeight: "bold" },
   tinRow: { flexDirection: "row" },
   tin: { fontSize: 10 },
@@ -115,9 +116,14 @@ export function WaybillDoc({
           totalQty={doc.totalQuantity}
           totalAmount={doc.totalAmount}
           totalLabel="Total"
+          hideTaxAmounts={true}
         />
 
-        <View style={{ height: 5 }} />
+        <View style={{ height: 6 }} />
+        <Text style={s.disclaimer}>
+          Total value of waybill is tax inclusive.
+        </Text>
+        <View style={{ height: 6 }} />
         <Text style={s.footerLabel}>Amount Chargeable (in words)</Text>
         <Text style={s.words}>{numberToWords(doc.totalAmount)}</Text>
         <View style={{ height: 10 }} />
