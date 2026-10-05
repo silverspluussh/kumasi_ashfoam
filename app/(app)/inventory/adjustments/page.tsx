@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { adjustStock } from "@/features/inventory/adjust";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useEmailGuard } from "@/lib/auth/email-guard";
 import { db } from "@/lib/db/dexie";
 import type {
   StockAdjustmentRow,
@@ -39,6 +40,7 @@ type Tab = "Manual" | "Waybill";
 export default function AdjustmentsPage() {
   const online = useOnline();
   const { displayName } = useAuth();
+  const { isAllowed } = useEmailGuard();
   const [tab, setTab] = useState<Tab>("Manual");
   const [products, setProducts] = useState<Synced<InventoryRow>[]>([]);
   const [waybills, setWaybills] = useState<Synced<WaybillRow>[]>([]);
@@ -97,6 +99,10 @@ export default function AdjustmentsPage() {
 
   const commitManual = async () => {
     if (!canCommit || !selected) return;
+    if (!isAllowed) {
+      setError("Stock adjustments are restricted to authorized email accounts");
+      return;
+    }
     setCommitting(true);
     setError(null);
     setOk(null);
@@ -130,6 +136,10 @@ export default function AdjustmentsPage() {
 
   const receiveWaybill = async () => {
     if (!waybillId || receiving) return;
+    if (!isAllowed) {
+      setError("Waybill stock receipts are restricted to authorized email accounts");
+      return;
+    }
     setReceiving(true);
     setError(null);
     setOk(null);
@@ -173,6 +183,12 @@ export default function AdjustmentsPage() {
           View Audit Logs
         </Button>
       </div>
+
+      {!isAllowed && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-2.5 text-xs font-medium text-amber-800">
+          Viewing in read-only mode: Stock adjustments and inbound waybill transfers can only be performed by authorized email accounts.
+        </div>
+      )}
 
       <div className="flex w-fit overflow-hidden border border-black/20">
         {(["Manual", "Waybill"] as Tab[]).map((t) => (
@@ -249,8 +265,13 @@ export default function AdjustmentsPage() {
             </div>
             <Button
               onClick={() => void commitManual()}
-              disabled={!canCommit}
-              className="bg-ashfoam-ink text-white hover:bg-ashfoam-ink/90"
+              disabled={!canCommit || !isAllowed}
+              title={
+                !isAllowed
+                  ? "Stock adjustments are restricted to authorized email accounts"
+                  : undefined
+              }
+              className="bg-ashfoam-ink text-white hover:bg-ashfoam-ink/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {committing ? "Committing…" : "Commit Adjustment"}
             </Button>
@@ -314,8 +335,13 @@ export default function AdjustmentsPage() {
             </div>
             <Button
               onClick={() => void receiveWaybill()}
-              disabled={!waybillId || manifest.length === 0 || receiving}
-              className="bg-ashfoam-ink text-white hover:bg-ashfoam-ink/90"
+              disabled={!waybillId || manifest.length === 0 || receiving || !isAllowed}
+              title={
+                !isAllowed
+                  ? "Waybill stock receipts are restricted to authorized email accounts"
+                  : undefined
+              }
+              className="bg-ashfoam-ink text-white hover:bg-ashfoam-ink/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {receiving ? "Receiving…" : "Confirm & Transfer to Local Stock"}
             </Button>

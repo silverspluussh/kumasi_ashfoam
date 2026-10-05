@@ -30,6 +30,8 @@ import {
   parseProducts,
 } from "@/lib/excel/excel";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useEmailGuard } from "@/lib/auth/email-guard";
+import { cn } from "@/lib/utils";
 import { db } from "@/lib/db/dexie";
 import type {
   CategoryRow,
@@ -58,6 +60,7 @@ function stockBadge(quantity: number) {
 export default function InventoryPage() {
   const online = useOnline();
   const { role } = useAuth();
+  const { isAllowed } = useEmailGuard();
   const manager = isManager(role);
   const [rows, setRows] = useState<Synced<InventoryRow>[]>([]);
   const [categories, setCategories] = useState<CategoryRow[]>([]);
@@ -211,6 +214,11 @@ export default function InventoryPage() {
       setDeleting(null);
       return;
     }
+    if (!isAllowed) {
+      setError("Product deletion is restricted to authorized email accounts");
+      setDeleting(null);
+      return;
+    }
     setBusy(true);
     try {
       await deleteProduct(online, deleting.id);
@@ -336,9 +344,19 @@ export default function InventoryPage() {
                     </button>
                     <button
                       type="button"
-                      title="Delete"
+                      title={
+                        !isAllowed
+                          ? "Only authorized emails can delete products"
+                          : "Delete"
+                      }
+                      disabled={!isAllowed}
                       onClick={() => setDeleting(row.original)}
-                      className="flex items-center gap-1 px-1.5 py-1 text-[12px] font-medium text-red-600 hover:text-red-800"
+                      className={cn(
+                        "flex items-center gap-1 px-1.5 py-1 text-[12px] font-medium",
+                        !isAllowed
+                          ? "cursor-not-allowed text-gray-400 opacity-60"
+                          : "text-red-600 hover:text-red-800",
+                      )}
                     >
                       <Trash2 className="h-4 w-4" />
                       Delete

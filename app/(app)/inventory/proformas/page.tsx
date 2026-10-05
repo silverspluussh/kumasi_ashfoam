@@ -4,7 +4,7 @@ import { useDataVersion } from "@/lib/db/data-bus";
 
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Eye, Pencil, Printer } from "lucide-react";
+import { Eye, Pencil, Printer, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/features/docs/proforma-dialog";
 import {
   addProforma,
+  deleteProforma,
   updateProforma,
 } from "@/features/docs/mutations";
 import { docTaxesFromJson } from "@/features/docs/totals";
@@ -39,6 +40,8 @@ import { formatDateTime, formatShortDate } from "@/lib/dates";
 import { isManager } from "@/lib/roles";
 import { ghs } from "@/lib/taxes";
 import { useOnline } from "@/lib/sync/connectivity";
+import { useEmailGuard } from "@/lib/auth/email-guard";
+import { cn } from "@/lib/utils";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
 
@@ -57,6 +60,7 @@ type DialogState =
 export default function ProformasPage() {
   const online = useOnline();
   const { role } = useAuth();
+  const { isAllowed } = useEmailGuard();
   const manager = isManager(role);
   const [rows, setRows] = useState<Synced<ProformaRow>[]>([]);
   const [products, setProducts] = useState<ProductOption[]>([]);
@@ -64,6 +68,7 @@ export default function ProformasPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(0);
   const [dialog, setDialog] = useState<DialogState>(null);
+  const [deleting, setDeleting] = useState<Synced<ProformaRow> | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -127,6 +132,10 @@ export default function ProformasPage() {
   );
 
   const openEdit = async (row: Synced<ProformaRow>) => {
+    if (!isAllowed) {
+      setError("Editing proformas is restricted to authorized email accounts");
+      return;
+    }
     setBusy(true);
     try {
       const items = await db.proformaItems
@@ -210,12 +219,35 @@ export default function ProformasPage() {
         if (manager) throw new Error("Managers can only view proformas");
         await addProforma(online, values);
       } else if (dialog?.kind === "edit") {
+        if (!isAllowed) {
+          throw new Error("Editing proformas is restricted to authorized email accounts");
+        }
         await updateProforma(online, dialog.id, values);
       }
       setDialog(null);
       void load();
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!deleting) return;
+    if (!isAllowed) {
+      setError("Deleting proformas is restricted to authorized email accounts");
+      setDeleting(null);
+      return;
+    }
+    setBusy(true);
+    try {
+      await deleteProforma(online, deleting.id);
+      setDeleting(null);
+      void load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setDeleting(null);
     } finally {
       setBusy(false);
     }
@@ -307,9 +339,19 @@ export default function ProformasPage() {
                 </button>
                 <button
                   type="button"
-                  title="Edit"
+                  title={
+                    !isAllowed
+                      ? "Only authorized emails can edit proformas"
+                      : "Edit"
+                  }
+                  disabled={!isAllowed}
                   onClick={() => void openEdit(row.original)}
-                  className="flex items-center gap-1 px-1.5 py-1 text-[12px] font-medium text-orange-600 hover:text-orange-800"
+                  className={cn(
+                    "flex items-center gap-1 px-1.5 py-1 text-[12px] font-medium",
+                    !isAllowed
+                      ? "cursor-not-allowed text-gray-400 opacity-60"
+                      : "text-orange-600 hover:text-orange-800",
+                  )}
                 >
                   <Pencil className="h-4 w-4" />
                   Edit
@@ -322,6 +364,25 @@ export default function ProformasPage() {
                 >
                   <Printer className="h-4 w-4" />
                   Print
+                </button>
+                <button
+                  type="button"
+                  title={
+                    !isAllowed
+                      ? "Only authorized emails can delete proformas"
+                      : "Delete"
+                  }
+                  disabled={!isAllowed}
+                  onClick={() => setDeleting(row.original)}
+                  className={cn(
+                    "flex items-center gap-1 px-1.5 py-1 text-[12px] font-medium",
+                    !isAllowed
+                      ? "cursor-not-allowed text-gray-400 opacity-60"
+                      : "text-red-600 hover:text-red-800",
+                  )}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete
                 </button>
               </div>
             ),
@@ -453,6 +514,30 @@ export default function ProformasPage() {
         }
         onClose={() => setPreview(null)}
       />
+
+      <Dialog open={!!deleting} onOpenChange={() => setDeleting(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Proforma Invoice</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm">
+            Are you sure you want to delete proforma for &quot;
+            {deleting?.party_name || "Walk-in Client"}&quot;?
+          </p>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setDeleting(null)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => void confirmDelete()}
+              disabled={busy || !isAllowed}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {busy ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

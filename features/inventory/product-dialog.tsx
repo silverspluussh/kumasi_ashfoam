@@ -12,6 +12,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CategoryRow, Synced, InventoryRow } from "@/lib/db/types";
 import { isManager, type AppRole } from "@/lib/roles";
+import { useEmailGuard } from "@/lib/auth/email-guard";
+import { cn } from "@/lib/utils";
 
 export type ProductDialogMode = "add" | "edit" | "view";
 
@@ -53,7 +55,9 @@ export function ProductDialog({
   onClose,
   onSubmit,
 }: ProductDialogProps) {
+  const { isAllowed } = useEmailGuard();
   const readOnly = mode === "view" || isManager(role);
+  const qtyReadOnly = readOnly || (mode === "edit" && !isAllowed);
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [unit, setUnit] = useState("Pieces");
@@ -91,13 +95,18 @@ export function ProductDialog({
     setTouched(true);
     if (!valid || readOnly) return;
     const cat = categories.find((c) => c.id === categoryId) ?? null;
+    const finalQuantity =
+      mode === "edit" && !isAllowed
+        ? (product?.quantity ?? 0)
+        : (parseInt(quantity, 10) || 0);
+
     onSubmit({
       name: name.trim(),
       category: cat?.name ?? null,
       categoryId: cat?.id ?? null,
       unit: unit.trim() || "Pieces",
       retailPrice: parseFloat(retailPrice) || 0,
-      quantity: parseInt(quantity, 10) || 0,
+      quantity: finalQuantity,
       material: material.trim() || null,
       size: size.trim() || null,
       thickness: thickness.trim() || null,
@@ -192,13 +201,23 @@ export function ProductDialog({
           {field(
             mode === "add" ? "Initial Quantity" : "Quantity",
             true,
-            <Input
-              className={inputCls}
-              type="number"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              {...ro}
-            />,
+            <div className="space-y-1">
+              <Input
+                className={cn(
+                  inputCls,
+                  qtyReadOnly && "bg-muted cursor-not-allowed opacity-80",
+                )}
+                type="number"
+                value={quantity}
+                disabled={qtyReadOnly}
+                onChange={(e) => setQuantity(e.target.value)}
+              />
+              {mode === "edit" && !isAllowed && (
+                <p className="text-[11px] text-muted-foreground">
+                  Quantity editing is restricted to authorized email accounts.
+                </p>
+              )}
+            </div>,
             qtyOk,
           )}
           {field(

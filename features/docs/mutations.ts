@@ -324,3 +324,66 @@ export async function updateWaybill(
       }),
   });
 }
+
+export async function deleteProforma(
+  online: boolean,
+  id: string,
+): Promise<void> {
+  const prev = await db.proformas.get(id);
+  if (!prev) return;
+
+  const now = new Date().toISOString();
+  const updatedParent = {
+    ...prev,
+    is_deleted: 1,
+    updated_at: now,
+  };
+
+  await saveRemoteFirst({
+    online,
+    remoteLabel: "proforma delete",
+    remote: async () => {
+      const c = createClient();
+      await bulkUploadProformas(c, [updatedParent]);
+    },
+    applyLocal: async (isClean) => {
+      await db.proformas.put({
+        ...updatedParent,
+        _isSynced: isClean ? 1 : 0,
+        _lastSyncedAt: isClean ? now : null,
+      });
+    },
+  });
+}
+
+export async function deleteWaybill(
+  online: boolean,
+  id: string,
+): Promise<void> {
+  const prev = await db.waybills.get(id);
+  if (!prev) return;
+
+  const now = new Date().toISOString();
+  const updatedParent = {
+    ...prev,
+    isDeleted: 1,
+    updatedAt: now,
+  };
+
+  await saveRemoteFirst({
+    online,
+    remoteLabel: "waybill delete",
+    remote: async () => {
+      const c = createClient();
+      await bulkUploadWaybills(c, [updatedParent]);
+    },
+    applyLocal: async (isClean) => {
+      await db.waybills.put({
+        ...updatedParent,
+        _isSynced: isClean ? 1 : 0,
+        _lastSyncedAt: isClean ? now : null,
+      });
+    },
+  });
+}
+
