@@ -7,6 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 import { Input } from "@/components/ui/input";
 import {
   PaymentDialog,
@@ -67,6 +69,12 @@ export default function PaymentsPage() {
         (r.branch_name ?? "").toLowerCase().includes(q),
     );
   }, [rows, query]);
+
+  // Export spans every search match; only the visible table is paginated.
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    query,
+  );
 
   const submit = async (values: PaymentFormValues) => {
     setBusy(true);
@@ -161,9 +169,11 @@ export default function PaymentsPage() {
             cell: ({ row }) => formatPaymentDate(row.original.created_at),
           },
         ]}
-        rows={filtered}
+        rows={pageRows}
         emptyHint="No branch payments yet — record a payment"
       />
+
+      <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
 
       {dialogOpen && (
         <PaymentDialog

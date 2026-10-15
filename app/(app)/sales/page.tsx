@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 import { ReceiptDialog } from "@/components/receipt-dialog";
 import { downloadSalesExport } from "@/lib/excel/excel";
 import type { ReceiptDocData } from "@/lib/print/receipt";
@@ -124,6 +126,12 @@ export default function SalesPage() {
       )
     : rows;
 
+  // Export spans every search match; only the visible table is paginated.
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    query,
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -213,9 +221,11 @@ export default function SalesPage() {
             ),
           },
         ]}
-        rows={filtered}
+        rows={pageRows}
         emptyHint="No orders yet — orders from POS will appear here."
       />
+
+      <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
 
       <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">

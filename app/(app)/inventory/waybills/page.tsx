@@ -45,8 +45,8 @@ import { useEmailGuard } from "@/lib/auth/email-guard";
 import { cn } from "@/lib/utils";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
-
-const PAGE_SIZE = 10;
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 
 type DialogState =
   | { kind: "create" }
@@ -68,7 +68,6 @@ export default function WaybillsPage() {
   const [proformas, setProformas] = useState<ProformaOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
-  const [page, setPage] = useState(0);
   const [dialog, setDialog] = useState<DialogState>(null);
   const [deleting, setDeleting] = useState<Synced<WaybillRow> | null>(null);
   const [busy, setBusy] = useState(false);
@@ -140,11 +139,9 @@ export default function WaybillsPage() {
     );
   }, [rows, query]);
 
-  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(page, pageCount - 1);
-  const pageRows = filtered.slice(
-    safePage * PAGE_SIZE,
-    safePage * PAGE_SIZE + PAGE_SIZE,
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    query,
   );
 
   const importProforma = async (id: string) => {
@@ -331,10 +328,7 @@ export default function WaybillsPage() {
           <Input
             placeholder="Search by Order # or Client..."
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(0);
-            }}
+            onChange={(e) => setQuery(e.target.value)}
             className="w-60"
           />
           <Button variant="outline" onClick={() => void load()}>
@@ -439,27 +433,7 @@ export default function WaybillsPage() {
         emptyHint="No waybills yet — generate a dispatch to track it."
       />
 
-      <div className="flex items-center justify-end gap-2 text-sm">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={safePage === 0}
-          onClick={() => setPage(safePage - 1)}
-        >
-          Prev
-        </Button>
-        <span>
-          Page {safePage + 1} of {pageCount}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={safePage >= pageCount - 1}
-          onClick={() => setPage(safePage + 1)}
-        >
-          Next
-        </Button>
-      </div>
+      <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
 
       {(dialog?.kind === "create" || dialog?.kind === "edit") && (
         <WaybillDialog

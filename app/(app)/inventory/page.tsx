@@ -8,6 +8,8 @@ import { Eye, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 import {
   Dialog,
   DialogContent,
@@ -119,6 +121,12 @@ export default function InventoryPage() {
         (r.category ?? "").toLowerCase().includes(q),
     );
   }, [rows, query]);
+
+  // Export spans every search match; only the visible table is paginated.
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    query,
+  );
 
   const submit = async (values: Parameters<typeof addProduct>[1]) => {
     setBusy(true);
@@ -367,9 +375,11 @@ export default function InventoryPage() {
             ),
           },
         ]}
-        rows={filtered}
+        rows={pageRows}
         emptyHint="No products yet — add one to get started."
       />
+
+      <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
 
       {dialog && (
         <ProductDialog

@@ -7,6 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Eye, Printer, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 import {
   Dialog,
   DialogContent,
@@ -131,6 +133,12 @@ export default function StockReportsPage() {
       return true;
     });
   }, [rows, startMonth, endMonth]);
+
+  // The month range is the only filter on this table.
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    `${startMonth}|${endMonth}`,
+  );
 
   const gProduct = products.find((p) => p.id === gProductId) ?? null;
 
@@ -337,9 +345,11 @@ export default function StockReportsPage() {
             ),
           },
         ]}
-        rows={filtered}
+        rows={pageRows}
         emptyHint="No reports yet — generate a stock movement report"
       />
+
+      <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
 
       <Dialog open={genOpen} onOpenChange={setGenOpen}>
         <DialogContent className="md:max-w-xl">

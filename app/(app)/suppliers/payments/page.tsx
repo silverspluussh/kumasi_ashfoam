@@ -3,10 +3,12 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { CloudOff, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 import {
   Dialog,
   DialogContent,
@@ -38,6 +40,7 @@ export default function SupplierPaymentsPage() {
   const [rows, setRows] = useState<SupplierPaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [query, setQuery] = useState("");
   const [recordOpen, setRecordOpen] = useState(false);
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState(toIsoDate());
@@ -72,6 +75,29 @@ export default function SupplierPaymentsPage() {
   const nameOf = (supplierId: string) =>
     suppliers.find((s) => s.id === supplierId)?.name ??
     supplierId.slice(0, 8).toUpperCase();
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const supplierNames = new Map(suppliers.map((s) => [s.id, s.name]));
+    return rows.filter((r) => {
+      // Supplier dropdown — "All suppliers" (empty id) means no restriction.
+      if (selectedSupplier && r.supplier_id !== selectedSupplier) return false;
+      if (!q) return true;
+      const name =
+        supplierNames.get(r.supplier_id) ??
+        r.supplier_id.slice(0, 8).toUpperCase();
+      return (
+        name.toLowerCase().includes(q) ||
+        String(r.amount ?? "").includes(q) ||
+        (r.note ?? "").toLowerCase().includes(q)
+      );
+    });
+  }, [rows, query, suppliers, selectedSupplier]);
+
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    `${selectedSupplier}|${query}`,
+  );
 
   const record = async () => {
     setBusy(true);
@@ -121,6 +147,7 @@ export default function SupplierPaymentsPage() {
         </div>
         <div className="flex items-center gap-2">
           <select
+            aria-label="Filter by supplier"
             value={selectedSupplier}
             onChange={(e) => setSelectedSupplier(e.target.value)}
             className="w-52 border border-black/20 bg-white px-2 py-2 text-sm"
@@ -148,6 +175,12 @@ export default function SupplierPaymentsPage() {
           <Button variant="outline" onClick={() => void load()}>
             Refresh
           </Button>
+          <Input
+            placeholder="Search supplier, amount or note..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="w-60"
+          />
         </div>
       </div>
 
@@ -206,9 +239,11 @@ export default function SupplierPaymentsPage() {
             ),
           },
         ]}
-        rows={rows}
+        rows={pageRows}
         emptyHint="No supplier payments for this filter — record one"
       />
+
+      <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
 
       <Dialog open={recordOpen} onOpenChange={setRecordOpen}>
         <DialogContent>
@@ -217,10 +252,14 @@ export default function SupplierPaymentsPage() {
           </DialogHeader>
           <div className="space-y-3">
             <div>
-              <Label className="pb-1 block text-[13px] font-medium">
+              <Label
+                htmlFor="record-payment-supplier"
+                className="pb-1 block text-[13px] font-medium"
+              >
                 Supplier *
               </Label>
               <select
+                id="record-payment-supplier"
                 value={dialogSupplier}
                 onChange={(e) => setDialogSupplier(e.target.value)}
                 className="w-full border border-black/20 bg-white px-2 py-2 text-sm"

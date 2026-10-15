@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DataTable } from "@/components/data-table";
+import { TablePagination } from "@/components/table-pagination";
+import { useTablePagination } from "@/hooks/use-table-pagination";
 import { Input } from "@/components/ui/input";
 import { formatPaymentDate } from "@/lib/dates";
 import { db } from "@/lib/db/dexie";
@@ -152,6 +154,14 @@ export default function ExpensesPage() {
       return matchSearch && matchCat && matchDate;
     });
   }, [rows, query, categoryFilter, periodFilter]);
+
+  // Export and the KPI cards below both span every match; only the visible
+  // table is paginated. All three filters feed the reset key so changing any
+  // of them lands back on page 1.
+  const { pageRows, page, pageCount, setPage } = useTablePagination(
+    filtered,
+    `${query}|${categoryFilter}|${periodFilter}`,
+  );
 
   // KPI Metrics Calculation
   const stats = useMemo(() => {
@@ -611,9 +621,11 @@ export default function ExpensesPage() {
               ),
             },
           ]}
-          rows={filtered}
+          rows={pageRows}
           emptyHint="No expenses found. Click 'Record Expense' to log one."
         />
+
+        <TablePagination page={page} pageCount={pageCount} onPage={setPage} />
       </div>
 
       {/* Add / Edit Expense Dialog */}
