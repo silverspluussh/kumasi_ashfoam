@@ -41,6 +41,7 @@ import type {
   InventoryRow,
 } from "@/lib/db/types";
 import { isManager } from "@/lib/roles";
+import { byQuantityDesc } from "@/lib/inventory";
 import { ghs } from "@/lib/taxes";
 import { useOnline } from "@/lib/sync/connectivity";
 import { remoteFirst } from "@/lib/sync/remote-first";
@@ -99,7 +100,7 @@ export default function InventoryPage() {
         db.categories.toArray(),
         db.brands.toArray(),
       ]);
-      setRows(items);
+      setRows(byQuantityDesc(items));
       setCategories(cats);
       setBrands(brs);
     } finally {

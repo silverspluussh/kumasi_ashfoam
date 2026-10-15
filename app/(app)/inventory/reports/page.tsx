@@ -41,6 +41,7 @@ import { useOnline } from "@/lib/sync/connectivity";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
+import { byQuantityDesc } from "@/lib/inventory";
 
 const MONTHS = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -110,7 +111,13 @@ export default function StockReportsPage() {
         db.inventory.filter((p) => (p.isDeleted ?? 0) === 0).toArray(),
       ]);
       setRows(reports);
-      setProducts(inv.map((p) => ({ id: p.id, name: p.name, sku: p.sku })));
+      setProducts(
+        byQuantityDesc(inv).map((p) => ({
+          id: p.id,
+          name: p.name,
+          sku: p.sku,
+        })),
+      );
     } finally {
       setLoading(false);
     }

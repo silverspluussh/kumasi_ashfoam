@@ -62,8 +62,9 @@ export default function SummaryPage() {
             remoteFirst.warmInventory(c),
             remoteFirst.warmSaleOrders(c),
             remoteFirst.warmBranchPayments(c),
-            remoteFirst.warmProformas(c),
-            remoteFirst.warmWaybills(c),
+            // Counts only — skip the per-document item sweeps.
+            remoteFirst.warmProformas(c, { items: false }),
+            remoteFirst.warmWaybills(c, { items: false }),
           ]);
         } catch {
           /* local stands */

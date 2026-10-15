@@ -24,6 +24,7 @@ import { useAuth } from "@/lib/auth/auth-context";
 import { db } from "@/lib/db/dexie";
 import type { Synced, InventoryRow } from "@/lib/db/types";
 import { ghs } from "@/lib/taxes";
+import { byQuantityDesc } from "@/lib/inventory";
 import { useOnline } from "@/lib/sync/connectivity";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
@@ -90,7 +91,7 @@ export default function PosPage() {
       const rows = await db.inventory
         .filter((p) => (p.isDeleted ?? 0) === 0)
         .toArray();
-      setProducts(rows);
+      setProducts(byQuantityDesc(rows));
     } finally {
       setLoadingProducts(false);
     }

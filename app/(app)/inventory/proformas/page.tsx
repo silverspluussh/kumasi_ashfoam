@@ -39,6 +39,7 @@ import type {
 import { formatDateTime, formatShortDate } from "@/lib/dates";
 import { isManager } from "@/lib/roles";
 import { ghs } from "@/lib/taxes";
+import { byQuantityDesc } from "@/lib/inventory";
 import { useOnline } from "@/lib/sync/connectivity";
 import { useEmailGuard } from "@/lib/auth/email-guard";
 import { cn } from "@/lib/utils";
@@ -84,23 +85,16 @@ export default function ProformasPage() {
   } | null>(null);
 
   const dataVersion = useDataVersion();
-  const load = useCallback(async () => {
+  /** Dexie only — local data is the source of truth, so it paints instantly. */
+  const read = useCallback(async () => {
     try {
-      if (online) {
-        try {
-          await remoteFirst.warmProformas(createClient());
-          await remoteFirst.warmInventory(createClient());
-        } catch {
-          /* local stands */
-        }
-      }
       const [docs, inv] = await Promise.all([
         db.proformas.orderBy("created_at").reverse().toArray(),
         db.inventory.filter((p) => (p.isDeleted ?? 0) === 0).toArray(),
       ]);
       setRows(docs.filter((d) => (d.is_deleted ?? 0) === 0));
       setProducts(
-        inv.map((p) => ({
+        byQuantityDesc(inv).map((p) => ({
           id: p.id,
           name: p.name,
           retailPrice: p.retailPrice ?? 0,
@@ -109,7 +103,19 @@ export default function ProformasPage() {
     } finally {
       setLoading(false);
     }
-  }, [online]);
+  }, []);
+
+  const load = useCallback(async () => {
+    await read();
+    if (!online) return;
+    try {
+      await remoteFirst.warmProformas(createClient());
+      await remoteFirst.warmInventory(createClient());
+      await read();
+    } catch {
+      /* local stands */
+    }
+  }, [online, read]);
 
   useEffect(() => {
     void load();

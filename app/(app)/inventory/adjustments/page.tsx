@@ -29,7 +29,9 @@ import { formatAuditDate, formatShortDate } from "@/lib/dates";
 import { useOnline } from "@/lib/sync/connectivity";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
+import { fetchWaybillItems } from "@/lib/supabase/queries/docs";
 import { cn } from "@/lib/utils";
+import { byQuantityDesc } from "@/lib/inventory";
 
 type Tab = "Manual" | "Waybill";
 
@@ -64,7 +66,7 @@ export default function AdjustmentsPage() {
         const c = createClient();
         await Promise.all([
           remoteFirst.warmInventory(c),
-          remoteFirst.warmWaybills(c),
+          remoteFirst.warmWaybills(c, { items: false }),
         ]);
       } catch {
         /* local stands */
@@ -74,7 +76,7 @@ export default function AdjustmentsPage() {
       db.inventory.filter((p) => (p.isDeleted ?? 0) === 0).toArray(),
       db.waybills.toArray(),
     ]);
-    setProducts(inv);
+    setProducts(byQuantityDesc(inv));
     setWaybills(way.filter((w) => (w.isDeleted ?? 0) === 0));
   }, [online]);
 
@@ -127,9 +129,26 @@ export default function AdjustmentsPage() {
 
   const selectWaybill = async (id: string) => {
     setWaybillId(id);
-    setManifest(
-      id ? await db.waybillItems.where("waybill_id").equals(id).toArray() : [],
-    );
+    if (!id) {
+      setManifest([]);
+      return;
+    }
+    // Item rows are only pre-fetched for recent documents; without a
+    // fallback an older waybill would receive zero stock.
+    const local = await db.waybillItems.where("waybill_id").equals(id).toArray();
+    if (local.length > 0) {
+      setManifest(local);
+      return;
+    }
+    if (!online) {
+      setManifest([]);
+      return;
+    }
+    try {
+      setManifest(await fetchWaybillItems(createClient(), id));
+    } catch {
+      setManifest([]);
+    }
   };
 
   const manifestTotal = manifest.reduce((a, i) => a + (i.quantity ?? 0), 0);

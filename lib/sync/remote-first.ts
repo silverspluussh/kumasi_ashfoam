@@ -79,10 +79,17 @@ export const remoteFirst = {
         );
       }
     }),
-  warmProformas: (c: SupabaseClient) =>
+  /**
+   * `items: false` skips the per-document item sweep (up to 50 sequential
+   * round trips). Use it wherever only parent fields are read — counts,
+   * dropdowns — since items are otherwise fetched one document at a time on
+   * demand (details dialog, print preview, proforma import).
+   */
+  warmProformas: (c: SupabaseClient, opts?: { items?: boolean }) =>
     tryWarm(async () => {
       const docs = await fetchProformas(c, { limit: 500 });
       await warm("proformas", docs);
+      if (opts?.items === false) return;
       for (const d of docs.slice(0, 50)) {
         await tryWarm(async () =>
           warm(
@@ -92,10 +99,11 @@ export const remoteFirst = {
         );
       }
     }),
-  warmWaybills: (c: SupabaseClient) =>
+  warmWaybills: (c: SupabaseClient, opts?: { items?: boolean }) =>
     tryWarm(async () => {
       const docs = await fetchWaybills(c, { limit: 500 });
       await warm("waybills", docs);
+      if (opts?.items === false) return;
       for (const d of docs.slice(0, 50)) {
         await tryWarm(async () =>
           warm(

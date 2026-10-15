@@ -40,11 +40,13 @@ import type {
 import { formatFullDate, toIsoDate } from "@/lib/dates";
 import { isManager } from "@/lib/roles";
 import { ghs } from "@/lib/taxes";
+import { byQuantityDesc } from "@/lib/inventory";
 import { useOnline } from "@/lib/sync/connectivity";
 import { useEmailGuard } from "@/lib/auth/email-guard";
 import { cn } from "@/lib/utils";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
+import { fetchProformaItems } from "@/lib/supabase/queries/docs";
 import { TablePagination } from "@/components/table-pagination";
 import { useTablePagination } from "@/hooks/use-table-pagination";
 
@@ -86,17 +88,9 @@ export default function WaybillsPage() {
   } | null>(null);
 
   const dataVersion = useDataVersion();
-  const load = useCallback(async () => {
+  /** Dexie only — local data is the source of truth, so it paints instantly. */
+  const read = useCallback(async () => {
     try {
-      if (online) {
-        try {
-          await remoteFirst.warmWaybills(createClient());
-          await remoteFirst.warmInventory(createClient());
-          await remoteFirst.warmProformas(createClient());
-        } catch {
-          /* local stands */
-        }
-      }
       const [docs, inv, profs] = await Promise.all([
         db.waybills.orderBy("createdAt").reverse().toArray(),
         db.inventory.filter((p) => (p.isDeleted ?? 0) === 0).toArray(),
@@ -104,7 +98,7 @@ export default function WaybillsPage() {
       ]);
       setRows(docs.filter((d) => (d.isDeleted ?? 0) === 0));
       setProducts(
-        inv.map((p) => ({
+        byQuantityDesc(inv).map((p) => ({
           id: p.id,
           name: p.name,
           retailPrice: p.retailPrice ?? 0,
@@ -122,7 +116,22 @@ export default function WaybillsPage() {
     } finally {
       setLoading(false);
     }
-  }, [online]);
+  }, []);
+
+  const load = useCallback(async () => {
+    await read();
+    if (!online) return;
+    try {
+      await remoteFirst.warmWaybills(createClient());
+      await remoteFirst.warmInventory(createClient());
+      // The import-source picker reads proforma parents only; its items are
+      // fetched on demand when a proforma is actually imported.
+      await remoteFirst.warmProformas(createClient(), { items: false });
+      await read();
+    } catch {
+      /* local stands */
+    }
+  }, [online, read]);
 
   useEffect(() => {
     void load();
@@ -147,10 +156,19 @@ export default function WaybillsPage() {
   const importProforma = async (id: string) => {
     const prof = await db.proformas.get(id);
     if (!prof) return null;
-    const items = await db.proformaItems
+    // Item rows are only pre-fetched for recent documents, so fall back to a
+    // direct fetch rather than importing a waybill with no line items.
+    let items = await db.proformaItems
       .where("proforma_id")
       .equals(id)
       .toArray();
+    if (items.length === 0 && online) {
+      try {
+        items = await fetchProformaItems(createClient(), id);
+      } catch {
+        /* keep empty — the dialog opens with no lines */
+      }
+    }
     return {
       partyName: prof.party_name ?? "",
       destination: prof.party_address ?? "",

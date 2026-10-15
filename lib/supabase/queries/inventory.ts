@@ -9,8 +9,6 @@ export const fetchInventory = (
 ) =>
   fetchRows<InventoryRow>(c, "ashfoam_inventory", {
     searchColumn: "name",
-    orderBy: "createdAt",
-    ascending: false,
     updatedAtColumn: "updatedAt",
     ...o,
   });
