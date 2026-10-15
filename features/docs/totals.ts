@@ -1,9 +1,16 @@
 /**
  * Shared math + constants for proforma/waybill documents.
- * Proforma: inclusive-tax assumption (base = subtotal/(1+pct), display only,
- * grand = subtotal). Waybill: additive display (tax = subtotal*pct/100,
- * grand = subtotal). Line total (both) = qty*price*(1-disc/100).
+ *
+ * Both documents are tax-INCLUSIVE and behave identically: the taxes are
+ * extracted from the line totals rather than added on top, so the grand
+ * total always equals the subtotal and the tax rows are display-only.
+ * Base = subtotal/(1+totalPct), tax amount = base*pct/100.
+ * Line total (both) = qty*price*(1-disc/100).
+ *
+ * Every amount emitted here is truncated to 2 decimal places, so the stored
+ * value, the on-screen value and the printed value are all identical.
  */
+import { truncate2 } from "@/lib/money";
 export interface DocTax {
   id: string;
   name: string;
@@ -33,7 +40,7 @@ export function lineTotal(
   price: number,
   discPct: number,
 ): number {
-  return qty * price * (1 - discPct / 100);
+  return truncate2(qty * price * (1 - discPct / 100));
 }
 
 export interface DocTotals {
@@ -49,14 +56,15 @@ export function computeTotals(
   items: Pick<DocItem, "quantity" | "total">[],
   taxes: DocTax[],
 ): DocTotals {
-  const subtotal = items.reduce((a, i) => a + i.total, 0);
+  const subtotal = truncate2(items.reduce((a, i) => a + i.total, 0));
   const totalQty = items.reduce((a, i) => a + i.quantity, 0);
   const totalPct = taxes.reduce((a, t) => a + t.valuePercentage, 0);
-  const base = totalPct > 0 ? subtotal / (1 + totalPct / 100) : subtotal;
+  const rawBase = totalPct > 0 ? subtotal / (1 + totalPct / 100) : subtotal;
+  const base = truncate2(rawBase);
   const taxRows = taxes.map((t) => ({
     name: t.name,
     percentage: t.valuePercentage,
-    amount: (base * t.valuePercentage) / 100,
+    amount: truncate2((rawBase * t.valuePercentage) / 100),
   }));
   return { subtotal, totalQty, totalPct, base, taxRows, grandTotal: subtotal };
 }
@@ -70,7 +78,7 @@ export function taxesWithAmounts(
   const base = totalPct > 0 ? subtotal / (1 + totalPct / 100) : subtotal;
   return taxes.map((t) => ({
     ...t,
-    taxAmount: (base * t.valuePercentage) / 100,
+    taxAmount: truncate2((base * t.valuePercentage) / 100),
   }));
 }
 

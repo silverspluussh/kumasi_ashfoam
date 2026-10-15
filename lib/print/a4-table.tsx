@@ -67,8 +67,8 @@ function SpacerCell({
 
 /**
  * Shared A4 items table (proforma + waybill are identical after the
- * quirk fixes): fixed column widths, 0.5pt borders, ceiled amounts,
- * tax rows with pct in Disc.% + amount in Amount, spacer rows.
+ * quirk fixes): fixed column widths, 0.5pt borders, amounts truncated
+ * to 2dp, tax rows with pct in Disc.% + amount in Amount, spacer rows.
  */
 export function A4ItemsTable({
   items,

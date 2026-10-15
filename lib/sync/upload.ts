@@ -408,17 +408,27 @@ async function drainAllUnsynced(opts?: {
   });
   tick("stockReports");
 
-  // 15-16. brands + categories push-all (no sync flag — idempotent)
-  await withRetry("brands", errors, async () => {
+// 15-16. brands + categories push-all (no sync flag — idempotent).
+// They still carry a local _isSynced marker so reconcile can tell an
+// offline-created brand from one deleted remotely; clear it once pushed.
+await withRetry("brands", errors, async () => {
     const rows = (await db.table("brands").toArray()) as Row[];
     if (rows.length === 0) return;
     await bulkUploadBrands(supabase, prep(rows));
+    await markCleanIds(
+      "brands",
+      rows.map((r) => r.id),
+    );
   });
   tick("brands");
   await withRetry("categories", errors, async () => {
     const rows = (await db.table("categories").toArray()) as Row[];
     if (rows.length === 0) return;
     await bulkUploadCategories(supabase, prep(rows));
+    await markCleanIds(
+      "categories",
+      rows.map((r) => r.id),
+    );
   });
   tick("categories");
   opts?.onProgress?.({ currentStep: null, done: steps.length, total: steps.length });

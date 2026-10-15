@@ -1,11 +1,9 @@
 /**
- * Print-only number/date formats. These mirror the Flutter print services
- * exactly — do NOT use the app GH₵ formatters here:
- * - A4 cells: ceil() to integer, no decimals, no symbol (_formatAmount)
- * - Grand total: 'GHC {int}'
- * - Receipt: GH¢ with 2dp
- * - Dates: 'dd-MMM-yy' (e.g. 13-Sep-26)
+ * Print-only number/date formats. Amounts are truncated to 2 decimal
+ * places — the pesewas remainder is dropped, never rounded up or down.
+ * Dates use 'dd-MMM-yy' (e.g. 13-Sep-26); times use 24h 'HH:mm'.
  */
+import { truncate2 } from "@/lib/money";
 import { ghs } from "@/lib/taxes";
 
 const MONTHS_SHORT = [
@@ -14,12 +12,12 @@ const MONTHS_SHORT = [
 ];
 const pad = (n: number) => String(n).padStart(2, "0");
 
-/** Flutter _formatAmount: ceil, no decimals, no symbol. */
+/** A4 amounts: 2dp truncated, no symbol. */
 export function printAmount(amount: number): string {
-  return String(Math.ceil(amount ?? 0));
+  return truncate2(amount ?? 0).toFixed(2);
 }
 
-/** Flutter NumberFormat.currency(symbol: 'GH¢') with 2dp. */
+/** Receipt amounts: GH¢ with 2dp. */
 export function receiptAmount(amount: number): string {
   return ghs.format(amount ?? 0);
 }

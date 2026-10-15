@@ -13,7 +13,10 @@ import {
  * Brand/category mutations. Ported from management_providers.dart:
  * id ensured uuid upfront; online → upsert (abort local on error);
  * offline → local-only (UploadSyncService re-upserts all idempotently).
- * No isSynced column on these tables.
+ * No isSynced column on these tables — the remote push is push-all and
+ * flagless. The local `_isSynced` flag is bookkeeping only: it marks an
+ * offline create as not-yet-pushed so lib/sync/reconcile never mistakes a
+ * brand that exists only on this device for one deleted remotely.
  */
 export async function addBrand(online: boolean, name: string): Promise<void> {
   const trimmed = name.trim();
@@ -26,7 +29,12 @@ export async function addBrand(online: boolean, name: string): Promise<void> {
     remote: async () => {
       await bulkUploadBrands(createClient(), [row]);
     },
-    applyLocal: async () => db.brands.put(row),
+    applyLocal: async (isClean) =>
+      db.brands.put({
+        ...row,
+        _isSynced: isClean ? 1 : 0,
+        _lastSyncedAt: isClean ? now : null,
+      }),
   });
 }
 
@@ -75,7 +83,12 @@ export async function addCategory(
     remote: async () => {
       await bulkUploadCategories(createClient(), [row]);
     },
-    applyLocal: async () => db.categories.put(row),
+    applyLocal: async (isClean) =>
+      db.categories.put({
+        ...row,
+        _isSynced: isClean ? 1 : 0,
+        _lastSyncedAt: isClean ? now : null,
+      }),
   });
 }
 

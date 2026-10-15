@@ -8,6 +8,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 export interface FetchOpts {
   search?: string;
   searchColumn?: string;
+  /** Narrow the projection — defaults to "*". */
+  columns?: string;
   limit?: number;
   offset?: number;
   orderBy?: string;
@@ -23,7 +25,7 @@ export async function fetchRows<T>(
   table: string,
   opts: FetchOpts = {},
 ): Promise<T[]> {
-  let q = client.from(table).select("*");
+  let q = client.from(table).select(opts.columns ?? "*");
   if (opts.updatedSince) {
     q = q.gte(opts.updatedAtColumn ?? "updated_at", opts.updatedSince);
   }
@@ -80,6 +82,59 @@ export async function deleteRemote(
     .eq("id", id)
     .abortSignal(AbortSignal.timeout(8000));
   if (error) throw new Error(`Remote ${table} delete failed: ${error.message}`);
+}
+
+const ID_PAGE_SIZE = 500;
+
+/**
+ * Every `id` in a table, paged to exhaustion — the input to pull-side
+ * reconciliation (lib/sync/reconcile). Only the requested columns come back,
+ * so this stays cheap even on large tables.
+ *
+ * Two things make this safe to delete against:
+ * - ordering by the unique primary key gives a total order, so pages can
+ *   never overlap or skip a row that shifts between requests;
+ * - the row count is cross-checked against an exact COUNT before returning.
+ *   A server-side `max-rows` cap, a mid-flight insert or a silently
+ *   truncated page therefore THROWS rather than looking like a deletion.
+ *
+ * Throwing is meaningful: callers treat it as "skip this table, delete
+ * nothing" — the failure mode is a stale row, never lost data.
+ */
+export async function fetchAllIds(
+  client: SupabaseClient,
+  table: string,
+  opts: { columns?: string } = {},
+): Promise<Record<string, unknown>[]> {
+  const { count, error: countError } = await client
+    .from(table)
+    .select("id", { count: "exact", head: true })
+    .abortSignal(AbortSignal.timeout(8000));
+  if (countError)
+    throw new Error(`Remote ${table} count failed: ${countError.message}`);
+
+  const out: Record<string, unknown>[] = [];
+  for (let offset = 0; ; offset += ID_PAGE_SIZE) {
+    const { data, error } = await client
+      .from(table)
+      .select(opts.columns ?? "id")
+      .order("id", { ascending: true })
+      .range(offset, offset + ID_PAGE_SIZE - 1)
+      .abortSignal(AbortSignal.timeout(8000));
+    if (error)
+      throw new Error(`Remote ${table} id sweep failed: ${error.message}`);
+    const rows = (data ?? []) as unknown as Record<string, unknown>[];
+    out.push(...rows);
+    if (rows.length < ID_PAGE_SIZE) break;
+    if (offset > 200_000) break; // hard safety stop
+  }
+
+  if (count != null && out.length !== count) {
+    throw new Error(
+      `Remote ${table} id sweep incomplete: fetched ${out.length} of ${count}`,
+    );
+  }
+  return out;
 }
 
 export { withTimeout };

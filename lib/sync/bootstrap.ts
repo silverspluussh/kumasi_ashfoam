@@ -5,6 +5,7 @@ import { markClean } from "@/lib/db/mappers";
 import { seedLocalConstants } from "@/lib/db/seed";
 import { createClient } from "@/lib/supabase/browser";
 import { withDataBusSuppressed } from "@/lib/db/data-bus";
+import { reconcileAll } from "@/lib/sync/reconcile";
 import { fetchBranches, fetchStores } from "@/lib/supabase/queries/org";
 import {
   fetchBrands,
@@ -17,13 +18,21 @@ import { syncInventoryPull } from "@/lib/supabase/queries/inventory";
  * Bootstrap pull (down). Ported from BootstrapSyncService:
  * masters + branches only; incremental via pull_cursor_inventory with
  * gte updated_at; dirty locals (_isSynced==0) always win and are skipped.
- * 60s overall timeout; never throws (returns null on failure).
+ * 180s overall timeout; never throws (returns null on failure).
  * P5-resilience: every pull is PAGINATED (no silent cap), and the
  * incremental cursor is derived from the SERVER's max updatedAt (not the
  * client clock, which can skew and skip rows).
+ *
+ * FULL pulls additionally reconcile (lib/sync/reconcile): local rows absent
+ * from the remote are deleted. Incremental pulls deliberately do NOT — their
+ * row set is a subset by design, so "delete what isn't here" would wipe the
+ * catalogue every 2 minutes.
  */
 
 const PAGE_SIZE = 500;
+
+/** Full-pull budget: the reconcile pass adds 13 exhaustive id sweeps. */
+const BOOTSTRAP_TIMEOUT_MS = 180_000;
 
 /** Loop fetch until a short page — no silent data loss beyond one limit. */
 async function fetchAllPaged<T>(
@@ -100,6 +109,24 @@ export async function runBootstrap(opts?: {
       ),
     );
     if (!timedOut) {
+      // Full pull only. Best-effort: a reconcile failure must not fail the
+      // bootstrap or block the cursor — the data is already applied, and a
+      // skipped table only means a stale row, never lost data.
+      if (full) {
+        try {
+          const { deleted, skipped } = await reconcileAll(supabase);
+          for (const s of skipped) {
+            console.warn(
+              `[sync] reconcile skipped "${s.store}": ${s.reason}`,
+            );
+          }
+          if (Object.keys(deleted).length > 0) {
+            console.log("[sync] reconcile removed", deleted);
+          }
+        } catch (e) {
+          console.warn("[sync] reconcile failed:", e);
+        }
+      }
       // Server-derived cursor: max updatedAt among pulled inventory rows
       // (fallback: keep the previous cursor; never trust the client clock).
       const maxUpdated = inventory.reduce<string | null>((acc, r) => {
@@ -120,7 +147,7 @@ export async function runBootstrap(opts?: {
         setTimeout(() => {
           timedOut = true;
           resolve(false);
-        }, 60000),
+        }, BOOTSTRAP_TIMEOUT_MS),
       ),
     ]);
   } catch {

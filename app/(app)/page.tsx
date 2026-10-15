@@ -76,11 +76,14 @@ export default function SummaryPage() {
         db.proformas.toArray(),
         db.waybills.toArray(),
       ]);
-      setInventory(inv);
+      // Soft-deletes are purged by lib/sync/reconcile, but these counts are
+      // load-bearing (dashboard tiles + sales trend) — filter defensively so
+      // a not-yet-reconciled row can never inflate them.
+      setInventory(inv.filter((p) => (p.isDeleted ?? 0) === 0));
       setSales(ord);
       setPayments(pay);
-      setProformas(prof);
-      setWaybills(way);
+      setProformas(prof.filter((d) => (d.is_deleted ?? 0) === 0));
+      setWaybills(way.filter((d) => (d.isDeleted ?? 0) === 0));
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
