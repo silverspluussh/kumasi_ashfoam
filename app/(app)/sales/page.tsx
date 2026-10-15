@@ -3,7 +3,7 @@
 import { useDataVersion } from "@/lib/db/data-bus";
 
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
@@ -30,6 +30,7 @@ import { ghs } from "@/lib/taxes";
 import { useOnline } from "@/lib/sync/connectivity";
 import { remoteFirst } from "@/lib/sync/remote-first";
 import { createClient } from "@/lib/supabase/browser";
+import { fetchSaleOrderItems } from "@/lib/supabase/queries/sales";
 
 /**
  * POS Sale Orders — ported from sale_orders_page.dart.
@@ -47,36 +48,55 @@ export default function SalesPage() {
   const [receipt, setReceipt] = useState<ReceiptDocData | null>(null);
 
   const dataVersion = useDataVersion();
-  const load = async () => {
+  /** Dexie only — local data is the source of truth, so it paints instantly. */
+  const read = useCallback(async () => {
     try {
-      if (online) {
-        try {
-          await remoteFirst.warmSaleOrders(createClient());
-        } catch {
-          /* local stands */
-        }
-      }
-      const all = await db.saleOrders.orderBy("createdAt").reverse().toArray();
-      setRows(all);
+      setRows(await db.saleOrders.orderBy("createdAt").reverse().toArray());
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const load = useCallback(async () => {
+    await read();
+    if (!online) return;
+    try {
+      // Items are read one order at a time (details, print) and fetched on
+      // demand there, so the 50-document item sweep is not needed here.
+      await remoteFirst.warmSaleOrders(createClient(), { items: false });
+      await read();
+    } catch {
+      /* local stands */
+    }
+  }, [online, read]);
 
   useEffect(() => {
     void load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [online, dataVersion]);
+  }, [load, dataVersion]);
+
+  /**
+   * Item rows are only pre-fetched for recent orders, so fall back to a
+   * direct fetch. printRow builds a receipt from these — an empty list would
+   * print a receipt with no line items.
+   */
+  const itemsFor = async (order: Synced<SaleOrderRow>) => {
+    const local = await db.saleOrderItems
+      .where("saleOrderId")
+      .equals(order.id)
+      .toArray();
+    if (local.length > 0 || !online) return local;
+    try {
+      return await fetchSaleOrderItems(createClient(), order.id);
+    } catch {
+      return local;
+    }
+  };
 
   const openDetails = async (order: Synced<SaleOrderRow>) => {
     setSelected(order);
     setLoadingItems(true);
     try {
-      const list = await db.saleOrderItems
-        .where("saleOrderId")
-        .equals(order.id)
-        .toArray();
-      setItems(list);
+      setItems(await itemsFor(order));
     } finally {
       setLoadingItems(false);
     }
@@ -109,11 +129,7 @@ export default function SalesPage() {
 
   /** Direct Print action on the table row (mirrors Flutter's Print button). */
   const printRow = async (order: Synced<SaleOrderRow>) => {
-    const orderItems = await db.saleOrderItems
-      .where("saleOrderId")
-      .equals(order.id)
-      .toArray();
-    setReceipt(receiptFrom(order, orderItems));
+    setReceipt(receiptFrom(order, await itemsFor(order)));
   };
 
   const q = query.trim().toLowerCase();

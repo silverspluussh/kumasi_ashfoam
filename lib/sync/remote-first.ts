@@ -11,8 +11,6 @@ import {
 } from "@/lib/supabase/queries/catalog";
 import { fetchInventory } from "@/lib/supabase/queries/inventory";
 import {
-  fetchInvoiceItems,
-  fetchInvoices,
   fetchSaleOrderItems,
   fetchSaleOrders,
 } from "@/lib/supabase/queries/sales";
@@ -66,10 +64,11 @@ async function tryWarm(fn: () => Promise<void>) {
 export const remoteFirst = {
   warmInventory: (c: SupabaseClient) =>
     tryWarm(async () => warm("inventory", await fetchInventory(c, { limit: 2000 }))),
-  warmSaleOrders: (c: SupabaseClient) =>
+  warmSaleOrders: (c: SupabaseClient, opts?: { items?: boolean }) =>
     tryWarm(async () => {
       const orders = await fetchSaleOrders(c, { limit: 500 });
       await warm("saleOrders", orders);
+      if (opts?.items === false) return;
       for (const o of orders.slice(0, 50)) {
         await tryWarm(async () =>
           warm(
@@ -117,16 +116,6 @@ export const remoteFirst = {
     tryWarm(async () => warm("branchPayments", await fetchBranchPayments(c, { limit: 500 }))),
   warmExpenses: (c: SupabaseClient) =>
     tryWarm(async () => warm("expenses", await fetchExpenses(c, { limit: 1000 }))),
-  warmInvoices: (c: SupabaseClient) =>
-    tryWarm(async () => {
-      const invs = await fetchInvoices(c, { limit: 500 });
-      await warm("invoices", invs);
-      for (const i of invs.slice(0, 50)) {
-        await tryWarm(async () =>
-          warm("invoiceItems", await fetchInvoiceItems(c, (i as { id: string }).id)),
-        );
-      }
-    }),
   warmBrands: (c: SupabaseClient) =>
     tryWarm(async () => warm("brands", await fetchBrands(c, { limit: 1000 }))),
   warmCategories: (c: SupabaseClient) =>

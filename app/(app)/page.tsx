@@ -53,23 +53,9 @@ export default function SummaryPage() {
   const [timeframe, setTimeframe] = useState<TrendTimeframe>("daily");
 
   const dataVersion = useDataVersion();
-  const load = useCallback(async () => {
+  /** Dexie only — local data is the source of truth, so tiles paint instantly. */
+  const read = useCallback(async () => {
     try {
-      if (online) {
-        try {
-          const c = createClient();
-          await Promise.all([
-            remoteFirst.warmInventory(c),
-            remoteFirst.warmSaleOrders(c),
-            remoteFirst.warmBranchPayments(c),
-            // Counts only — skip the per-document item sweeps.
-            remoteFirst.warmProformas(c, { items: false }),
-            remoteFirst.warmWaybills(c, { items: false }),
-          ]);
-        } catch {
-          /* local stands */
-        }
-      }
       const [inv, ord, pay, prof, way] = await Promise.all([
         db.inventory.toArray(),
         db.saleOrders.toArray(),
@@ -91,7 +77,26 @@ export default function SummaryPage() {
     } finally {
       setLoading(false);
     }
-  }, [online]);
+  }, []);
+
+  const load = useCallback(async () => {
+    await read();
+    if (!online) return;
+    try {
+      const c = createClient();
+      await Promise.all([
+        remoteFirst.warmInventory(c),
+        // Counts only — this page never reads item rows.
+        remoteFirst.warmSaleOrders(c, { items: false }),
+        remoteFirst.warmBranchPayments(c),
+        remoteFirst.warmProformas(c, { items: false }),
+        remoteFirst.warmWaybills(c, { items: false }),
+      ]);
+      await read();
+    } catch {
+      /* local stands */
+    }
+  }, [online, read]);
 
   useEffect(() => {
     void load();
